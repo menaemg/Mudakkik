@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class upgrade_request extends Model
+class UpgradeRequest extends Model
 {
 use HasFactory;
     protected $fillable = ['user_id', 'documents', 'admin_notes', 'status'];

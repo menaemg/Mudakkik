@@ -21,6 +21,7 @@ return new class extends Migration
             $table->integer('credibility_score')->default(0);
             $table->boolean('is_verified_journalist')->default(false);
             $table->text('bio')->nullable();
+            $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

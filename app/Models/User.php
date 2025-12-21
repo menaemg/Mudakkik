@@ -39,7 +39,7 @@ class User extends Authenticatable
     }
     public function upgradeRequests()
     {
-        return $this->hasMany(upgrade_request::class);
+        return $this->hasMany(UpgradeRequest::class);
     }
     public function subscriptions()
     {
