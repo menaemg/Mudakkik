@@ -2,6 +2,7 @@ import { dashboard, login, register } from '@/routes';
 import { type SharedData } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
 
+
 export default function Welcome({
     canRegister = true,
 }: {
@@ -803,6 +804,8 @@ export default function Welcome({
                 </div>
                 <div className="hidden h-14.5 lg:block"></div>
             </div>
+        
+    
         </>
     );
 }
