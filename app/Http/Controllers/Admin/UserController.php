@@ -27,9 +27,10 @@ class UserController extends Controller
     }
     public function destroy(User $user)
     {
+        $name = $user->name;
         $user->delete();
 
-        return back();
+        return back()->with('success', "تم حذف حساب {$name} بنجاح.");
     }
 
     public function store(StoreUserRequest $request)
@@ -51,20 +52,20 @@ class UserController extends Controller
 
         return redirect()->back()->with('success', "تم إنشاء حساب {$user->name} بنجاح.");
     }
-public function update(StoreUserRequest $request, User $user)
-{
-    $validated = $request->validated();
+    public function update(StoreUserRequest $request, User $user)
+    {
+        $validated = $request->validated();
 
-    $user->update([
-        'name' => $validated['name'],
-        'email' => $validated['email'],
-        'username' => $validated['username'],
-        'role' => $validated['role'],
-        'bio' => $validated['bio'] ?? null,
-        'credibility_score' => $validated['role'] === 'صحفى' ? ($validated['credibility_score'] ?? 0) : 0,
-        'is_verified_journalist' => ($validated['role'] === 'صحفى' && $request->boolean('is_verified_journalist')),
-    ]);
+        $user->update([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'username' => $validated['username'],
+            'role' => $validated['role'],
+            'bio' => $validated['bio'] ?? null,
+            'credibility_score' => $validated['role'] === 'صحفى' ? ($validated['credibility_score'] ?? 0) : 0,
+            'is_verified_journalist' => ($validated['role'] === 'صحفى' && $request->boolean('is_verified_journalist')),
+        ]);
 
-    return redirect()->back()->with('success', "تم تحديث بيانات {$user->name} بنجاح");
-}
+        return redirect()->back()->with('success', "تم تحديث بيانات {$user->name} بنجاح");
+    }
 }

@@ -26,8 +26,6 @@ class User extends Authenticatable
         'credibility_score',
         'is_verified_journalist',
         'bio',
-        'credibility_score' ,
-        'is_verified_journalist',
     ];
 
     /**
