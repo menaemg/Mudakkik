@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\Admin\UserController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -18,12 +19,10 @@ Route::get('/', function () {
 Route::prefix('admin')->group(function () {
 
     Route::get('/dashboard', function () {
-        return Inertia::render('Admin/Dashboard'); 
-    })->name('admin.dashboard');
+        return Inertia::render('Admin/Dashboard');
+    })->name('dashboard');
 
-    Route::get('/users', function () {
-        return Inertia::render('Admin/Users');
-    })->name('admin.users');
+Route::resource('users', UserController::class);
 });
 
 Route::middleware('auth')->group(function () {

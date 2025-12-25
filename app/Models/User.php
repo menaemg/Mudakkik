@@ -22,7 +22,12 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
-         'username'
+        'username',
+        'credibility_score',
+        'is_verified_journalist',
+        'bio',
+        'credibility_score' ,
+        'is_verified_journalist',
     ];
 
     /**
@@ -46,5 +51,36 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+    public function posts()
+    {
+        return $this->hasMany(Post::class);
+    }
+
+    public function followers()
+    {
+        return $this->hasMany(Follow::class, 'followed_user_id');
+    }
+    public function following()
+    {
+        return $this->hasMany(Follow::class, 'following_user_id');
+    }
+    public function likes()
+    {
+        return $this->hasMany(Like::class);
+    }
+    public function scopeFilter($query, $filter)
+    {
+        if ($filter->filled('search')) {
+            $search = $filter->get('search');
+
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('role', 'like', "%{$search}%");
+            });
+        }
+
+        return $query;
     }
 }
