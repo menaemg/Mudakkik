@@ -14,10 +14,7 @@ export default {
     theme: {
     	extend: {
     		fontFamily: {
-    			sans: [
-    				'Figtree',
-                    ...defaultTheme.fontFamily.sans
-                ]
+    			sans: ['"IBM Plex Sans Arabic"', 'sans-serif'],
     		},
     		borderRadius: {
     			lg: 'var(--radius)',
@@ -25,6 +22,7 @@ export default {
     			sm: 'calc(var(--radius) - 4px)'
     		},
     		colors: {
+				adminBlue:'#001246',
     			background: 'hsl(var(--background))',
     			foreground: 'hsl(var(--foreground))',
     			card: {

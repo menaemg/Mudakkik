@@ -64,5 +64,8 @@
   }
   body {
     @apply bg-background text-foreground;
-  }
+    
+    font-family: 'IBM Plex Sans Arabic', sans-serif;
+    font-feature-settings: "cv11", "ss01"; 
+}
 }
