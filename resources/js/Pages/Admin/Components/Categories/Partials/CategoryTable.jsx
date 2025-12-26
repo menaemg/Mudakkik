@@ -14,7 +14,7 @@ export default function CategoryTable({ categories ,onDelete}) {
                             الرابط المختصر
                         </th>
                         <th className="px-10 py-7 font-black text-sm uppercase">
-                             ناريخ الانشاء
+                       تاريخ الإنشاء
                         </th>
                         <th className="px-10 py-7 font-black text-sm text-center">
                             الإجراءات

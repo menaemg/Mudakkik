@@ -25,6 +25,14 @@ export default function Index({ categories, filters = {} }) {
                 customClass: { popup: "rounded-[2rem] font-sans" },
             });
         }
+        if (flash?.error) {
+            Swal.fire({
+                icon: "error",
+                title: "عذراً!",
+                text: flash.error,
+                confirmButtonColor: "#D00000",
+            });
+        }
     }, [flash]);
     useEffect(() => {
         const delayDebounceFn = setTimeout(() => {

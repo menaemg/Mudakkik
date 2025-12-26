@@ -55,20 +55,29 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category)
     {
-        $name = $category->name;
-        $category->delete();
+        if ($category->posts()->exists()) {
+            return back()->with('error', "لا يمكن حذف الفئة ({$category->name}) لأنها تحتوي على مقالات مرتبطة بها.");
+        }
 
-        return back()->with('success', "تم حذف الفئة  {$name} بنجاح.");
+        try {
+            $name = $category->name;
+            $category->delete();
+
+            return back()->with('success', "تم حذف الفئة ({$name}) بنجاح.");
+        } catch (\Exception $e) {
+          
+            return back()->with('error', 'حدث خطأ غير متوقع أثناء محاولة الحذف.');
+        }
     }
-     public function store(StoreCategoryRequest $request)
+    public function store(StoreCategoryRequest $request)
     {
 
         $validated = $request->validated();
         $category = Category::create([
             'name' => $validated['name'],
             'slug' => $validated['slug'],
-            'description'=>$validated['description']
-            
+            'description' => $validated['description']
+
         ]);
 
         return redirect()->back()->with('success', "تم إنشاء الفئة {$category->name} بنجاح.");
