@@ -30,7 +30,7 @@ class StoreUserRequest extends FormRequest
             'name' => 'required|string|max:255',
             'email' => "required|email|unique:users,email,{$userId}",
             'username' => "required|string|unique:users,username,{$userId}",
-            'role' => 'required|in:ادمن,صحفى,مستخدم',
+            'role' => 'required|in:admin,journalist,user',
             'bio' => 'nullable|string',
             'credibility_score' => 'nullable|integer|min:0|max:100',
             'is_verified_journalist' => 'boolean',

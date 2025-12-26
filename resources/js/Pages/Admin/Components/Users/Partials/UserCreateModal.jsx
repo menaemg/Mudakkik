@@ -10,7 +10,7 @@ export default function UserCreateModal({ isOpen, onClose }) {
         username: "",
         password: "",
         password_confirmation: "",
-        role: "مستخدم", 
+        role: "user", 
         bio: "",
         credibility_score: 0,
         is_verified_journalist: false,
@@ -19,7 +19,7 @@ export default function UserCreateModal({ isOpen, onClose }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        post(route("users.store"), {
+        post(route("admin.users.store"), {
             onSuccess: () => {
                 reset(); 
                 onClose();
@@ -90,9 +90,9 @@ export default function UserCreateModal({ isOpen, onClose }) {
                                         value={data.role} onChange={e => setData('role', e.target.value)}
                                         className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-[#D00000] outline-none font-bold transition-all appearance-none cursor-pointer"
                                     >
-                                        <option value="مستخدم">مستخدم عادى</option>
-                                        <option value="صحفى">صحفى</option>
-                                        <option value="ادمن">ادمن (مدير)</option>
+                                        <option value="user">مستخدم </option>
+                                        <option value="journalist">صحفى</option>
+                                        <option value="admin">ادمن</option>
                                     </select>
                                 </div>
 
@@ -113,7 +113,7 @@ export default function UserCreateModal({ isOpen, onClose }) {
                                     />
                                 </div>
                             </div>
-                            {data.role === "صحفى" && (
+                            {data.role === "journalist" && (
                                 <motion.div 
                                     initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
                                     className="p-6 bg-blue-50 rounded-[2rem] border-2 border-dashed border-blue-200 grid grid-cols-1 md:grid-cols-2 gap-6"

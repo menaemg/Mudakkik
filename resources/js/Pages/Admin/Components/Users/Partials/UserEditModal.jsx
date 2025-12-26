@@ -8,7 +8,7 @@ export default function UserEditModal({ isOpen, user, onClose }) {
         name: "",
         email: "",
         username: "",
-        role: "مستخدم",
+        role: "user",
         bio: "",
         credibility_score: 0,
         is_verified_journalist: false,
@@ -20,7 +20,7 @@ export default function UserEditModal({ isOpen, user, onClose }) {
                 name: user.name || "",
                 email: user.email || "",
                 username: user.username || "",
-                role: user.role || "مستخدم",
+                role: user.role || "user",
                 bio: user.bio || "",
                 credibility_score: user.credibility_score || 0,
                 is_verified_journalist: !!user.is_verified_journalist,
@@ -30,7 +30,7 @@ export default function UserEditModal({ isOpen, user, onClose }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        put(route("users.update", user.id), {
+        put(route("admin.users.update", user.id), {
             onSuccess: () => {
                 onClose();
             },
@@ -108,14 +108,14 @@ export default function UserEditModal({ isOpen, user, onClose }) {
                                         value={data.role} onChange={e => setData('role', e.target.value)}
                                         className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-amber-500 outline-none font-bold cursor-pointer"
                                     >
-                                        <option value="مستخدم">مستخدم عادى</option>
-                                        <option value="صحفى">صحفى</option>
-                                        <option value="ادمن">ادمن (مدير)</option>
+                                        <option value="user">مستخدم</option>
+                                        <option value="journalist">صحفى</option>
+                                        <option value="admin">ادمن</option>
                                     </select>
                                 </div>
                             </div>
 
-                            {data.role === "صحفى" && (
+                            {data.role === "journalist" && (
                                 <motion.div 
                                     initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }}
                                     className="p-6 bg-amber-50 rounded-[2rem] border-2 border-dashed border-amber-200 grid grid-cols-1 md:grid-cols-2 gap-6"

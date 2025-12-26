@@ -46,8 +46,8 @@ class UserController extends Controller
 
             'password' => Hash::make($validated['password']),
 
-            'credibility_score' => $validated['role'] === 'صحفى' ? ($validated['credibility_score'] ?? 0) : 0,
-            'is_verified_journalist' => ($validated['role'] === 'صحفى' && $request->boolean('is_verified_journalist')),
+            'credibility_score' => $validated['role'] === 'journalist' ? ($validated['credibility_score'] ?? 0) : 0,
+            'is_verified_journalist' => ($validated['role'] === 'journalist' && $request->boolean('is_verified_journalist')),
         ]);
 
         return redirect()->back()->with('success', "تم إنشاء حساب {$user->name} بنجاح.");
@@ -62,8 +62,8 @@ class UserController extends Controller
             'username' => $validated['username'],
             'role' => $validated['role'],
             'bio' => $validated['bio'] ?? null,
-            'credibility_score' => $validated['role'] === 'صحفى' ? ($validated['credibility_score'] ?? 0) : 0,
-            'is_verified_journalist' => ($validated['role'] === 'صحفى' && $request->boolean('is_verified_journalist')),
+            'credibility_score' => $validated['role'] === 'journalist' ? ($validated['credibility_score'] ?? 0) : 0,
+            'is_verified_journalist' => ($validated['role'] === 'journalist' && $request->boolean('is_verified_journalist')),
         ]);
 
         return redirect()->back()->with('success', "تم تحديث بيانات {$user->name} بنجاح");
