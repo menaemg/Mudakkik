@@ -74,12 +74,14 @@ export default function Welcome({ canLogin, canRegister, auth }) {
                                     ابدأ الآن مجاناً
                                 </Link>
                             )}
-                            <Link
-                                href={route('plans.index')}
-                                className="px-8 py-4 border-2 border-white/30 text-white rounded-xl font-bold text-lg hover:bg-white/10 transition"
-                            >
-                                عرض الخطط
-                            </Link>
+                            {auth?.user && (
+                                <Link
+                                    href={route('plans.index')}
+                                    className="px-8 py-4 border-2 border-white/30 text-white rounded-xl font-bold text-lg hover:bg-white/10 transition"
+                                >
+                                    عرض الخطط
+                                </Link>
+                            )}
                         </div>
                     </div>
 
@@ -126,7 +128,7 @@ export default function Welcome({ canLogin, canRegister, auth }) {
                 {/* Footer */}
                 <footer className="border-t border-white/10 py-8">
                     <div className="container mx-auto px-6 text-center text-blue-300">
-                        <p>© 2024 مدقق - جميع الحقوق محفوظة</p>
+                        <p>© {new Date().getFullYear()} مدقق - جميع الحقوق محفوظة</p>
                     </div>
                 </footer>
             </div>
