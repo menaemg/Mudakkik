@@ -54,6 +54,23 @@ class SubscriptionController extends Controller
         DB::transaction(function () use ($subscription, $validated) {
             $oldStatus = $subscription->status;
             $newStatus = $validated['status'];
+            $oldPlanId = $subscription->plan_id;
+            $newPlanId = $validated['plan_id'];
+
+            // Handle plan change: recalculate ends_at based on new plan's duration
+            if ($oldPlanId !== $newPlanId && !isset($validated['ends_at'])) {
+                $newPlan = Plan::find($newPlanId);
+                if ($newPlan && $newPlan->duration_days) {
+                    // Calculate new ends_at from now (or current start_at if subscription hasn't started)
+                    $startFrom = $subscription->start_at && $subscription->start_at->isFuture()
+                        ? $subscription->start_at
+                        : now();
+                    $validated['ends_at'] = $startFrom->copy()->addDays($newPlan->duration_days);
+                } elseif ($newPlan && !$newPlan->duration_days) {
+                    // New plan has no duration (unlimited)
+                    $validated['ends_at'] = null;
+                }
+            }
 
             // Handle status change with model methods
             if ($oldStatus !== $newStatus) {

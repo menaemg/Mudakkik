@@ -50,4 +50,25 @@ class StorePlanRequest extends FormRequest
             'sort_order.min' => 'ترتيب العرض يجب أن يكون 0 أو أكثر',
         ];
     }
+
+    /**
+     * Configure the validator instance.
+     */
+    public function withValidator($validator): void
+    {
+        $validator->after(function ($validator) {
+            $isFree = filter_var($this->input('is_free'), FILTER_VALIDATE_BOOLEAN);
+            $price = (float) $this->input('price');
+
+            // If marked as free, price must be 0
+            if ($isFree && $price > 0) {
+                $validator->errors()->add('price', 'الخطة المجانية يجب أن يكون سعرها 0');
+            }
+
+            // If price is 0, should be marked as free
+            if ($price == 0 && !$isFree) {
+                $validator->errors()->add('is_free', 'الخطة بسعر 0 يجب أن تكون مجانية');
+            }
+        });
+    }
 }

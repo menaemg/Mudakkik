@@ -58,4 +58,14 @@ class SubscriptionFactory extends Factory
             'ends_at' => now()->subDay(),
         ]);
     }
+
+    /**
+     * Indicate that the subscription is past due.
+     */
+    public function pastDue(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => 'past_due',
+        ]);
+    }
 }
