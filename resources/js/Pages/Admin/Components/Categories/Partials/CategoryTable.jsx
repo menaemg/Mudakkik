@@ -36,6 +36,7 @@ export default function CategoryTable({ categories ,onDelete}) {
                                     </div>
                                 </div>
                             </td>
+                           
                             <td className="px-10 py-7">
                                 <div className="flex items-center gap-5">
                                     <div className="text-right">

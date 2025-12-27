@@ -12,6 +12,8 @@ import AdminPagination from "@/Layouts/AdminPagination";
 export default function Index({ categories, filters = {} }) {
     const [searchTerm, setSearchTerm] = useState(filters?.search || "");
     const [isCreateOpen, setIsCreateOpen] = useState(false);
+    const [isViewOpen, setIsViewOpen] = useState(false);
+    const [selectedCategory, setSelectedCategory] = useState(null);
 
     const { flash } = usePage().props;
     useEffect(() => {
@@ -81,6 +83,10 @@ export default function Index({ categories, filters = {} }) {
                 <CategoryTable
                     categories={categories.data}
                     onDelete={handleDelete}
+                     onView={(category) => {
+                        setSelectedCategory(category);
+                        setIsViewOpen(true);
+                    }}
                 />
                 <AdminPagination
                     links={categories.links}

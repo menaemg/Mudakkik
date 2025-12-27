@@ -17,7 +17,8 @@ class CategoryController extends Controller
      */
     public function index(Request $request)
     {
-        $categories = Category::latest()
+        $categories = Category::withCount('posts')
+        ->latest()
             ->filter($request)
             ->paginate(10)
             ->withQueryString();
