@@ -18,10 +18,6 @@ return new class extends Migration
             $table->boolean('auto_renew')->default(true)->after('provider_subscription_id');
             $table->timestamp('cancelled_at')->nullable()->after('auto_renew');
             $table->timestamp('trial_ends_at')->nullable()->after('cancelled_at');
-            
-            // Add proper foreign key constraints
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('plan_id')->references('id')->on('plans')->onDelete('cascade');
         });
     }
 
