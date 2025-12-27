@@ -152,8 +152,10 @@ class Subscription extends Model
         // If still active, extend from ends_at; if expired, extend from now
         $startFrom = $this->isActive() && $this->ends_at ? $this->ends_at : now();
 
+        $newEndsAt = $startFrom->copy()->addDays($days);
+
         $this->update([
-            'ends_at' => $startFrom->addDays($days),
+            'ends_at' => $newEndsAt,
             'status' => 'active',
         ]);
     }

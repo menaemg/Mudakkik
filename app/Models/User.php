@@ -3,9 +3,10 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
@@ -22,14 +23,23 @@ class User extends Authenticatable
         // Auto-assign free plan when user is created
         static::created(function ($user) {
             $freePlan = Plan::where('is_free', true)->first();
-            if ($freePlan) {
-                $user->subscriptions()->create([
-                    'plan_id' => $freePlan->id,
-                    'status' => 'active',
-                    'start_at' => now(),
-                    'ends_at' => null,
-                ]);
+
+            if (!$freePlan) {
+                $context = ['user_id' => $user->id, 'email' => $user->email];
+
+                Log::warning(
+                    'Free plan not found during user registration. User created without subscription.',
+                    $context
+                );
+                return;
             }
+
+            $user->subscriptions()->create([
+                'plan_id' => $freePlan->id,
+                'status' => 'active',
+                'start_at' => now(),
+                'ends_at' => null,
+            ]);
         });
     }
 
@@ -157,6 +167,59 @@ class User extends Authenticatable
         }
 
         $features = $plan->features ?? [];
-        return $features[$feature] ?? false;
+
+        if (!array_key_exists($feature, $features)) {
+            return false;
+        }
+
+        $value = $features[$feature];
+
+        if (is_bool($value)) {
+            return $value;
+        }
+
+
+        if (is_numeric($value)) {
+            return (int) $value > 0;
+        }
+
+        // null means unlimited access
+        if ($value === null) {
+            return true;
+        }
+
+        return (bool) $value;
+    }
+
+    /**
+     * Get a numeric feature limit from the user's plan.
+     * Returns null for unlimited or non-numeric features.
+     */
+    public function getFeatureLimit(string $feature): ?int
+    {
+        $plan = $this->currentPlan();
+        if (!$plan) {
+            return 0;
+        }
+
+        $features = $plan->features ?? [];
+
+        if (!array_key_exists($feature, $features)) {
+            return 0;
+        }
+
+        $value = $features[$feature];
+
+        // null means unlimited
+        if ($value === null) {
+            return null;
+        }
+
+        // Return numeric value or null for non-numeric
+        if (is_numeric($value)) {
+            return (int) $value;
+        }
+
+        return null;
     }
 }

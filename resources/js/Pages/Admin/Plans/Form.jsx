@@ -74,7 +74,7 @@ export default function Form({ plan }) {
                                 step="0.01"
                                 min="0"
                                 value={data.price}
-                                onChange={(e) => setData('price', parseFloat(e.target.value))}
+                                onChange={(e) => setData('price', e.target.value === '' ? '' : parseFloat(e.target.value))}
                                 className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                 required
                             />
@@ -123,7 +123,7 @@ export default function Form({ plan }) {
                                 type="number"
                                 min="0"
                                 value={data.sort_order}
-                                onChange={(e) => setData('sort_order', parseInt(e.target.value))}
+                                onChange={(e) => setData('sort_order', e.target.value === '' ? 0 : parseInt(e.target.value, 10))}
                                 className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                             />
                         </div>

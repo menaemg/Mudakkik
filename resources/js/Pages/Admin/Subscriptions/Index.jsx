@@ -1,7 +1,7 @@
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, Link, router } from '@inertiajs/react';
 
-export default function Index({ subscriptions, filters }) {
+export default function Index({ subscriptions, plans, filters }) {
     const formatDate = (date) => {
         if (!date) return 'غير محدد';
         return new Date(date).toLocaleDateString('ar-EG', {
@@ -59,6 +59,18 @@ export default function Index({ subscriptions, filters }) {
                         <option value="cancelled">ملغى</option>
                         <option value="expired">منتهي</option>
                         <option value="past_due">متأخر</option>
+                    </select>
+                    <select
+                        value={filters?.plan_id || ''}
+                        onChange={(e) => handleFilter('plan_id', e.target.value)}
+                        className="rounded-lg border-gray-300 text-sm"
+                    >
+                        <option value="">جميع الخطط</option>
+                        {plans?.map((plan) => (
+                            <option key={plan.id} value={plan.id}>
+                                {plan.name}
+                            </option>
+                        ))}
                     </select>
                 </div>
 
@@ -129,17 +141,25 @@ export default function Index({ subscriptions, filters }) {
                     {/* Pagination */}
                     {subscriptions.links && (
                         <div className="flex justify-center gap-2 border-t border-gray-200 px-6 py-4">
-                            {subscriptions.links.map((link, index) => (
-                                <Link
-                                    key={index}
-                                    href={link.url || '#'}
-                                    className={`rounded px-3 py-1 text-sm ${link.active
-                                        ? 'bg-blue-600 text-white'
-                                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                        } ${!link.url ? 'cursor-not-allowed opacity-50' : ''}`}
-                                    dangerouslySetInnerHTML={{ __html: link.label }}
-                                />
-                            ))}
+                            {subscriptions.links.map((link, index) => {
+                                // Safely decode HTML entities
+                                const decodeLabel = (label) => {
+                                    const entities = { '&laquo;': '«', '&raquo;': '»', '&amp;': '&' };
+                                    return label.replace(/&[a-z]+;/gi, (m) => entities[m] || m);
+                                };
+                                return (
+                                    <Link
+                                        key={index}
+                                        href={link.url || '#'}
+                                        className={`rounded px-3 py-1 text-sm ${link.active
+                                            ? 'bg-blue-600 text-white'
+                                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                            } ${!link.url ? 'cursor-not-allowed opacity-50' : ''}`}
+                                    >
+                                        {decodeLabel(link.label)}
+                                    </Link>
+                                );
+                            })}
                         </div>
                     )}
                 </div>

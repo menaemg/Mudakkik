@@ -82,8 +82,8 @@ export default function Edit({ subscription, plans }) {
                                     <label
                                         key={option.value}
                                         className={`flex items-center justify-center p-3 rounded-lg border-2 cursor-pointer transition ${data.status === option.value
-                                                ? 'border-blue-500 bg-blue-50'
-                                                : 'border-gray-200 hover:border-gray-300'
+                                            ? 'border-blue-500 bg-blue-50'
+                                            : 'border-gray-200 hover:border-gray-300'
                                             }`}
                                     >
                                         <input
@@ -135,9 +135,15 @@ export default function Edit({ subscription, plans }) {
                                 type="date"
                                 value={data.ends_at}
                                 onChange={(e) => setData('ends_at', e.target.value)}
-                                className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                className={`w-full rounded-lg shadow-sm focus:ring-blue-500 ${errors.ends_at
+                                        ? 'border-red-500 focus:border-red-500'
+                                        : 'border-gray-300 focus:border-blue-500'
+                                    }`}
                             />
                             <p className="mt-1 text-xs text-gray-500">اتركه فارغاً للاشتراك غير المحدود</p>
+                            {errors.ends_at && (
+                                <p className="mt-1 text-sm text-red-600">{errors.ends_at}</p>
+                            )}
                         </div>
 
                         {/* Auto Renew */}
