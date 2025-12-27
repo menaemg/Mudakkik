@@ -12,7 +12,7 @@ class PlanController extends Controller
 {
     public function index()
     {
-        $plans = Plan::ordered()->get();
+        $plans = Plan::ordered()->paginate(10);
 
         return Inertia::render('Admin/Plans/Index', [
             'plans' => $plans,

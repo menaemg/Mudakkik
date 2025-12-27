@@ -1,4 +1,5 @@
 import AdminLayout from '@/Layouts/AdminLayout';
+import AdminPagination from '@/Layouts/AdminPagination';
 import { Head, Link, router } from '@inertiajs/react';
 
 export default function Index({ subscriptions, plans, filters }) {
@@ -143,32 +144,13 @@ export default function Index({ subscriptions, plans, filters }) {
                             ))}
                         </tbody>
                     </table>
-
-                    {/* Pagination */}
-                    {subscriptions.links && (
-                        <div className="flex justify-center gap-2 border-t border-gray-200 px-6 py-4">
-                            {subscriptions.links.map((link, index) => {
-                                // Safely decode HTML entities
-                                const decodeLabel = (label) => {
-                                    const entities = { '&laquo;': '«', '&raquo;': '»', '&amp;': '&' };
-                                    return label.replace(/&[a-z]+;/gi, (m) => entities[m] || m);
-                                };
-                                return (
-                                    <Link
-                                        key={index}
-                                        href={link.url || '#'}
-                                        className={`rounded px-3 py-1 text-sm ${link.active
-                                            ? 'bg-blue-600 text-white'
-                                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                            } ${!link.url ? 'cursor-not-allowed opacity-50' : ''}`}
-                                    >
-                                        {decodeLabel(link.label)}
-                                    </Link>
-                                );
-                            })}
-                        </div>
-                    )}
                 </div>
+
+                <AdminPagination
+                    links={subscriptions.links}
+                    total={subscriptions.total}
+                    label="إجمالي الاشتراكات"
+                />
             </div>
         </>
     );

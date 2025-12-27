@@ -1,4 +1,5 @@
 import AdminLayout from '@/Layouts/AdminLayout';
+import AdminPagination from '@/Layouts/AdminPagination';
 import { Head, Link, router } from '@inertiajs/react';
 
 export default function Index({ plans }) {
@@ -68,13 +69,13 @@ export default function Index({ plans }) {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200 bg-white">
-                            {plans.length === 0 ? (
+                            {plans.data.length === 0 ? (
                                 <tr>
                                     <td colSpan="6" className="px-6 py-12 text-center text-gray-500">
                                         لا توجد خطط حالياً
                                     </td>
                                 </tr>
-                            ) : plans.map((plan) => (
+                            ) : plans.data.map((plan) => (
                                 <tr key={plan.id}>
                                     <td className="whitespace-nowrap px-6 py-4 text-gray-500">
                                         {plan.sort_order}
@@ -132,6 +133,12 @@ export default function Index({ plans }) {
                         </tbody>
                     </table>
                 </div>
+
+                <AdminPagination
+                    links={plans.links}
+                    total={plans.total}
+                    label="إجمالي الخطط"
+                />
             </div>
         </>
     );

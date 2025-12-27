@@ -16,7 +16,7 @@ class SubscriptionController extends Controller
             ->when($request->status, fn($q, $status) => $q->where('status', $status))
             ->when($request->plan_id, fn($q, $planId) => $q->where('plan_id', $planId))
             ->latest()
-            ->paginate(15);
+            ->paginate(10);
 
         $plans = Plan::active()->ordered()->get();
 
