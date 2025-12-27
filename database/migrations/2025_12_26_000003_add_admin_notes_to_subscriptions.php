@@ -11,13 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('subscriptions', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id');
-            $table->foreignId('plan_id');
-            $table->dateTime('start_at');
-            $table->dateTime('ends_at')->nullable();
-            $table->timestamps();
+        Schema::table('subscriptions', function (Blueprint $table) {
+            $table->text('admin_notes')->nullable()->after('trial_ends_at');
         });
     }
 
@@ -26,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('subscriptions');
+        Schema::table('subscriptions', function (Blueprint $table) {
+            $table->dropColumn('admin_notes');
+        });
     }
 };

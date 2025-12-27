@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Plan>
@@ -16,10 +17,38 @@ class PlanFactory extends Factory
      */
     public function definition(): array
     {
+        $name = fake()->randomElement(['Basic Plan', 'Premium Plan', 'Enterprise Plan']);
+        
         return [
-            'name' => fake()->randomElement(['Basic Plan', 'Premium Plan', 'Enterprise Plan']),
-            'price' => fake()->randomFloat(2, 10, 500), 
-            'features' => fake()->paragraph(), 
+            'name' => $name,
+            'slug' => Str::slug($name) . '-' . fake()->unique()->randomNumber(4),
+            'price' => fake()->randomFloat(2, 10, 500),
+            'billing_interval' => fake()->randomElement(['monthly', 'yearly', 'one_time']),
+            'duration_days' => 30,
+            'provider_price_id' => null,
+            'is_free' => false,
+            'is_active' => true,
+            'sort_order' => 0,
+            'features' => [
+                'posts_limit' => fake()->numberBetween(10, 100),
+                'ads_limit' => fake()->numberBetween(0, 20),
+                'priority_support' => fake()->boolean(),
+            ],
         ];
+    }
+
+    /**
+     * Indicate that the plan is free.
+     */
+    public function free(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'name' => 'Free Plan',
+            'slug' => 'free-' . fake()->unique()->randomNumber(4),
+            'price' => 0,
+            'billing_interval' => 'one_time',
+            'duration_days' => null,
+            'is_free' => true,
+        ]);
     }
 }

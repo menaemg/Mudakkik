@@ -2,17 +2,8 @@ import React, { useState } from "react";
 import { Link } from "@inertiajs/react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-    LayoutDashboard,
-    Users,
-    CreditCard,
-    Megaphone,
-    Menu,
-    X,
-    Bell,
-    ChevronLeft,
-    Search,
-    ShieldCheck,
-    Layers,
+    LayoutDashboard, Users, CreditCard, Megaphone,
+    Menu, X, Bell, ChevronLeft, Search, ShieldCheck, Package, Layers
 } from "lucide-react";
 
 export default function AdminLayout({ children }) {
@@ -21,23 +12,21 @@ export default function AdminLayout({ children }) {
     const menuItems = [
         { label: "الرئيسية", icon: LayoutDashboard, url: "/admin/dashboard" },
         { label: "المستخدمين", icon: Users, url: "/admin/users" },
-        { label: "طلبات ", icon: ShieldCheck, url: "/admin/upgrades" },
+        { label: "الخطط", icon: Package, url: "/admin/plans" },
+        { label: "الاشتراكات", icon: Layers, url: "/admin/subscriptions" },
+        { label: "طلبات الترقية", icon: ShieldCheck, url: "/admin/upgrades" },
         { label: "المدفوعات", icon: CreditCard, url: "/admin/payments" },
         { label: "الفئات", icon: Layers, url: "/admin/categories" },
     ];
 
     return (
-        <div
-            className="flex h-screen bg-gradient-to-tr from-[#F1F5F9] via-[#F8FAFC] to-[#E2E8F0] font-sans text-right overflow-hidden"
-            dir="rtl"
-        >
-            <aside
-                className={`
+        <div className="flex h-screen bg-gradient-to-tr from-[#F1F5F9] via-[#F8FAFC] to-[#E2E8F0] font-sans text-right overflow-hidden" dir="rtl">
+            <aside className={`
                 fixed inset-y-0 right-0 z-50 w-72 bg-gradient-to-b from-[#001246] via-[#001b66] to-[#000d33] text-white shadow-2xl lg:relative lg:translate-x-0 transition-transform duration-300
                 ${isSidebarOpen ? "translate-x-0" : "translate-x-full"}
                 flex flex-col
-            `}
-            >
+            `}>
+
                 <div className="p-8 text-2xl font-black flex items-center gap-3 bg-black/20 backdrop-blur-xl border-b border-white/5">
                     <div className="bg-gradient-to-br from-[#D00000] to-[#FF4D4D] p-2 rounded-xl shadow-lg shadow-red-950/40 rotate-3">
                         <ShieldCheck size={28} className="text-white" />

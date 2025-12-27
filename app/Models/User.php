@@ -13,6 +13,27 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     /**
+     * Bootstrap the model.
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Auto-assign free plan when user is created
+        static::created(function ($user) {
+            $freePlan = Plan::where('is_free', true)->first();
+            if ($freePlan) {
+                $user->subscriptions()->create([
+                    'plan_id' => $freePlan->id,
+                    'status' => 'active',
+                    'start_at' => now(),
+                    'ends_at' => null,
+                ]);
+            }
+        });
+    }
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var list<string>
@@ -79,5 +100,63 @@ class User extends Authenticatable
         }
 
         return $query;
+    }
+
+    /**
+     * Get all subscriptions for the user.
+     */
+    public function subscriptions()
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    /**
+     * Get the user's current active subscription.
+     */
+    public function currentSubscription(): ?Subscription
+    {
+        return $this->subscriptions()
+            ->active()
+            ->with('plan')
+            ->first();
+    }
+
+    /**
+     * Check if user has an active subscription.
+     */
+    public function hasActiveSubscription(): bool
+    {
+        return $this->currentSubscription() !== null;
+    }
+
+    /**
+     * Get the user's current plan.
+     */
+    public function currentPlan(): ?Plan
+    {
+        return $this->currentSubscription()?->plan;
+    }
+
+    /**
+     * Check if user is on a free plan.
+     */
+    public function isOnFreePlan(): bool
+    {
+        $plan = $this->currentPlan();
+        return $plan && $plan->is_free;
+    }
+
+    /**
+     * Check if user can access a feature based on their plan.
+     */
+    public function canAccess(string $feature): bool
+    {
+        $plan = $this->currentPlan();
+        if (!$plan) {
+            return false;
+        }
+
+        $features = $plan->features ?? [];
+        return $features[$feature] ?? false;
     }
 }

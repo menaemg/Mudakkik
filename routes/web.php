@@ -1,11 +1,13 @@
 <?php
 
-use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\ProfileController;
-use Illuminate\Foundation\Application;
-use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Foundation\Application;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Admin\PlanController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\SubscriptionController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -20,11 +22,15 @@ Route::middleware(['auth', 'verified', 'can:admin-access'])->prefix('admin')->na
 
     Route::get('/dashboard', function () {
         return Inertia::render('Admin/Dashboard');
-    })->name('dashboard'); 
+    })->name('dashboard');
 
     Route::resource('users', UserController::class);
     Route::resource('categories', CategoryController::class);
-    
+
+    Route::resource('plans', PlanController::class);
+    Route::get('subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions.index');
+    Route::get('subscriptions/{subscription}/edit', [SubscriptionController::class, 'edit'])->name('subscriptions.edit');
+    Route::put('subscriptions/{subscription}', [SubscriptionController::class, 'update'])->name('subscriptions.update');
 });
 
 Route::middleware('auth')->group(function () {
