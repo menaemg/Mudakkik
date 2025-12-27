@@ -8,12 +8,14 @@ import CategoryHeader from "./Partials/CategoryHeader";
 import CategoryTable from "./Partials/CategoryTable";
 import CategoryCreateModal from "./Partials/CategoryCreateModal";
 import AdminPagination from "@/Layouts/AdminPagination";
-
+import CategoryViewModal from "./Partials/CategoryViewModal";
+import CategoryEditModal from "./Partials/CategoryEditModal";
 export default function Index({ categories, filters = {} }) {
     const [searchTerm, setSearchTerm] = useState(filters?.search || "");
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [isViewOpen, setIsViewOpen] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState(null);
+    const [isEditOpen, setIsEditOpen] = useState(false);
 
     const { flash } = usePage().props;
     useEffect(() => {
@@ -83,9 +85,13 @@ export default function Index({ categories, filters = {} }) {
                 <CategoryTable
                     categories={categories.data}
                     onDelete={handleDelete}
-                     onView={(category) => {
+                    onView={(category) => {
                         setSelectedCategory(category);
                         setIsViewOpen(true);
+                    }}
+                    onEdit={(category) => {
+                        setSelectedCategory(category);
+                        setIsEditOpen(true);
                     }}
                 />
                 <AdminPagination
@@ -98,6 +104,16 @@ export default function Index({ categories, filters = {} }) {
             <CategoryCreateModal
                 isOpen={isCreateOpen}
                 onClose={() => setIsCreateOpen(false)}
+            />
+            <CategoryViewModal
+                isOpen={isViewOpen}
+                category={selectedCategory}
+                onClose={() => setIsViewOpen(false)}
+            />
+            <CategoryEditModal  
+            isOpen={isEditOpen}
+            category={selectedCategory}
+            onClose={()=>setIsEditOpen(false)}
             />
         </div>
     );

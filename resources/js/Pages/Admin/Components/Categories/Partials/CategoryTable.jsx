@@ -1,7 +1,7 @@
 import React from "react";
 import { EyeIcon, Edit2, Trash2, Calendar } from "lucide-react";
 
-export default function CategoryTable({ categories ,onDelete}) {
+export default function CategoryTable({ categories,onEdit ,onDelete,onView}) {
     return (
         <div className="overflow-x-auto">
             <table className="w-full text-right border-collapse min-w-[900px]">
@@ -60,13 +60,13 @@ export default function CategoryTable({ categories ,onDelete}) {
                             <td className="px-10 py-7 text-center">
                                 <div className="flex justify-center items-center gap-3">
                                     <button
-                                       
+                                       onClick={()=>onView(category)}
                                         className="p-3 text-blue-600 bg-blue-50 hover:bg-blue-600 hover:text-white rounded-[1rem] transition-all"
                                     >
                                         <EyeIcon size={18} />
                                     </button>
                                     <button
-                                      
+                                      onClick={()=>onEdit(category)}
                                         className="p-3 text-amber-600 bg-amber-50 hover:bg-amber-600 hover:text-white rounded-[1rem] transition-all"
                                     >
                                         <Edit2 size={18} />
