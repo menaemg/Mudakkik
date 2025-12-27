@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\UpdateSubscriptionRequest;
 use App\Models\Plan;
 use App\Models\Subscription;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class SubscriptionController extends Controller
@@ -36,8 +38,8 @@ class SubscriptionController extends Controller
             ->where('is_active', true)
             ->orWhere('id', $subscription->plan_id)
             ->ordered()
-            ->get()
-            ->unique('id'); // Remove duplicates if current plan is already active
+            ->distinct()
+            ->get();
 
         return Inertia::render('Admin/Subscriptions/Edit', [
             'subscription' => $subscription,
@@ -45,17 +47,30 @@ class SubscriptionController extends Controller
         ]);
     }
 
-    public function update(Request $request, Subscription $subscription)
+    public function update(UpdateSubscriptionRequest $request, Subscription $subscription)
     {
-        $validated = $request->validate([
-            'status' => 'required|in:active,cancelled,expired,past_due',
-            'plan_id' => 'required|exists:plans,id',
-            'ends_at' => 'nullable|date',
-            'auto_renew' => 'boolean',
-            'admin_notes' => 'nullable|string|max:1000',
-        ]);
+        $validated = $request->validated();
 
-        $subscription->update($validated);
+        DB::transaction(function () use ($subscription, $validated) {
+            $oldStatus = $subscription->status;
+            $newStatus = $validated['status'];
+
+            // Handle status change with model methods
+            if ($oldStatus !== $newStatus) {
+                if ($newStatus === 'cancelled') {
+                    // Use model's cancel method to set cancelled_at
+                    $subscription->cancel();
+                    // Remove status from validated to avoid overwriting
+                    unset($validated['status']);
+                } elseif ($newStatus === 'active' && $oldStatus === 'cancelled') {
+                    // Reactivating: clear cancelled_at
+                    $validated['cancelled_at'] = null;
+                }
+            }
+
+            // Update remaining attributes
+            $subscription->update($validated);
+        });
 
         return redirect()->route('admin.subscriptions.index')
             ->with('success', 'تم تحديث الاشتراك بنجاح');

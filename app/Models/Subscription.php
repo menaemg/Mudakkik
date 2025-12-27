@@ -118,6 +118,14 @@ class Subscription extends Model
     }
 
     /**
+     * Check if subscription is past due.
+     */
+    public function isPastDue(): bool
+    {
+        return $this->status === 'past_due';
+    }
+
+    /**
      * Check if subscription is on trial.
      */
     public function onTrial(): bool

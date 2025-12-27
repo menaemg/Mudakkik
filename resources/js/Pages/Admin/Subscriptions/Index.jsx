@@ -54,6 +54,7 @@ export default function Index({ subscriptions, plans, filters }) {
                         value={filters?.status || ''}
                         onChange={(e) => handleFilter('status', e.target.value)}
                         className="rounded-lg border-gray-300 text-sm"
+                        aria-label="تصفية حسب الحالة"
                     >
                         <option value="">جميع الحالات</option>
                         <option value="active">نشط</option>
@@ -65,6 +66,7 @@ export default function Index({ subscriptions, plans, filters }) {
                         value={filters?.plan_id || ''}
                         onChange={(e) => handleFilter('plan_id', e.target.value)}
                         className="rounded-lg border-gray-300 text-sm"
+                        aria-label="تصفية حسب الخطة"
                     >
                         <option value="">جميع الخطط</option>
                         {plans?.map((plan) => (
@@ -112,11 +114,11 @@ export default function Index({ subscriptions, plans, filters }) {
                             ) : subscriptions.data.map((sub) => (
                                 <tr key={sub.id}>
                                     <td className="whitespace-nowrap px-6 py-4">
-                                        <div className="font-medium text-gray-900">{sub.user?.name}</div>
-                                        <div className="text-sm text-gray-500">{sub.user?.email}</div>
+                                        <div className="font-medium text-gray-900">{sub.user?.name || 'مستخدم محذوف'}</div>
+                                        <div className="text-sm text-gray-500">{sub.user?.email || '-'}</div>
                                     </td>
                                     <td className="whitespace-nowrap px-6 py-4">
-                                        <span className="font-medium text-gray-900">{sub.plan?.name}</span>
+                                        <span className="font-medium text-gray-900">{sub.plan?.name || 'خطة محذوفة'}</span>
                                     </td>
                                     <td className="whitespace-nowrap px-6 py-4 text-gray-500">
                                         {formatDate(sub.start_at)}
