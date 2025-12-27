@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('plans', function (Blueprint $table) {
             $table->string('slug')->unique()->after('name');
-            $table->enum('billing_interval', ['monthly', 'yearly', 'one_time'])->default('monthly')->after('price');
+            $table->string('billing_interval')->default('monthly')->after('price');
             $table->integer('duration_days')->nullable()->after('billing_interval');
             $table->string('provider_price_id')->nullable()->after('duration_days');
             $table->boolean('is_free')->default(false)->after('provider_price_id');

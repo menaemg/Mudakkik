@@ -3,7 +3,7 @@ import { Link, usePage } from "@inertiajs/react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     LayoutDashboard, Users, CreditCard, Megaphone,
-    Menu, X, Bell, ChevronLeft, Search, ShieldCheck, Package, Layers, LogOut
+    Menu, X, Bell, ChevronLeft, Search, ShieldCheck, Package, Layers, FolderTree, LogOut
 } from "lucide-react";
 
 export default function AdminLayout({ children }) {
@@ -17,7 +17,7 @@ export default function AdminLayout({ children }) {
         { label: "الاشتراكات", icon: Layers, url: "/admin/subscriptions" },
         { label: "طلبات الترقية", icon: ShieldCheck, url: "/admin/upgrades" },
         { label: "المدفوعات", icon: CreditCard, url: "/admin/payments" },
-        { label: "الفئات", icon: Layers, url: "/admin/categories" },
+        { label: "الفئات", icon: FolderTree, url: "/admin/categories" },
     ];
 
     return (

@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('subscriptions', function (Blueprint $table) {
-            $table->enum('status', ['active', 'cancelled', 'expired', 'past_due'])->default('active')->after('ends_at');
+            $table->string('status')->default('active')->after('ends_at');
             $table->string('provider')->nullable()->after('status');
             $table->string('provider_subscription_id')->nullable()->after('provider');
             $table->boolean('auto_renew')->default(true)->after('provider_subscription_id');

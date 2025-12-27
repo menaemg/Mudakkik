@@ -20,7 +20,11 @@ export default function Index({ plans }) {
 
     const handleDelete = (plan) => {
         if (confirm(`هل أنت متأكد من حذف الخطة "${plan.name}"؟`)) {
-            router.delete(route('admin.plans.destroy', plan.slug));
+            router.delete(route('admin.plans.destroy', plan.slug), {
+                onError: (errors) => {
+                    alert(errors.message || 'حدث خطأ أثناء حذف الخطة');
+                },
+            });
         }
     };
 
@@ -64,7 +68,13 @@ export default function Index({ plans }) {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200 bg-white">
-                            {plans.map((plan) => (
+                            {plans.length === 0 ? (
+                                <tr>
+                                    <td colSpan="6" className="px-6 py-12 text-center text-gray-500">
+                                        لا توجد خطط حالياً
+                                    </td>
+                                </tr>
+                            ) : plans.map((plan) => (
                                 <tr key={plan.id}>
                                     <td className="whitespace-nowrap px-6 py-4 text-gray-500">
                                         {plan.sort_order}
@@ -94,8 +104,8 @@ export default function Index({ plans }) {
                                     <td className="whitespace-nowrap px-6 py-4">
                                         <span
                                             className={`rounded-full px-3 py-1 text-xs font-medium ${plan.is_active
-                                                    ? 'bg-green-100 text-green-800'
-                                                    : 'bg-gray-100 text-gray-800'
+                                                ? 'bg-green-100 text-green-800'
+                                                : 'bg-gray-100 text-gray-800'
                                                 }`}
                                         >
                                             {plan.is_active ? 'نشط' : 'معطل'}

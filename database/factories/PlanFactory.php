@@ -18,13 +18,20 @@ class PlanFactory extends Factory
     public function definition(): array
     {
         $name = fake()->randomElement(['Basic Plan', 'Premium Plan', 'Enterprise Plan']);
+        $billingInterval = fake()->randomElement(['monthly', 'yearly', 'one_time']);
+        
+        $durationDays = match ($billingInterval) {
+            'monthly' => 30,
+            'yearly' => 365,
+            'one_time' => null,
+        };
         
         return [
             'name' => $name,
             'slug' => Str::slug($name) . '-' . fake()->unique()->randomNumber(4),
             'price' => fake()->randomFloat(2, 10, 500),
-            'billing_interval' => fake()->randomElement(['monthly', 'yearly', 'one_time']),
-            'duration_days' => 30,
+            'billing_interval' => $billingInterval,
+            'duration_days' => $durationDays,
             'provider_price_id' => null,
             'is_free' => false,
             'is_active' => true,

@@ -4,7 +4,7 @@ import { Head, Link, useForm } from '@inertiajs/react';
 export default function Edit({ subscription, plans }) {
     const { data, setData, put, processing, errors } = useForm({
         status: subscription.status || 'active',
-        plan_id: subscription.plan_id || '',
+        plan_id: subscription.plan_id ? Number(subscription.plan_id) : '',
         ends_at: subscription.ends_at ? subscription.ends_at.split('T')[0] : '',
         auto_renew: subscription.auto_renew ?? true,
         admin_notes: subscription.admin_notes || '',
@@ -112,7 +112,7 @@ export default function Edit({ subscription, plans }) {
                             </label>
                             <select
                                 value={data.plan_id}
-                                onChange={(e) => setData('plan_id', e.target.value)}
+                                onChange={(e) => setData('plan_id', e.target.value ? Number(e.target.value) : '')}
                                 disabled={!plans || plans.length === 0}
                                 className={`w-full rounded-lg shadow-sm focus:ring-blue-500 ${errors.plan_id
                                     ? 'border-red-500 focus:border-red-500'

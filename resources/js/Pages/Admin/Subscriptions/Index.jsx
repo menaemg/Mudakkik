@@ -102,7 +102,13 @@ export default function Index({ subscriptions, plans, filters }) {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200 bg-white">
-                            {subscriptions.data.map((sub) => (
+                            {subscriptions.data.length === 0 ? (
+                                <tr>
+                                    <td colSpan="7" className="px-6 py-12 text-center text-gray-500">
+                                        لا توجد اشتراكات حالياً
+                                    </td>
+                                </tr>
+                            ) : subscriptions.data.map((sub) => (
                                 <tr key={sub.id}>
                                     <td className="whitespace-nowrap px-6 py-4">
                                         <div className="font-medium text-gray-900">{sub.user?.name}</div>

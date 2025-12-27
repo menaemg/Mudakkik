@@ -1,8 +1,15 @@
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
+import { useState } from 'react';
 
 export default function Form({ plan }) {
     const isEditing = !!plan;
+
+    const [newFeature, setNewFeature] = useState({
+        key: '',
+        label_ar: '',
+        value: ''
+    });
 
     const { data, setData, post, put, processing, errors } = useForm({
         name: plan?.name || '',
@@ -286,7 +293,8 @@ export default function Form({ plan }) {
                                         <label className="block text-xs text-gray-500 mb-1">المفتاح (إنجليزي)</label>
                                         <input
                                             type="text"
-                                            id="new-feature-key"
+                                            value={newFeature.key}
+                                            onChange={(e) => setNewFeature(prev => ({ ...prev, key: e.target.value }))}
                                             className="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                             placeholder="storage_limit"
                                         />
@@ -295,7 +303,8 @@ export default function Form({ plan }) {
                                         <label className="block text-xs text-gray-500 mb-1">الاسم بالعربي</label>
                                         <input
                                             type="text"
-                                            id="new-feature-label-ar"
+                                            value={newFeature.label_ar}
+                                            onChange={(e) => setNewFeature(prev => ({ ...prev, label_ar: e.target.value }))}
                                             className="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                             placeholder="حد التخزين"
                                         />
@@ -304,7 +313,8 @@ export default function Form({ plan }) {
                                         <label className="block text-xs text-gray-500 mb-1">القيمة</label>
                                         <input
                                             type="text"
-                                            id="new-feature-value"
+                                            value={newFeature.value}
+                                            onChange={(e) => setNewFeature(prev => ({ ...prev, value: e.target.value }))}
                                             className="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                             placeholder="10GB"
                                         />
@@ -313,21 +323,25 @@ export default function Form({ plan }) {
                                 <button
                                     type="button"
                                     onClick={() => {
-                                        const keyInput = document.getElementById('new-feature-key');
-                                        const labelArInput = document.getElementById('new-feature-label-ar');
-                                        const valueInput = document.getElementById('new-feature-value');
-                                        const key = keyInput.value.trim();
-                                        const labelAr = labelArInput.value.trim();
-                                        const value = valueInput.value.trim();
-                                        if (key && !data.features[key]) {
-                                            setData('features', {
-                                                ...data.features,
-                                                [key]: { label_ar: labelAr, value: value },
-                                            });
-                                            keyInput.value = '';
-                                            labelArInput.value = '';
-                                            valueInput.value = '';
+                                        const key = newFeature.key.trim();
+                                        const reservedKeys = ['posts_limit', 'ads_limit', 'priority_support'];
+                                        if (!key) return;
+                                        if (reservedKeys.includes(key)) {
+                                            alert('هذا المفتاح محجوز، اختر مفتاحاً آخر');
+                                            return;
                                         }
+                                        if (data.features[key]) {
+                                            alert('هذا المفتاح موجود بالفعل');
+                                            return;
+                                        }
+                                        setData('features', {
+                                            ...data.features,
+                                            [key]: {
+                                                label_ar: newFeature.label_ar.trim(),
+                                                value: newFeature.value.trim()
+                                            },
+                                        });
+                                        setNewFeature({ key: '', label_ar: '', value: '' });
                                     }}
                                     className="mt-3 rounded-lg bg-green-600 px-4 py-2 text-sm text-white hover:bg-green-700"
                                 >

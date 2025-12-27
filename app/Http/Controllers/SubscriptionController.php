@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Plan;
-use App\Models\Subscription;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -34,6 +33,7 @@ class SubscriptionController extends Controller
         $history = $user->subscriptions()
             ->with('plan')
             ->orderByDesc('created_at')
+            ->limit(5)
             ->get();
 
         return Inertia::render('Subscriptions/Show', [
