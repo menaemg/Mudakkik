@@ -72,20 +72,19 @@ class SubscriptionController extends Controller
                 }
             }
 
-            // Handle status change with model methods
+            // Handle status change
             if ($oldStatus !== $newStatus) {
                 if ($newStatus === 'cancelled') {
-                    // Use model's cancel method to set cancelled_at
-                    $subscription->cancel();
-                    // Remove status from validated to avoid overwriting
-                    unset($validated['status']);
+                    // Merge cancel fields into validated for single update
+                    $validated['cancelled_at'] = now();
+                    $validated['auto_renew'] = false;
                 } elseif ($newStatus === 'active' && $oldStatus === 'cancelled') {
                     // Reactivating: clear cancelled_at
                     $validated['cancelled_at'] = null;
                 }
             }
 
-            // Update remaining attributes
+            // Single update with all changes
             $subscription->update($validated);
         });
 

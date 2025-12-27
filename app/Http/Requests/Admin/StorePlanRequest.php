@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StorePlanRequest extends FormRequest
 {
@@ -20,7 +21,12 @@ class StorePlanRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255',
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('plans', 'name'),
+            ],
             'price' => 'required|numeric|min:0',
             'billing_interval' => 'required|in:monthly,yearly,one_time',
             'duration_days' => 'nullable|integer|min:1',
