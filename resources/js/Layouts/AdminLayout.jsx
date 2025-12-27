@@ -1,43 +1,33 @@
 import React, { useState } from "react";
-import { Link } from "@inertiajs/react";
+import { Link, usePage } from "@inertiajs/react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-    LayoutDashboard,
-    Users,
-    CreditCard,
-    Megaphone,
-    Menu,
-    X,
-    Bell,
-    ChevronLeft,
-    Search,
-    ShieldCheck,
-    Layers,
+    LayoutDashboard, Users, CreditCard, Megaphone,
+    Menu, X, Bell, ChevronLeft, Search, ShieldCheck, Package, Layers, FolderTree, LogOut
 } from "lucide-react";
 
 export default function AdminLayout({ children }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const { auth } = usePage().props;
 
     const menuItems = [
         { label: "الرئيسية", icon: LayoutDashboard, url: "/admin/dashboard" },
         { label: "المستخدمين", icon: Users, url: "/admin/users" },
-        { label: "طلبات ", icon: ShieldCheck, url: "/admin/upgrades" },
+        { label: "الخطط", icon: Package, url: "/admin/plans" },
+        { label: "الاشتراكات", icon: Layers, url: "/admin/subscriptions" },
+        { label: "طلبات الترقية", icon: ShieldCheck, url: "/admin/upgrades" },
         { label: "المدفوعات", icon: CreditCard, url: "/admin/payments" },
-        { label: "الفئات", icon: Layers, url: "/admin/categories" },
+        { label: "الفئات", icon: FolderTree, url: "/admin/categories" },
     ];
 
     return (
-        <div
-            className="flex h-screen bg-gradient-to-tr from-[#F1F5F9] via-[#F8FAFC] to-[#E2E8F0] font-sans text-right overflow-hidden"
-            dir="rtl"
-        >
-            <aside
-                className={`
+        <div className="flex h-screen bg-gradient-to-tr from-[#F1F5F9] via-[#F8FAFC] to-[#E2E8F0] font-sans text-right overflow-hidden" dir="rtl">
+            <aside className={`
                 fixed inset-y-0 right-0 z-50 w-72 bg-gradient-to-b from-[#001246] via-[#001b66] to-[#000d33] text-white shadow-2xl lg:relative lg:translate-x-0 transition-transform duration-300
                 ${isSidebarOpen ? "translate-x-0" : "translate-x-full"}
                 flex flex-col
-            `}
-            >
+            `}>
+
                 <div className="p-8 text-2xl font-black flex items-center gap-3 bg-black/20 backdrop-blur-xl border-b border-white/5">
                     <div className="bg-gradient-to-br from-[#D00000] to-[#FF4D4D] p-2 rounded-xl shadow-lg shadow-red-950/40 rotate-3">
                         <ShieldCheck size={28} className="text-white" />
@@ -123,16 +113,26 @@ export default function AdminLayout({ children }) {
                         <div className="flex items-center gap-3 pr-4 border-r border-slate-200">
                             <div className="text-left hidden sm:block">
                                 <p className="text-xs font-black text-[#001246]">
-                                    آية أحمد
+                                    {auth?.user?.name || 'مستخدم'}
                                 </p>
-                                <p className="text-[10px] text-slate-400 font-bold tracking-tighter uppercase">
-                                    Admin
+                                <p className="text-[10px] text-slate-400 font-bold tracking-tighter">
+                                    @{auth?.user?.username || 'user'}
                                 </p>
                             </div>
                             <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#001246] to-[#0055ff] flex items-center justify-center text-white font-black shadow-lg shadow-blue-900/20 border-2 border-white ring-1 ring-slate-100">
-                                آ
+                                {auth?.user?.name?.charAt(0) || 'م'}
                             </div>
                         </div>
+
+                        <Link
+                            href={route('logout')}
+                            method="post"
+                            as="button"
+                            className="p-2.5 bg-red-50 rounded-xl text-red-600 hover:bg-red-100 transition-colors"
+                            title="تسجيل الخروج"
+                        >
+                            <LogOut size={20} />
+                        </Link>
                     </div>
                 </header>
 
