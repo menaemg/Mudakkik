@@ -11,7 +11,9 @@ class StoreCategoryRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user() && $this->user()->role === 'admin';
+        // i will use it in the final
+        // return $this->user() && $this->user()->role === 'admin';
+        return true;
     }
 
     /**
@@ -23,12 +25,12 @@ class StoreCategoryRequest extends FormRequest
     {
 
         $category = $this->route('category');
-        $categoryId = $category ? $category->id : null;
+        $categoryId = $category instanceof \App\Models\Category ? $category->id : $category;
 
         return [
             'name' => "required|string|min:4|max:100|unique:categories,name,{$categoryId}",
             'slug' => "required|string|max:120|unique:categories,slug,{$categoryId}",
-            'description' => 'nullable|string|min:20|max:500',
+            'description' => 'required|string|min:20|max:500',
         ];
     }
     public function messages(): array
@@ -39,11 +41,10 @@ class StoreCategoryRequest extends FormRequest
             'name.max' => 'اسم الفئة لا يجب أن يتجاوز 100 حرف.',
             'name.min' => 'اسم الفئة لا يجب أن يقل عن 4 حروف.',
             'name.unique' => 'هذا القسم موجود بالفعل.',
-
+            'description.required' => 'يرجى إدخال وصف الفئة.',
             'slug.required' => 'الرابط المختصر (Slug) مطلوب.',
             'slug.unique' => 'هذا الرابط مستخدم لقسم آخر، يرجى تغييره.',
             'description.min' => 'الوصف لا يجب أن يقل عن 20 حرف.',
-
             'description.max' => 'الوصف لا يجب أن يتجاوز 500 حرف.',
         ];
     }
