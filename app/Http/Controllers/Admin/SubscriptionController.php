@@ -30,7 +30,14 @@ class SubscriptionController extends Controller
     public function edit(Subscription $subscription)
     {
         $subscription->load(['user', 'plan']);
-        $plans = Plan::active()->ordered()->get();
+
+        // Include current plan even if inactive + all active plans
+        $plans = Plan::query()
+            ->where('is_active', true)
+            ->orWhere('id', $subscription->plan_id)
+            ->ordered()
+            ->get()
+            ->unique('id'); // Remove duplicates if current plan is already active
 
         return Inertia::render('Admin/Subscriptions/Edit', [
             'subscription' => $subscription,

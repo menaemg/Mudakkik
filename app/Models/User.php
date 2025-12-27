@@ -193,24 +193,27 @@ class User extends Authenticatable
 
     /**
      * Get a numeric feature limit from the user's plan.
-     * Returns null for unlimited or non-numeric features.
+     * 
+     * @param string $feature The feature key to look up
+     * @return int|null Returns int for explicit numeric limits (including 0),
+     *                  null if no plan, feature missing, or unlimited
      */
     public function getFeatureLimit(string $feature): ?int
     {
         $plan = $this->currentPlan();
         if (!$plan) {
-            return 0;
+            return null;
         }
 
         $features = $plan->features ?? [];
 
         if (!array_key_exists($feature, $features)) {
-            return 0;
+            return null;
         }
 
         $value = $features[$feature];
 
-        // null means unlimited
+        // null in features means unlimited
         if ($value === null) {
             return null;
         }

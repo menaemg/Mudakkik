@@ -113,16 +113,35 @@ export default function Edit({ subscription, plans }) {
                             <select
                                 value={data.plan_id}
                                 onChange={(e) => setData('plan_id', e.target.value)}
-                                className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                disabled={!plans || plans.length === 0}
+                                className={`w-full rounded-lg shadow-sm focus:ring-blue-500 ${errors.plan_id
+                                    ? 'border-red-500 focus:border-red-500'
+                                    : 'border-gray-300 focus:border-blue-500'
+                                    } ${!plans || plans.length === 0 ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                             >
-                                {plans.map((plan) => (
-                                    <option key={plan.id} value={plan.id}>
-                                        {plan.name} - ${plan.price}
-                                    </option>
-                                ))}
+                                {(!plans || plans.length === 0) ? (
+                                    <option value="">لا توجد خطط متاحة</option>
+                                ) : (
+                                    <>
+                                        {!data.plan_id && (
+                                            <option value="">اختر خطة...</option>
+                                        )}
+                                        {plans.map((plan) => (
+                                            <option key={plan.id} value={plan.id}>
+                                                {plan.name} - ${plan.price}
+                                                {!plan.is_active ? ' (غير نشطة)' : ''}
+                                            </option>
+                                        ))}
+                                    </>
+                                )}
                             </select>
                             {errors.plan_id && (
                                 <p className="mt-1 text-sm text-red-600">{errors.plan_id}</p>
+                            )}
+                            {(!plans || plans.length === 0) && (
+                                <p className="mt-1 text-sm text-yellow-600">
+                                    لا توجد خطط نشطة. يرجى تفعيل خطة واحدة على الأقل.
+                                </p>
                             )}
                         </div>
 
@@ -136,8 +155,8 @@ export default function Edit({ subscription, plans }) {
                                 value={data.ends_at}
                                 onChange={(e) => setData('ends_at', e.target.value)}
                                 className={`w-full rounded-lg shadow-sm focus:ring-blue-500 ${errors.ends_at
-                                        ? 'border-red-500 focus:border-red-500'
-                                        : 'border-gray-300 focus:border-blue-500'
+                                    ? 'border-red-500 focus:border-red-500'
+                                    : 'border-gray-300 focus:border-blue-500'
                                     }`}
                             />
                             <p className="mt-1 text-xs text-gray-500">اتركه فارغاً للاشتراك غير المحدود</p>
