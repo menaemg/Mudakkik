@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -13,16 +14,17 @@ Route::get('/', function () {
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
     ]);
-});
+})->name('welcome');
 
-
-Route::prefix('admin')->group(function () {
+Route::middleware(['auth', 'verified', 'can:admin-access'])->prefix('admin')->name('admin.')->group(function () {
 
     Route::get('/dashboard', function () {
         return Inertia::render('Admin/Dashboard');
-    })->name('dashboard');
+    })->name('dashboard'); 
 
-Route::resource('users', UserController::class);
+    Route::resource('users', UserController::class);
+    Route::resource('categories', CategoryController::class);
+    
 });
 
 Route::middleware('auth')->group(function () {

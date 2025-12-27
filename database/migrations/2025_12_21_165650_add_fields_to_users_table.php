@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->string('username')->unique();
-            $table->enum('role', ['مستخدم', 'ادمن', 'صحفى'])->default('صحفى');
+            $table->enum('role', ['user', 'admin', 'journalist'])->default('user');
            $table->integer('credibility_score')->default(0);
             $table->boolean('is_verified_journalist')->default(false);
             $table->text('bio')->nullable(); 

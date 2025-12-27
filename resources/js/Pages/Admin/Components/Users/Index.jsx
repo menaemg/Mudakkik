@@ -5,10 +5,10 @@ import { motion } from "framer-motion";
 import Swal from "sweetalert2";
 import UserHeader from "./Partials/UserHeader.jsx";
 import UserTable from "./Partials/UserTable.jsx";
-import UserPagination from "./Partials/UserPagination.jsx";
 import UserViewModal from "./Partials/UserViewModal.jsx";
 import UserCreateModal from "./Partials/UserCreateModal.jsx";
 import UserEditModal from "./Partials/UserEditModal.jsx";
+import AdminPagination from "@/Layouts/AdminPagination.jsx";
 
 export default function Index({ users, filters = {} }) {
     const [searchTerm, setSearchTerm] = useState(filters?.search || "");
@@ -18,24 +18,25 @@ export default function Index({ users, filters = {} }) {
     const [isEditOpen, setIsEditOpen] = useState(false);
 
     const { flash } = usePage().props;
-useEffect(() => {
-    if (flash?.success) { 
-        Swal.fire({
-            icon: 'success',
-            title: 'تمت العملية',
-            text: flash.success,
-            timer: 2000,
-            showConfirmButton: false,
-            customClass: { popup: 'rounded-[2rem] font-sans' }
-        });
-    }
-}, [flash]);
+    useEffect(() => {
+        if (flash?.success) {
+            Swal.fire({
+                icon: "success",
+                title: "تمت العملية",
+                text: flash.success,
+                timer: 2000,
+                showConfirmButton: false,
+                customClass: { popup: "rounded-[2rem] font-sans" },
+            });
+        }
+    }, [flash]);
 
     useEffect(() => {
         const delayDebounceFn = setTimeout(() => {
             if (searchTerm !== (filters?.search || "")) {
-                router.get(route("users.index"), 
-                    { search: searchTerm, page: 1 }, 
+                router.get(
+                    route("admin.users.index"),
+                    { search: searchTerm, page: 1 },
                     { preserveState: true, replace: true, preserveScroll: true }
                 );
             }
@@ -45,9 +46,12 @@ useEffect(() => {
 
     const getRoleBadge = (role) => {
         switch (role) {
-            case "ادمن": return "bg-red-100 text-red-700 border-red-200 shadow-sm shadow-red-100";
-            case "صحفى": return "bg-blue-100 text-blue-700 border-blue-200 shadow-sm shadow-blue-100";
-            default: return "bg-slate-100 text-slate-700 border-slate-200";
+            case "admin":
+                return "bg-red-100 text-red-700 border-red-200 shadow-sm shadow-red-100";
+            case "journalist":
+                return "bg-blue-100 text-blue-700 border-blue-200 shadow-sm shadow-blue-100";
+            default:
+                return "bg-slate-100 text-slate-700 border-slate-200";
         }
     };
 
@@ -62,10 +66,10 @@ useEffect(() => {
             confirmButtonText: "نعم، احذف",
             cancelButtonText: "إلغاء",
             reverseButtons: true,
-            customClass: { popup: 'rounded-[2rem] font-sans' }
+            customClass: { popup: "rounded-[2rem] font-sans" },
         }).then((result) => {
             if (result.isConfirmed) {
-                router.delete(route("users.destroy", user.id));
+                router.delete(route("admin.users.destroy", user.id));
             }
         });
     };
@@ -73,21 +77,21 @@ useEffect(() => {
     return (
         <div className="space-y-8 font-sans pb-20 px-4 md:px-6 rtl" dir="rtl">
             <Head title="إدارة المستخدمين - لوحة التحكم" />
-            
-            <UserHeader 
-                searchTerm={searchTerm} 
-                setSearchTerm={setSearchTerm} 
-                onAddClick={() => setIsCreateOpen(true)} 
+
+            <UserHeader
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                onAddClick={() => setIsCreateOpen(true)}
             />
 
-            <motion.div 
-                initial={{ opacity: 0, y: 20 }} 
-                animate={{ opacity: 1, y: 0 }} 
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
                 className="bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200/60 border border-slate-100 overflow-hidden"
             >
-                <UserTable 
-                    users={users.data} 
-                    getRoleBadge={getRoleBadge} 
+                <UserTable
+                    users={users.data}
+                    getRoleBadge={getRoleBadge}
                     onView={(user) => {
                         setSelectedUser(user);
                         setIsViewOpen(true);
@@ -95,28 +99,32 @@ useEffect(() => {
                     onEdit={(user) => {
                         setSelectedUser(user);
                         setIsEditOpen(true);
-                    }} 
+                    }}
                     onDelete={handleDelete}
                 />
-                
-                <UserPagination links={users.links} total={users.total} />
+
+                <AdminPagination
+                    links={users.links}
+                    total={users.total}
+                    label="إجمالي المستخدمين"
+                />
             </motion.div>
 
-            <UserViewModal 
-                isOpen={isViewOpen} 
-                user={selectedUser} 
-                onClose={() => setIsViewOpen(false)} 
+            <UserViewModal
+                isOpen={isViewOpen}
+                user={selectedUser}
+                onClose={() => setIsViewOpen(false)}
                 getRoleBadge={getRoleBadge}
             />
 
-            <UserCreateModal 
-                isOpen={isCreateOpen} 
-                onClose={() => setIsCreateOpen(false)} 
+            <UserCreateModal
+                isOpen={isCreateOpen}
+                onClose={() => setIsCreateOpen(false)}
             />
-            <UserEditModal 
-                isOpen={isEditOpen} 
-                user={selectedUser} 
-                onClose={() => setIsEditOpen(false)} 
+            <UserEditModal
+                isOpen={isEditOpen}
+                user={selectedUser}
+                onClose={() => setIsEditOpen(false)}
             />
         </div>
     );
