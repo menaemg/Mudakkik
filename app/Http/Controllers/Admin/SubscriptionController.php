@@ -58,7 +58,7 @@ class SubscriptionController extends Controller
             $newPlanId = $validated['plan_id'];
 
             // Handle plan change: recalculate ends_at based on new plan's duration
-            if ($oldPlanId !== $newPlanId && !isset($validated['ends_at'])) {
+            if ($oldPlanId !== $newPlanId && !array_key_exists('ends_at', $validated)) {
                 $newPlan = Plan::find($newPlanId);
                 if ($newPlan && $newPlan->duration_days) {
                     // Calculate new ends_at from now (or current start_at if subscription hasn't started)
