@@ -1,6 +1,5 @@
 <?php
 
-use Tests\TestCase;
 
 test('registration screen can be rendered', function () {
     $response = $this->get('/register');
@@ -21,5 +20,5 @@ test('new users can register', function () {
     $response->assertSessionHasNoErrors();
 
     $this->assertAuthenticated();
-    $response->assertRedirect(route('dashboard', absolute: false));
+    $response->assertRedirect(route('welcome', absolute: false));
 });
