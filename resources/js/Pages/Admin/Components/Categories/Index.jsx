@@ -74,7 +74,7 @@ export default function Index({ categories, filters = {} }) {
                     setIsViewOpen(false);
                     setIsCreateOpen(false);
                     setIsEditOpen(false);
-                    setSelectedUser(null);
+                    setSelectedCategory(null);
                 }
             };
             document.addEventListener("keydown", handleEscape);
