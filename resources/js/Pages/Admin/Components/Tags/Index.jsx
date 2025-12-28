@@ -241,4 +241,4 @@ export default function Index({ tags, filters = {} }) {
     );
 }
 
-Index.layout = (page) => <AdminLayout children={page} />;
+Index.layout = (page) => <AdminLayout>{page}</AdminLayout>;

@@ -122,7 +122,7 @@ export default function Index({ categories, filters = {} }) {
                 category={selectedCategory}
                 onClose={() => {
                     setIsViewOpen(false);
-                    setSelectedPost(null);
+                    setSelectedCategory(null);
                 }}
             />
             <CategoryEditModal
