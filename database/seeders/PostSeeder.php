@@ -15,10 +15,14 @@ class PostSeeder extends Seeder
     public function run(): void
     {
         $tags = Tag::all();
-
+        if ($tags->isEmpty()) {
+            Post::factory(20)->create();
+            return;
+        }
         Post::factory(20)->create()->each(function ($post) use ($tags) {
+            $count = min(rand(1, 3), $tags->count());
             $post->tags()->attach(
-                $tags->random(rand(1, 3))->pluck('id')
+                $tags->random($count)->pluck('id')
             );
         });
     }
