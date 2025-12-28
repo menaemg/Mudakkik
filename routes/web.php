@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\PlanController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\SubscriptionController;
+use App\Http\Controllers\Admin\TagController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -27,6 +28,8 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
 
     Route::resource('users', UserController::class);
     Route::resource('categories', CategoryController::class);
+    Route::resource('tags', TagController::class);
+
 
     Route::resource('plans', PlanController::class);
     Route::get('subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions.index');

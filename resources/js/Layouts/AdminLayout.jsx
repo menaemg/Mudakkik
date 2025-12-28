@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link, usePage } from "@inertiajs/react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-    LayoutDashboard, Users, CreditCard, Megaphone,
+    LayoutDashboard, Users, CreditCard, Megaphone,Hash,
     Menu, X, Bell, ChevronLeft, Search, ShieldCheck, Package, Layers, FolderTree, LogOut
 } from "lucide-react";
 
@@ -18,6 +18,7 @@ export default function AdminLayout({ children }) {
         { label: "طلبات الترقية", icon: ShieldCheck, url: "/admin/upgrades" },
         { label: "المدفوعات", icon: CreditCard, url: "/admin/payments" },
         { label: "الفئات", icon: FolderTree, url: "/admin/categories" },
+        { label: "الأوسمة", icon: Hash, url: "/admin/tags" },
     ];
 
     return (

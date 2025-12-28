@@ -68,6 +68,18 @@ export default function Index({ categories, filters = {} }) {
             }
         });
     };
+        useEffect(() => {
+            const handleEscape = (e) => {
+                if (e.key === "Escape") {
+                    setIsViewOpen(false);
+                    setIsCreateOpen(false);
+                    setIsEditOpen(false);
+                    setSelectedUser(null);
+                }
+            };
+            document.addEventListener("keydown", handleEscape);
+            return () => document.removeEventListener("keydown", handleEscape);
+        }, []);
 
     return (
         <div className="space-y-8 font-sans pb-20 px-4 md:px-6 rtl" dir="rtl">
@@ -108,12 +120,18 @@ export default function Index({ categories, filters = {} }) {
             <CategoryViewModal
                 isOpen={isViewOpen}
                 category={selectedCategory}
-                onClose={() => setIsViewOpen(false)}
+                onClose={() => {
+                    setIsViewOpen(false);
+                    setSelectedPost(null);
+                }}
             />
-            <CategoryEditModal  
-            isOpen={isEditOpen}
-            category={selectedCategory}
-            onClose={()=>setIsEditOpen(false)}
+            <CategoryEditModal
+                isOpen={isEditOpen}
+                category={selectedCategory}
+                onClose={() => {
+                    setIsEditOpen(false);
+                    setSelectedCategory(null);
+                }}
             />
         </div>
     );
