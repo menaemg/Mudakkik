@@ -26,6 +26,13 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
         return Inertia::render('Admin/Dashboard');
     })->name('dashboard');
 
+    Route::prefix('requests')->group(function () {
+            Route::get('/join', function () {
+        return Inertia::render('Admin/Requests/Join');
+    })->name('requests.join');
+
+    });
+
     Route::resource('users', UserController::class);
     Route::resource('categories', CategoryController::class);
     Route::resource('tags', TagController::class);
