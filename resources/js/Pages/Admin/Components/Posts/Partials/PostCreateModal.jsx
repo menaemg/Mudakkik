@@ -75,8 +75,8 @@ export default function PostCreateModal({ isOpen, onClose, categories, tags }) {
 
                         <form
                             onSubmit={handleSubmit}
-                            className="p-8 space-y-6 overflow-y-auto custom-scrollbar"
-                            dir="rtl text-right"
+                            className="p-8 space-y-6 overflow-y-auto custom-scrollbar text-right"
+                            dir="rtl"
                         >
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-2 text-right">
@@ -201,7 +201,7 @@ export default function PostCreateModal({ isOpen, onClose, categories, tags }) {
                                     <Tag size={16} className="text-[#D00000]" />
                                 </label>
                                 <div className="flex flex-wrap gap-2 p-4 bg-slate-50 rounded-[1.8rem] border-2 border-slate-100">
-                                    {tags.map((tag) => (
+                                    {tags?.map((tag) => (
                                         <button
                                             key={tag.id}
                                             type="button"

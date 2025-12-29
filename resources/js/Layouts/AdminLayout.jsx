@@ -58,7 +58,7 @@ export default function AdminLayout({ children }) {
                 customClass: { popup: "rounded-[2rem] font-sans" },
             });
         }
-    },[flash]);
+    }, [flash]);
 
     return (
         <div

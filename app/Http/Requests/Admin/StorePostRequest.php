@@ -37,7 +37,7 @@ class StorePostRequest extends FormRequest
             ],
             'status' => 'nullable|in:pending,published,rejected',
             'is_featured' => 'nullable|boolean',
-            'tags' => 'nullable|array',
+            'tag_ids' => 'nullable|array',
             'tags.*' => 'exists:tags,id',
         ];
     }

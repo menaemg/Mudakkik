@@ -155,7 +155,7 @@ export default function PostTable({ posts, onEditClick, onDeleteClick,onViewClic
                                     {post.status === "published"
                                         ? "منشور"
                                         : post.status === "pending"
-                                        ? "انتظار"
+                                        ? "قيد المراجعة"
                                         : "مرفوض"}
                                 </span>
                             </td>

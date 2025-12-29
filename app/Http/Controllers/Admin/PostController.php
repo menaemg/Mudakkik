@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 use App\Http\Controllers\Controller;
@@ -27,9 +28,8 @@ class PostController extends Controller
             ->filter($request)
             ->paginate(10)
             ->withQueryString();
-        $categories = Category::select('id', 'name')->get();
-        $tags = Tag::select('id', 'name')->get();
-
+        $categories = Category::select('id', 'name')->limit(100)->get();
+        $tags = Tag::select('id', 'name')->limit(100)->get();
         return Inertia::render('Admin/Components/Posts/Index', [
             'posts' => $posts,
             'filters' => $request->only(['search', 'status', 'category', 'verdict']),
@@ -51,60 +51,64 @@ class PostController extends Controller
     public function store(StorePostRequest $request)
     {
         $validated = $request->validated();
+
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('posts', 'public');
             $validated['image'] = $path;
         }
 
-        $validated['user_id'] = auth()->id();
+        $post = DB::transaction(function () use ($validated, $request) {
+            $post = Post::create([
+                'title' => $validated['title'],
+                'body' => $validated['body'],
+                'category_id' => $validated['category_id'],
+                'image' => $validated['image'] ?? null,
+                'user_id' => Auth::id(),
+                'status' => $validated['status'] ?? 'pending',
+                'ai_verdict' => $validated['ai_verdict'] ?? 'trusted',
+            ]);
 
-        $post = Post::create($validated);
-        if ($request->has('tags')) {
-            $post->tags()->sync($request->tags);
-        }
-        return redirect()->route('admin.posts.index')
-            ->with('success', 'تم إنشاء ونشر المقال بنجاح!');
+            if ($request->has('tag_ids')) {
+                $post->tags()->attach($request->tag_ids);
+            }
+
+            return $post;
+        });
+
+        return redirect()->route('admin.posts.index')->with('success', 'تم إنشاء المقال بنجاح');
     }
-
-
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Post $post)
+    public function update(StorePostRequest $request, Post $post)
     {
-      
-        $validated = $request->validate([
-            'title'       => 'required|string|max:255',
-            'body'        => 'required|string',
-            'category_id' => 'required|exists:categories,id',
-            'image'       => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048', 
-            'tag_ids'     => 'nullable|array',
-            'tag_ids.*'   => 'exists:tags,id',
-        ]);
+    
+        $validated = $request->validated();
 
-        $post->fill([
-            'title'       => $validated['title'],
-            'body'        => $validated['body'],
-            'category_id' => $validated['category_id'],
-        ]);
-        if ($request->hasFile('image')) {
-            if ($post->image && Storage::disk('public')->exists($post->image)) {
-                Storage::disk('public')->delete($post->image);
+        DB::transaction(function () use ($request, $post, $validated) {
+            if ($request->hasFile('image')) {
+                $newPath = $request->file('image')->store('posts', 'public');
+                if ($post->image && Storage::disk('public')->exists($post->image)) {
+                    Storage::disk('public')->delete($post->image);
+                }
+                $post->image = $newPath;
             }
 
-            $path = $request->file('image')->store('posts', 'public');
-            $post->image = $path;
-        }
+            $post->update([
+                'title'       => $validated['title'],
+                'body'        => $validated['body'],
+                'category_id' => $validated['category_id'],
+            ]);
 
-        
-        $post->save();
+            if (isset($validated['tag_ids'])) {
+                $post->tags()->sync($validated['tag_ids']);
+            } else {
+                $post->tags()->detach();
+            }
+        });
 
-        if (isset($validated['tag_ids'])) {
-            $post->tags()->sync($validated['tag_ids']);
-        }
-
-        return back()->with('success', 'تم تحديث المقال بنجاح');
+        return back()->with('success', 'تم تحديث المقال بنجاح وبأمان');
     }
     /**
      * Remove the specified resource from storage.
