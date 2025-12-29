@@ -38,7 +38,7 @@ class StorePostRequest extends FormRequest
             'status' => 'nullable|in:pending,published,rejected',
             'is_featured' => 'nullable|boolean',
             'tag_ids' => 'nullable|array',
-            'tags.*' => 'exists:tags,id',
+            'tag_ids.*' => 'exists:tags,id',
         ];
     }
     public function messages(): array
@@ -51,7 +51,7 @@ class StorePostRequest extends FormRequest
             'image.required' => 'يجب إرفاق صورة للمقال.',
             'image.image' => 'الملف يجب أن يكون صورة.',
             'image.max' => 'حجم الصورة كبير جداً (الأقصى 2 ميجا).',
-            'tags.*.exists' => 'أحد الأوسمة المختارة غير صالح.',
+            'tag_ids.*.exists' => 'أحد الأوسمة المختارة غير صالح.',
         ];
     }
 }

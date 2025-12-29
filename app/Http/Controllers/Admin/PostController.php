@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StorePostRequest;
 use Illuminate\Http\Request;
@@ -113,19 +113,26 @@ class PostController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Post $post)
-    {
-        try {
-            if ($post->image) {
-                if (Storage::disk('public')->exists($post->getRawOriginal('image'))) {
-                    Storage::disk('public')->delete($post->getRawOriginal('image'));
-                }
-            }
+ public function destroy(Post $post)
+{
+    try {
+        DB::transaction(function () use ($post) {
+            $imagePath = $post->getRawOriginal('image');
+
             $post->tags()->detach();
+
             $post->delete();
-            return back()->with('success', 'تم حذف المقال وكل ملفاته بنجاح.');
-        } catch (\Exception $e) {
-            return back()->with('error', 'عذراً، حدث خطأ أثناء محاولة الحذف.');
-        }
+
+            if ($imagePath && Storage::disk('public')->exists($imagePath)) {
+                Storage::disk('public')->delete($imagePath);
+            }
+        });
+
+        return back()->with('success', 'تم حذف المقال وكل ملفاته بنجاح');
+
+    } catch (\Exception $e) {
+        Log::error('فشل حذف المقال: ' . $e->getMessage(), ['post_id' => $post->id]);
+        return back()->with('error', 'عذراً، حدث خطأ أثناء محاولة الحذف');
     }
+}
 }
