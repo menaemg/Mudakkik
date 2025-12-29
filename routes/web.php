@@ -30,6 +30,7 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
             Route::get('/join', function () {
         return Inertia::render('Admin/Requests/Join');
     })->name('admin.requests.join');
+
     });
 
     Route::resource('users', UserController::class);
