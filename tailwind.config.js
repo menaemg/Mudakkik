@@ -22,6 +22,7 @@ export default {
     			sm: 'calc(var(--radius) - 4px)'
     		},
     		colors: {
+				adminBlue:'#001246',
     			background: 'hsl(var(--background))',
     			foreground: 'hsl(var(--foreground))',
     			card: {

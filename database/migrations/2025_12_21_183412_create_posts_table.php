@@ -15,10 +15,12 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->text('body');
-            $table->enum('status',['pending', 'published', 'rejected']);
-            $table->enum('ai_verdict',['موثوق', 'كاذب', 'مضلل']);
-            $table->foreignId('user_id');
-            $table->foreignId('category_id');
+            $table->string('image')->nullable();
+            $table->boolean('is_featured')->default(false);
+            $table->enum('status', ['pending', 'published', 'rejected'])->default('pending');
+            $table->enum('ai_verdict', ['trusted', 'fake', 'misleading'])->nullable();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('category_id')->constrained()->onDelete('restrict');
             $table->timestamps();
         });
     }

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "@inertiajs/react";
+import { Link, usePage } from "@inertiajs/react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     LayoutDashboard,
@@ -15,11 +15,17 @@ import {
     UserCheck,
     UserRoundCheck,
     MonitorCheck,
+    Hash,
+    Package,
+    Layers,
+    FolderTree,
+    LogOut,
 } from "lucide-react";
 
 export default function AdminLayout({ children }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [openMenu, setOpenMenu] = useState(null);
+    const { auth } = usePage().props;
 
     const menuItems = [
         { label: "الرئيسية", icon: LayoutDashboard, url: "/admin/dashboard" },
@@ -41,7 +47,12 @@ export default function AdminLayout({ children }) {
                 },
             ],
         },
+        { label: "الخطط", icon: Package, url: "/admin/plans" },
+        { label: "الاشتراكات", icon: Layers, url: "/admin/subscriptions" },
+        // { label: "طلبات الترقية", icon: ShieldCheck, url: "/admin/upgrades" },
         { label: "المدفوعات", icon: CreditCard, url: "/admin/payments" },
+        { label: "الفئات", icon: FolderTree, url: "/admin/categories" },
+        { label: "الأوسمة", icon: Hash, url: "/admin/tags" },
     ];
 
     return (
@@ -202,16 +213,26 @@ export default function AdminLayout({ children }) {
                         <div className="flex items-center gap-3 pr-4 border-r border-slate-200">
                             <div className="text-left hidden sm:block">
                                 <p className="text-xs font-black text-[#001246]">
-                                    آية أحمد
+                                    {auth?.user?.name || "مستخدم"}
                                 </p>
-                                <p className="text-[10px] text-slate-400 font-bold tracking-tighter uppercase">
-                                    Admin
+                                <p className="text-[10px] text-slate-400 font-bold tracking-tighter">
+                                    @{auth?.user?.username || "user"}
                                 </p>
                             </div>
                             <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#001246] to-[#0055ff] flex items-center justify-center text-white font-black shadow-lg shadow-blue-900/20 border-2 border-white ring-1 ring-slate-100">
-                                آ
+                                {auth?.user?.name?.charAt(0) || "م"}
                             </div>
                         </div>
+
+                        <Link
+                            href={route("logout")}
+                            method="post"
+                            as="button"
+                            className="p-2.5 bg-red-50 rounded-xl text-red-600 hover:bg-red-100 transition-colors"
+                            title="تسجيل الخروج"
+                        >
+                            <LogOut size={20} />
+                        </Link>
                     </div>
                 </header>
 

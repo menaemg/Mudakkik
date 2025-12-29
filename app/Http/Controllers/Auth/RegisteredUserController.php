@@ -35,7 +35,7 @@ class RegisteredUserController extends Controller
             'email' => 'required|string|email|max:255|unique:' . User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'username' => ['required', 'string', 'max:255', 'unique:users'],
-
+            'role' => 'nullable|string|in:user,journalist,admin'
         ]);
 
         $user = User::create([
@@ -51,6 +51,6 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        return redirect(route('welcome', absolute: false));
     }
 }
