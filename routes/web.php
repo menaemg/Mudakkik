@@ -18,12 +18,19 @@ Route::get('/', function () {
 Route::prefix('admin')->group(function () {
 
     Route::get('/dashboard', function () {
-        return Inertia::render('Admin/Dashboard'); 
+        return Inertia::render('Admin/Dashboard');
     })->name('admin.dashboard');
 
     Route::get('/users', function () {
         return Inertia::render('Admin/Users');
     })->name('admin.users');
+
+    Route::prefix('requests')->group(function () {
+            Route::get('/join', function () {
+        return Inertia::render('Admin/Requests/Join');
+    })->name('admin.requests.join');
+    });
+
 });
 
 Route::middleware('auth')->group(function () {
