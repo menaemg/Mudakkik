@@ -8,22 +8,23 @@ export default function RequestViewModal({
     onClose,
     getStatusColor,
     getStatusText,
+    onView,
+    onApprove,
+    onReject,
 }) {
-    if (!isOpen || !request) return null;
-
     return (
         <AnimatePresence>
-            {isOpen && (
+            {isOpen && request && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#001246]/70 backdrop-blur-lg ">
                     <motion.div
                         initial={{ opacity: 0, scale: 0.92, y: 40 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.92, y: 40 }}
-                        className="bg-white rounded-[3rem] w-full max-w-2xl max-h-[90vh] overflow-y-auto no-scrollbar shadow-2xl border border-white/20"
+                        className="bg-white rounded-[3rem] w-full max-w-2xl max-h-[90vh]  overflow-y-auto no-scrollbar shadow-2xl border border-white/20"
                         dir="rtl"
                     >
                         {/* Header */}
-                        <div className="bg-[#001246] text-white p-8 relative">
+                        <div className="bg-[#001246] text-white p-8 relative  rounded-t-[3rem]">
                             <button
                                 onClick={onClose}
                                 className="absolute top-6 left-6 text-white/40 hover:text-white"
@@ -100,10 +101,12 @@ export default function RequestViewModal({
                                     <ActionButton
                                         color="green"
                                         text="قبول الطلب"
+                                        onClick={() => onApprove(request)}
                                     />
                                     <ActionButton
                                         color="red"
                                         text="رفض الطلب"
+                                        onClick={() => onReject(request)}
                                     />
                                 </div>
                             )}
@@ -133,7 +136,7 @@ const DetailRow = ({ label, value, icon }) => (
     </div>
 );
 
-const ActionButton = ({ color, text }) => {
+const ActionButton = ({ color, text, onClick }) => {
     const colors = {
         green: "bg-emerald-600 hover:bg-emerald-700",
         red: "bg-red-600 hover:bg-red-700",
@@ -141,6 +144,7 @@ const ActionButton = ({ color, text }) => {
 
     return (
         <button
+            onClick={onClick}
             className={`flex-1 py-4 text-white font-black rounded-[1.5rem] shadow-lg transition-all active:scale-95 ${colors[color]}`}
         >
             {text}

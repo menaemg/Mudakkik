@@ -29,7 +29,7 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::prefix('requests')->group(function () {
             Route::get('/join', function () {
         return Inertia::render('Admin/Requests/Join');
-    })->name('admin.requests.join');
+    })->name('requests.join');
 
     });
 

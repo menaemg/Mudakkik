@@ -33,7 +33,7 @@ import RequestViewModal from "./Partials/RequestViewModal";
 import RequestsTable from "./Partials/RequestsTable";
 import AdminPagination from "@/Layouts/AdminPagination";
 
-export default function join({ requests, filters }) {
+export default function join() {
     const [selectedStatus, setSelectedStatus] = useState("all");
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedRequest, setSelectedRequest] = useState(null);
@@ -98,7 +98,9 @@ export default function join({ requests, filters }) {
             icon: Check,
             color: "green",
         },
-        { label: "مرفوض", value: "156", icon: X, color: "gray" },
+        {
+            label: "مرفوض", value: "156", icon: X, color: "gray"
+        }
     ];
 
     const requests = [
@@ -158,27 +160,6 @@ export default function join({ requests, filters }) {
         },
     ];
 
-    const recentActivities = [
-        {
-            action: "تم قبول",
-            user: "سارة محمد",
-            by: "أحمد أحمد",
-            time: "منذ ساعتين",
-        },
-        {
-            action: "تم رفض",
-            user: "خالد إبراهيم",
-            by: "أحمد أحمد",
-            time: "منذ 3 ساعات",
-        },
-        {
-            action: "طلب جديد",
-            user: "محمد أحمد علي",
-            by: "تلقائي",
-            time: "منذ 5 ساعات",
-        },
-    ];
-
     const getStatusColor = (status) => {
         switch (status) {
             case "pending":
@@ -205,13 +186,23 @@ export default function join({ requests, filters }) {
         }
     };
 
-    const filteredRequests = requests.filter((req) => {
-        const matchesStatus =
-            selectedStatus === "all" || req.status === selectedStatus;
-        const matchesSearch =
-            req.name.includes(searchTerm) || req.email.includes(searchTerm);
-        return matchesStatus && matchesSearch;
-    });
+    // const filteredRequests = (requests?.data || []).filter((req) => {
+    //     const matchesStatus =
+    //         selectedStatus === "all" || req.status === selectedStatus;
+    //     const matchesSearch =
+    //         req.name.includes(searchTerm) || req.email.includes(searchTerm);
+    //     return matchesStatus && matchesSearch;
+    // });
+    // console.log(filteredRequests);
+
+    const handleApprove = (request) => {
+        // TODO: Implement approval logic via Inertia router
+        console.log("Approve request:", request.id);
+    };
+    const handleReject = (request) => {
+        // TODO: Implement rejection logic via Inertia router
+        console.log("Reject request:", request.id);
+    };
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
@@ -334,7 +325,7 @@ export default function join({ requests, filters }) {
                         </div>
                         <div className="bg-white rounded-xl shadow-2xl shadow-slate-200/60 border border-slate-100 overflow-hidden">
                             <RequestsTable
-                                requests={filteredRequests}
+                                requests={requests}
                                 onView={(req) => setSelectedRequest(req)}
                                 onApprove={(req) => handleApprove(req)}
                                 onReject={(req) => handleReject(req)}
