@@ -7,6 +7,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\PlanController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\Admin\SubscriptionController;
 use App\Http\Controllers\Admin\TagController;
 
@@ -29,8 +30,9 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::resource('users', UserController::class);
     Route::resource('categories', CategoryController::class);
     Route::resource('tags', TagController::class);
-
-
+    Route::resource('posts', PostController::class);
+    Route::patch('posts/{post}/toggle-featured', [PostController::class, 'toggleFeatured'])
+        ->name('posts.toggle-featured');
     Route::resource('plans', PlanController::class);
     Route::get('subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions.index');
     Route::get('subscriptions/{subscription}/edit', [SubscriptionController::class, 'edit'])->name('subscriptions.edit');

@@ -1,10 +1,26 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, usePage } from "@inertiajs/react";
+
 import { motion, AnimatePresence } from "framer-motion";
 import {
-    LayoutDashboard, Users, CreditCard, Megaphone,Hash,
-    Menu, X, Bell, ChevronLeft, Search, ShieldCheck, Package, Layers, FolderTree, LogOut
+    LayoutDashboard,
+    Users,
+    CreditCard,
+    Megaphone,
+    Hash,
+    Newspaper,
+    Menu,
+    X,
+    Bell,
+    ChevronLeft,
+    Search,
+    ShieldCheck,
+    Package,
+    Layers,
+    FolderTree,
+    LogOut,
 } from "lucide-react";
+import Swal from "sweetalert2";
 
 export default function AdminLayout({ children }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -13,6 +29,7 @@ export default function AdminLayout({ children }) {
     const menuItems = [
         { label: "الرئيسية", icon: LayoutDashboard, url: "/admin/dashboard" },
         { label: "المستخدمين", icon: Users, url: "/admin/users" },
+        { label: "المقالات", icon: Newspaper, url: "/admin/posts" },
         { label: "الخطط", icon: Package, url: "/admin/plans" },
         { label: "الاشتراكات", icon: Layers, url: "/admin/subscriptions" },
         { label: "طلبات الترقية", icon: ShieldCheck, url: "/admin/upgrades" },
@@ -20,15 +37,41 @@ export default function AdminLayout({ children }) {
         { label: "الفئات", icon: FolderTree, url: "/admin/categories" },
         { label: "الأوسمة", icon: Hash, url: "/admin/tags" },
     ];
+    const { flash } = usePage().props;
+    useEffect(() => {
+        if (flash?.success) {
+            Swal.fire({
+                icon: "success",
+                title: "تمت العمليه بنجاح",
+                text: flash.success,
+                timer: 2000,
+                showConfirmButton: false,
+                customClass: { popup: "rounded-[2rem] font-sans" },
+            });
+        }
+        if (flash?.error) {
+            Swal.fire({
+                icon: "error",
+                title: "عزرا لقد حصل خطا ما !",
+                text: flash.error,
+                confirmButtonColor: "#D00000",
+                customClass: { popup: "rounded-[2rem] font-sans" },
+            });
+        }
+    },[flash]);
 
     return (
-        <div className="flex h-screen bg-gradient-to-tr from-[#F1F5F9] via-[#F8FAFC] to-[#E2E8F0] font-sans text-right overflow-hidden" dir="rtl">
-            <aside className={`
+        <div
+            className="flex h-screen bg-gradient-to-tr from-[#F1F5F9] via-[#F8FAFC] to-[#E2E8F0] font-sans text-right overflow-hidden"
+            dir="rtl"
+        >
+            <aside
+                className={`
                 fixed inset-y-0 right-0 z-50 w-72 bg-gradient-to-b from-[#001246] via-[#001b66] to-[#000d33] text-white shadow-2xl lg:relative lg:translate-x-0 transition-transform duration-300
                 ${isSidebarOpen ? "translate-x-0" : "translate-x-full"}
                 flex flex-col
-            `}>
-
+            `}
+            >
                 <div className="p-8 text-2xl font-black flex items-center gap-3 bg-black/20 backdrop-blur-xl border-b border-white/5">
                     <div className="bg-gradient-to-br from-[#D00000] to-[#FF4D4D] p-2 rounded-xl shadow-lg shadow-red-950/40 rotate-3">
                         <ShieldCheck size={28} className="text-white" />
@@ -114,19 +157,19 @@ export default function AdminLayout({ children }) {
                         <div className="flex items-center gap-3 pr-4 border-r border-slate-200">
                             <div className="text-left hidden sm:block">
                                 <p className="text-xs font-black text-[#001246]">
-                                    {auth?.user?.name || 'مستخدم'}
+                                    {auth?.user?.name || "مستخدم"}
                                 </p>
                                 <p className="text-[10px] text-slate-400 font-bold tracking-tighter">
-                                    @{auth?.user?.username || 'user'}
+                                    @{auth?.user?.username || "user"}
                                 </p>
                             </div>
                             <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#001246] to-[#0055ff] flex items-center justify-center text-white font-black shadow-lg shadow-blue-900/20 border-2 border-white ring-1 ring-slate-100">
-                                {auth?.user?.name?.charAt(0) || 'م'}
+                                {auth?.user?.name?.charAt(0) || "م"}
                             </div>
                         </div>
 
                         <Link
-                            href={route('logout')}
+                            href={route("logout")}
                             method="post"
                             as="button"
                             className="p-2.5 bg-red-50 rounded-xl text-red-600 hover:bg-red-100 transition-colors"

@@ -11,8 +11,6 @@ export default function Index({ tags, filters = {} }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editMode, setEditMode] = useState(false);
     const [editingTag, setEditingTag] = useState(null);
-
-    const { flash } = usePage().props;
     const { data, setData, post, put, processing, errors, reset, clearErrors } = useForm({
         name: "",
     });
@@ -30,20 +28,6 @@ export default function Index({ tags, filters = {} }) {
         document.addEventListener('keydown', handleEscape);
         return () => document.removeEventListener('keydown', handleEscape);
     }, [isModalOpen, closeModal]);
-
-    useEffect(() => {
-        if (flash?.success) {
-            Swal.fire({
-                icon: "success",
-                title: "تمت العملية",
-                text: flash.success,
-                timer: 2000,
-                showConfirmButton: false,
-                customClass: { popup: "rounded-[2rem] font-sans" },
-            });
-            closeModal();
-        }
-    }, [flash, closeModal]);
 
     useEffect(() => {
         const delayDebounceFn = setTimeout(() => {
