@@ -20,13 +20,14 @@ class PostFactory extends Factory
     public function definition(): array
     {
         return [
-            'title' => fake()->sentence(),
-            'body' => fake()->paragraphs(3, true),
-            'status' => fake()->randomElement(['pending', 'published', 'rejected']),
-            'ai_verdict' => fake()->randomElement(['موثوق', 'كاذب', 'مضلل']),
-            'user_id' => User::inRandomOrder()->first()?->id ?? User::factory(),
-            'category_id' => Category::inRandomOrder()->first()?->id ?? Category::factory(),
-      
+'title' => fake()->sentence(),
+        'body' => fake()->paragraphs(4, true), 
+        'image' => fake()->imageUrl(640, 480, 'news'), 
+        'status' => fake()->randomElement(['pending', 'published', 'rejected']),
+        'ai_verdict' => fake()->randomElement(['trusted', 'fake', 'misleading']),
+        'user_id' => User::factory(), 
+        'category_id' => Category::factory(),
+        'is_featured' => fake()->boolean(20),
         ];
     }
 }

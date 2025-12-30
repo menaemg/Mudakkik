@@ -42,7 +42,7 @@ export default function Index({ users, filters = {} }) {
             }
         }, 500);
         return () => clearTimeout(delayDebounceFn);
-    }, [searchTerm]);
+    }, [searchTerm,filters.search]);
 
     const getRoleBadge = (role) => {
         switch (role) {
@@ -73,7 +73,18 @@ export default function Index({ users, filters = {} }) {
             }
         });
     };
-
+    useEffect(() => {
+        const handleEscape = (e) => {
+            if (e.key === "Escape") {
+                setIsViewOpen(false);
+                setIsCreateOpen(false);
+                setIsEditOpen(false);
+                setSelectedUser(null);
+            }
+        };
+        document.addEventListener("keydown", handleEscape);
+        return () => document.removeEventListener("keydown", handleEscape);
+    }, []);
     return (
         <div className="space-y-8 font-sans pb-20 px-4 md:px-6 rtl" dir="rtl">
             <Head title="إدارة المستخدمين - لوحة التحكم" />
@@ -113,7 +124,10 @@ export default function Index({ users, filters = {} }) {
             <UserViewModal
                 isOpen={isViewOpen}
                 user={selectedUser}
-                onClose={() => setIsViewOpen(false)}
+                onClose={() => {
+                    setIsViewOpen(false);
+                    setSelectedUser(null);
+                }}
                 getRoleBadge={getRoleBadge}
             />
 
@@ -124,7 +138,10 @@ export default function Index({ users, filters = {} }) {
             <UserEditModal
                 isOpen={isEditOpen}
                 user={selectedUser}
-                onClose={() => setIsEditOpen(false)}
+                onClose={() => {
+                    setIsEditOpen(false);
+                    setSelectedUser(null);
+                }}
             />
         </div>
     );

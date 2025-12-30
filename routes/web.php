@@ -12,6 +12,7 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\PlanController;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Admin\TagController;
 
 Route::get('/', function () {
   return Inertia::render('Welcome', [
@@ -23,14 +24,24 @@ Route::get('/', function () {
   ]);
 })->name('welcome');
 
-Route::middleware(['auth', 'verified', 'can:admin-access'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
 
   Route::get('/dashboard', function () {
     return Inertia::render('Admin/Dashboard');
   })->name('dashboard');
 
-  Route::resource('users', UserController::class);
-  Route::resource('categories', CategoryController::class);
+  
+    Route::prefix('requests')->group(function () {
+            Route::get('/join', function () {
+        return Inertia::render('Admin/Requests/Join');
+    })->name('requests.join');
+
+    });
+
+    Route::resource('users', UserController::class);
+    Route::resource('categories', CategoryController::class);
+    Route::resource('tags', TagController::class);
+
 
   Route::resource('plans', AdminPlanController::class);
   Route::get('subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions.index');

@@ -8,10 +8,14 @@ import CategoryHeader from "./Partials/CategoryHeader";
 import CategoryTable from "./Partials/CategoryTable";
 import CategoryCreateModal from "./Partials/CategoryCreateModal";
 import AdminPagination from "@/Layouts/AdminPagination";
-
+import CategoryViewModal from "./Partials/CategoryViewModal";
+import CategoryEditModal from "./Partials/CategoryEditModal";
 export default function Index({ categories, filters = {} }) {
     const [searchTerm, setSearchTerm] = useState(filters?.search || "");
     const [isCreateOpen, setIsCreateOpen] = useState(false);
+    const [isViewOpen, setIsViewOpen] = useState(false);
+    const [selectedCategory, setSelectedCategory] = useState(null);
+    const [isEditOpen, setIsEditOpen] = useState(false);
 
     const { flash } = usePage().props;
     useEffect(() => {
@@ -64,6 +68,18 @@ export default function Index({ categories, filters = {} }) {
             }
         });
     };
+        useEffect(() => {
+            const handleEscape = (e) => {
+                if (e.key === "Escape") {
+                    setIsViewOpen(false);
+                    setIsCreateOpen(false);
+                    setIsEditOpen(false);
+                    setSelectedCategory(null);
+                }
+            };
+            document.addEventListener("keydown", handleEscape);
+            return () => document.removeEventListener("keydown", handleEscape);
+        }, []);
 
     return (
         <div className="space-y-8 font-sans pb-20 px-4 md:px-6 rtl" dir="rtl">
@@ -81,6 +97,14 @@ export default function Index({ categories, filters = {} }) {
                 <CategoryTable
                     categories={categories.data}
                     onDelete={handleDelete}
+                    onView={(category) => {
+                        setSelectedCategory(category);
+                        setIsViewOpen(true);
+                    }}
+                    onEdit={(category) => {
+                        setSelectedCategory(category);
+                        setIsEditOpen(true);
+                    }}
                 />
                 <AdminPagination
                     links={categories.links}
@@ -92,6 +116,22 @@ export default function Index({ categories, filters = {} }) {
             <CategoryCreateModal
                 isOpen={isCreateOpen}
                 onClose={() => setIsCreateOpen(false)}
+            />
+            <CategoryViewModal
+                isOpen={isViewOpen}
+                category={selectedCategory}
+                onClose={() => {
+                    setIsViewOpen(false);
+                    setSelectedCategory(null);
+                }}
+            />
+            <CategoryEditModal
+                isOpen={isEditOpen}
+                category={selectedCategory}
+                onClose={() => {
+                    setIsEditOpen(false);
+                    setSelectedCategory(null);
+                }}
             />
         </div>
     );
