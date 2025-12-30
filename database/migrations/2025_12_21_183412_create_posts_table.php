@@ -17,8 +17,8 @@ return new class extends Migration
       $table->text('body');
       $table->enum('status', ['pending', 'published', 'rejected']);
       $table->enum('ai_verdict', ['موثوق', 'كاذب', 'مضلل']);
-      $table->foreignId('user_id');
-      $table->foreignId('category_id');
+      $table->foreignId('user_id')->constrained()->onDelete('cascade');
+      $table->foreignId('category_id')->constrained()->onDelete('cascade');
       $table->timestamps();
     });
   }

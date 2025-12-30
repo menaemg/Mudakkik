@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
+use App\Models\Like;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -39,8 +40,18 @@ class PostController extends Controller
     $posts->appends($request->only(['q', 'category']));
 
     if (Auth::check()) {
-      $posts->getCollection()->transform(function ($post) {
-        $post->is_liked = $post->isLikedBy(Auth::id());
+      $userId = Auth::id();
+      $postIds = $posts->getCollection()->pluck('id')->toArray();
+      $userLikes = [];
+      if (!empty($postIds)) {
+        $userLikes = Like::whereIn('post_id', $postIds)
+          ->where('user_id', $userId)
+          ->pluck('post_id')
+          ->toArray();
+      }
+
+      $posts->getCollection()->transform(function ($post) use ($userLikes) {
+        $post->is_liked = in_array($post->id, $userLikes);
         return $post;
       });
     }

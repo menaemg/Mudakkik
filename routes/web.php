@@ -48,7 +48,7 @@ Route::middleware('auth')->group(function () {
   Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
   // User subscription routes
-  Route::get('/plans', [\App\Http\Controllers\SubscriptionController::class, 'index'])->name('plans.index');
+  Route::get('/subscription/plans', [\App\Http\Controllers\SubscriptionController::class, 'index'])->name('subscription.plans');
   Route::get('/subscription', [\App\Http\Controllers\SubscriptionController::class, 'show'])->name('subscription.show');
   Route::get('/subscription/history', [\App\Http\Controllers\SubscriptionController::class, 'history'])->name('subscription.history');
 });
