@@ -47,7 +47,7 @@ export default function PlansIndex({ auth, plans }) {
               اختر الباقة المناسبة لك
             </h1>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              انضم إلى منصة مذاكيك واختر الباقة التي تناسب احتياجاتك
+              انضم إلى منصة مدقق واختر الباقة التي تناسب احتياجاتك
             </p>
           </div>
 
