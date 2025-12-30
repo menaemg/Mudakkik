@@ -15,6 +15,9 @@ import {
     ChevronLeft,
     Search,
     ShieldCheck,
+    UserCheck,
+    UserRoundCheck,
+    MonitorCheck,
     Package,
     Layers,
     FolderTree,
@@ -24,15 +27,33 @@ import Swal from "sweetalert2";
 
 export default function AdminLayout({ children }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [openMenu, setOpenMenu] = useState(null);
     const { auth } = usePage().props;
 
     const menuItems = [
         { label: "الرئيسية", icon: LayoutDashboard, url: "/admin/dashboard" },
         { label: "المستخدمين", icon: Users, url: "/admin/users" },
         { label: "المقالات", icon: Newspaper, url: "/admin/posts" },
+        {
+            label: "طلبات ",
+            icon: ShieldCheck,
+            url: "/admin/requests",
+            list: [
+                {
+                    label: "الانضمام لمجتمع الحصفيين",
+                    icon: UserRoundCheck,
+                    url: "/admin/requests/join",
+                },
+                {
+                    label: "الاعلانات علي مدقق",
+                    icon: Megaphone,
+                    url: "/admin/requests/ads",
+                },
+            ],
+        },
         { label: "الخطط", icon: Package, url: "/admin/plans" },
         { label: "الاشتراكات", icon: Layers, url: "/admin/subscriptions" },
-        { label: "طلبات الترقية", icon: ShieldCheck, url: "/admin/upgrades" },
+        // { label: "طلبات الترقية", icon: ShieldCheck, url: "/admin/upgrades" },
         { label: "المدفوعات", icon: CreditCard, url: "/admin/payments" },
         { label: "الفئات", icon: FolderTree, url: "/admin/categories" },
         { label: "الأوسمة", icon: Hash, url: "/admin/tags" },
@@ -87,31 +108,92 @@ export default function AdminLayout({ children }) {
                     </button>
                 </div>
 
-                <nav className="p-6 space-y-3 mt-4 overflow-y-auto">
+                <nav className="p-6 space-y-3 mt-4 overflow-y-auto no-scrollbar">
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-[3px] mb-4 mr-2">
                         القائمة الرئيسية
                     </p>
-                    {menuItems.map((item) => (
-                        <Link
-                            key={item.url}
-                            href={item.url}
-                            className="flex items-center justify-between p-3.5 rounded-xl transition-all group hover:bg-white/5 text-slate-300 hover:text-white"
-                        >
-                            <div className="flex items-center gap-3">
-                                <item.icon
-                                    size={20}
-                                    className="group-hover:text-[#FF4D4D] transition-colors"
-                                />
-                                <span className="font-bold text-sm tracking-wide">
-                                    {item.label}
-                                </span>
+                    {menuItems.map((item) => {
+                        const isOpen = openMenu === item.label;
+                        return (
+                            <div key={item.label}>
+                                {item.list ? (
+                                    <button
+                                        onClick={() =>
+                                            setOpenMenu(
+                                                isOpen ? null : item.label
+                                            )
+                                        }
+                                        className="flex items-center justify-between p-3.5 rounded-xl transition-all group hover:bg-white/5 text-slate-300 hover:text-white w-full"
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <item.icon
+                                                size={20}
+                                                className="group-hover:text-[#FF4D4D] transition-colors"
+                                            />
+                                            <span className="font-bold text-sm tracking-wide">
+                                                {item.label}
+                                            </span>
+                                        </div>
+                                        <ChevronLeft
+                                            size={14}
+                                            className={`transition-transform duration-300 ${
+                                                isOpen
+                                                    ? "-rotate-90 text-[#FF4D4D]"
+                                                    : ""
+                                            }`}
+                                        />
+                                    </button>
+                                ) : (
+                                    <Link
+                                        key={item.url}
+                                        href={item.url}
+                                        className="flex items-center justify-between p-3.5 rounded-xl transition-all group hover:bg-white/5 text-slate-300 hover:text-white"
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <item.icon
+                                                size={20}
+                                                className="group-hover:text-[#FF4D4D] transition-colors"
+                                            />
+                                            <span className="font-bold text-sm tracking-wide">
+                                                {item.label}
+                                            </span>
+                                        </div>
+                                        <ChevronLeft
+                                            size={14}
+                                            className="opacity-0 group-hover:opacity-100 transition-all translate-x-1 group-hover:translate-x-0"
+                                        />
+                                    </Link>
+                                )}
+                                {item.list && (
+                                    <div
+                                        className={`mr-6 overflow-hidden transition-all duration-500 ease-in-out scrollbar-hide
+                                        ${
+                                            isOpen
+                                                ? "max-h-40 opacity-100"
+                                                : "max-h-0 opacity-0"
+                                        }
+                                    `}
+                                    >
+                                        {item.list?.map((subItem) => (
+                                            <Link
+                                                key={subItem.url}
+                                                href={subItem.url}
+                                                className="flex items-center gap-3 p-2 rounded-lg transition-all group text-slate-400 hover:text-white hover:bg-white/5"
+                                            >
+                                                <subItem.icon
+                                                    size={16}
+                                                    className="group-hover:text-[#FF4D4D] transition-colors"
+                                                />
+                                                <span className="text-sm">
+                                                    {subItem.label}
+                                                </span>
+                                            </Link>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
-                            <ChevronLeft
-                                size={14}
-                                className="opacity-0 group-hover:opacity-100 transition-all translate-x-1 group-hover:translate-x-0"
-                            />
-                        </Link>
-                    ))}
+                        );
+                    })}
                 </nav>
 
                 <div className="flex-1"></div>

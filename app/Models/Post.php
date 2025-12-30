@@ -37,10 +37,6 @@ class Post extends Model
     {
         return $this->belongsToMany(Tag::class);
     }
-    public function likes()
-    {
-        return $this->belongsToMany(User::class, 'likes');
-    }
 
 
     public function scopeFilter($query, $filters)
@@ -73,4 +69,24 @@ class Post extends Model
             }
         );
     }
+
+  public function likes()
+  {
+    return $this->hasMany(Like::class);
+  }
+
+  public function isLikedBy($userId)
+  {
+    return $this->likes()->where('user_id', $userId)->exists();
+  }
+
+  public function getLikesCountAttribute()
+  {
+    return $this->likes()->count();
+  }
+
+  public function scopePublished($query)
+  {
+    return $query->where('status', 'published');
+  }
 }

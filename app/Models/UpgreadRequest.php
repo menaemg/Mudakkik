@@ -13,7 +13,8 @@ class UpgreadRequest extends Model
         'user_id',
         'documents',
         'admin_notes',
-        'status'
+        'status',
+        'request_message',
     ];
 
     protected $casts = [
