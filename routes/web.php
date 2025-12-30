@@ -7,6 +7,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\PlanController as AdminPlanController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\Admin\SubscriptionController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\LikeController;
@@ -24,29 +25,35 @@ Route::get('/', function () {
   ]);
 })->name('welcome');
 
-Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'verified', 'can:admin-access'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
 
-  Route::get('/dashboard', function () {
-    return Inertia::render('Admin/Dashboard');
-  })->name('dashboard');
+        Route::get('/dashboard', function () {
+            return Inertia::render('Admin/Dashboard');
+        })->name('dashboard');
+
+        Route::resource('users', UserController::class);
+        Route::resource('categories', CategoryController::class);
+        Route::resource('tags', TagController::class);
+        Route::resource('posts', PostController::class);
+        Route::patch('posts/{post}/toggle-featured', [PostController::class, 'toggleFeatured'])
+            ->name('posts.toggle-featured');
+        Route::resource('plans', PlanController::class);
+        Route::get('subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions.index');
+        Route::get('subscriptions/{subscription}/edit', [SubscriptionController::class, 'edit'])->name('subscriptions.edit');
+        Route::put('subscriptions/{subscription}', [SubscriptionController::class, 'update'])->name('subscriptions.update');
+
+
+
 
   
     Route::prefix('requests')->group(function () {
-            Route::get('/join', function () {
-        return Inertia::render('Admin/Requests/Join');
-    })->name('requests.join');
-
+        Route::get('/join', function () {
+          return Inertia::render('Admin/Requests/Join');
+        })->name('requests.join');
     });
-
-    Route::resource('users', UserController::class);
-    Route::resource('categories', CategoryController::class);
-    Route::resource('tags', TagController::class);
-
-
-  Route::resource('plans', AdminPlanController::class);
-  Route::get('subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions.index');
-  Route::get('subscriptions/{subscription}/edit', [SubscriptionController::class, 'edit'])->name('subscriptions.edit');
-  Route::put('subscriptions/{subscription}', [SubscriptionController::class, 'update'])->name('subscriptions.update');
 });
 
 Route::get('/dashboard', function () {

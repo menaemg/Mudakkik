@@ -10,32 +10,24 @@ use App\Models\Post;
 
 class LikeSeeder extends Seeder
 {
-  /**
-   * Run the database seeds.
-   */
-  public function run(): void
-  {
-    $userIds = User::pluck('id')->toArray();
-    $postIds = Post::pluck('id')->toArray();
+    /**
+     * Run the database seeds.
+     */
+   public function run(): void
+{
+    $users = User::all();
+    $posts = Post::all();
 
-    if (empty($userIds) || empty($postIds)) {
-      return;
+    if ($users->isEmpty() || $posts->isEmpty()) {
+        return;
     }
 
-    $pairs = [];
-    foreach ($userIds as $u) {
-      foreach ($postIds as $p) {
-        $pairs[] = ['user_id' => $u, 'post_id' => $p];
-      }
+    for ($i = 0; $i < 50; $i++) {
+        $user = $users->random();
+        $post = $posts->random();
+        if (!$post->likes()->where('user_id', $user->id)->exists()) {
+            $post->likes()->attach($user->id);
+        }
     }
-
-    shuffle($pairs);
-
-    $limit = min(50, count($pairs));
-    $toInsert = array_slice($pairs, 0, $limit);
-
-    foreach ($toInsert as $pair) {
-      Like::firstOrCreate($pair);
-    }
-  }
+}
 }

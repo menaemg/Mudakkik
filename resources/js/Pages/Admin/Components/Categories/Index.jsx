@@ -2,8 +2,6 @@ import React, { useEffect, useState } from "react";
 import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, usePage, router } from "@inertiajs/react";
 import { motion } from "framer-motion";
-import Swal from "sweetalert2";
-
 import CategoryHeader from "./Partials/CategoryHeader";
 import CategoryTable from "./Partials/CategoryTable";
 import CategoryCreateModal from "./Partials/CategoryCreateModal";
@@ -16,28 +14,6 @@ export default function Index({ categories, filters = {} }) {
     const [isViewOpen, setIsViewOpen] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [isEditOpen, setIsEditOpen] = useState(false);
-
-    const { flash } = usePage().props;
-    useEffect(() => {
-        if (flash?.success) {
-            Swal.fire({
-                icon: "success",
-                title: "تمت العملية بنجاح",
-                text: flash.success,
-                timer: 2000,
-                showConfirmButton: false,
-                customClass: { popup: "rounded-[2rem] font-sans" },
-            });
-        }
-        if (flash?.error) {
-            Swal.fire({
-                icon: "error",
-                title: "عذراً!",
-                text: flash.error,
-                confirmButtonColor: "#D00000",
-            });
-        }
-    }, [flash]);
     useEffect(() => {
         const delayDebounceFn = setTimeout(() => {
             if (searchTerm !== (filters?.search || "")) {
