@@ -11,14 +11,14 @@ export default function RequestsTable({
 }) {
     return (
         <div className="overflow-x-auto">
-            <table className="w-full text-right border-collapse table-fixed">
+            <table className="hidden lg:table w-full text-right border-collapse table-fixed">
                 <thead>
                     <tr className="bg-slate-50/80 text-[#001246] border-b border-slate-100">
                         <th className="px-10 py-7 font-black text-sm uppercase">
-                            المتقدم
+                            المتقدم {/* //name */}
                         </th>
                         <th className="px-10 py-7 font-black text-sm uppercase">
-                            التخصص
+                            التخصص {/* //bio */}
                         </th>
                         <th className="px-10 py-7 font-black text-sm uppercase">
                             تاريخ التقديم
@@ -42,10 +42,10 @@ export default function RequestsTable({
                             <td className="px-10 py-7">
                                 <div className="text-right">
                                     <div className="text-[17px] font-black text-[#001246] group-hover:text-[#D00000] transition-colors">
-                                        {request.name}
+                                        {request.user?.name}
                                     </div>
-                                    <div className="text-sm text-slate-500 font-bold">
-                                        {request.email}
+                                    <div className="text-sm text-slate-500 font-bold break-all">
+                                        {request.user?.email}
                                     </div>
                                 </div>
                             </td>
@@ -53,7 +53,7 @@ export default function RequestsTable({
                             {/* Specialty */}
                             <td className="px-10 py-7">
                                 <span className="text-sm font-black text-slate-600">
-                                    {request.specialty}
+                                    {request.user?.bio}
                                 </span>
                             </td>
 
@@ -64,9 +64,9 @@ export default function RequestsTable({
                                         size={14}
                                         className="text-[#D00000]"
                                     />
-                                    {new Date(request.date).toLocaleDateString(
-                                        "ar-EG"
-                                    )}
+                                    {new Date(
+                                        request.created_at
+                                    ).toLocaleDateString("ar-EG")}
                                 </div>
                             </td>
 
@@ -114,6 +114,62 @@ export default function RequestsTable({
                     ))}
                 </tbody>
             </table>
+
+            {/* Mobile View */}
+            <div className="lg:hidden space-y-4 bg-[#F2F5F9] ">
+                {requests.map((request) => (
+                    <div
+                        key={request.id}
+                        className="bg-white rounded-xl border p-4 space-y-3 shadow-sm"
+                    >
+                        <div>
+                            <p className="font-black text-[#001246]">
+                                {request.user?.name}
+                            </p>
+                            <p className="text-xs text-slate-500 break-all">
+                                {request.user?.email}
+                            </p>
+                        </div>
+
+                        <div className="text-sm text-slate-600">
+                            <span className="font-bold">التخصص:</span>{" "}
+                            {request.user?.bio}
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                            <span
+                                className={`px-3 py-1 text-xs rounded-xl font-black border ${getStatusColor(
+                                    request.status
+                                )}`}
+                            >
+                                {getStatusText(request.status)}
+                            </span>
+
+                            <div className="flex gap-2">
+                                <ActionIcon
+                                    icon={<Eye size={16} />}
+                                    color="blue"
+                                    onClick={() => onView(request)}
+                                />
+                                {request.status === "pending" && (
+                                    <>
+                                        <ActionIcon
+                                            icon={<Check size={16} />}
+                                            color="green"
+                                            onClick={() => onApprove(request)}
+                                        />
+                                        <ActionIcon
+                                            icon={<X size={16} />}
+                                            color="red"
+                                            onClick={() => onReject(request)}
+                                        />
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
         </div>
     );
 }
