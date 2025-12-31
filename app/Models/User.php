@@ -94,9 +94,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(Follow::class, 'following_user_id');
     }
+    // edit
     public function likes()
     {
-        return $this->hasMany(Like::class);
+        return $this->belongsToMany(Post::class, 'likes');
     }
     public function scopeFilter($query, $filter)
     {
