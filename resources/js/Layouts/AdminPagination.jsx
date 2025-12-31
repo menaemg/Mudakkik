@@ -15,18 +15,18 @@ const decodeLabel = (label) => {
 };
 
 export default function AdminPagination({ links, total, label = "الإجمالي" }) {
-    if (links.length <= 3) return null; 
+    if (links.length <= 3) return null;
 
     return (
         <div className="p-6 flex flex-col md:flex-row justify-between items-center bg-slate-50/50 gap-4">
             <span className="text-sm font-black text-slate-500">
                 {label}: {total}
             </span>
-            
+
             <div className="flex flex-wrap justify-center gap-2">
                 {links.map((link, i) => (
                     link.url === null ? (
-                     
+
                         <span
                             key={i}
                             className="px-4 py-2 rounded-xl text-sm font-bold border border-slate-100 text-slate-300 bg-white/50 cursor-not-allowed"
@@ -34,8 +34,8 @@ export default function AdminPagination({ links, total, label = "الإجمال�
                             {decodeLabel(link.label)}
                         </span>
                     ) : (
-                        <Link 
-                            key={i} 
+                        <Link
+                            key={i}
                             href={link.url}
                             preserveScroll
                             className={`px-4 py-2 rounded-xl text-sm font-black border transition-all ${link.active

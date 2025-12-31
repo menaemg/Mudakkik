@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\SubscriptionController;
 use App\Http\Controllers\Admin\TagController;
+use App\Http\Controllers\Admin\JoinRequestController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -27,9 +28,17 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     })->name('dashboard');
 
     Route::prefix('requests')->group(function () {
-            Route::get('/join', function () {
-        return Inertia::render('Admin/Requests/Join');
-    })->name('requests.join');
+    //         Route::get('/join', function () {
+    //     return Inertia::render('Admin/Requests/Join');
+    // })->name('requests.join');
+    Route::get('/join', [JoinRequestController::class, 'index'])
+        ->name('requests.join');
+
+    Route::patch('/join/{upgreadRequest}', [JoinRequestController::class, 'update'])
+        ->name('requests.join.update');
+
+    Route::delete('/join/{upgreadRequest}', [JoinRequestController::class, 'destroy'])
+        ->name('requests.join.destroy');
 
     });
 

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Mail, Briefcase, Calendar, FileText, Info } from "lucide-react";
 
@@ -12,6 +12,9 @@ export default function RequestViewModal({
     onApprove,
     onReject,
 }) {
+    console.log(request);
+    const [adminNote, setAdminNote] = useState(request?.admin_notes || "");
+
     return (
         <AnimatePresence>
             {isOpen && request && (
@@ -49,20 +52,23 @@ export default function RequestViewModal({
                         <div className="p-8 space-y-8">
                             {/* Basic Info */}
                             <InfoCard title="البيانات الأساسية">
-                                <DetailRow label="الاسم" value={request.name} />
+                                <DetailRow
+                                    label="الاسم"
+                                    value={request.user.name}
+                                />
                                 <DetailRow
                                     label="البريد الإلكتروني"
-                                    value={request.email}
+                                    value={request.user.email}
                                     icon={<Mail size={14} />}
                                 />
                                 <DetailRow
                                     label="التخصص"
-                                    value={request.specialty}
+                                    value={request.user.bio}
                                     icon={<Briefcase size={14} />}
                                 />
                                 <DetailRow
                                     label="تاريخ التقديم"
-                                    value={request.date}
+                                    value={request.created_at}
                                     icon={<Calendar size={14} />}
                                 />
                             </InfoCard>
@@ -73,26 +79,60 @@ export default function RequestViewModal({
                                 icon={<Info size={14} />}
                             >
                                 <p className="text-[#001246] font-bold leading-relaxed bg-slate-50 p-5 rounded-[1.5rem] border">
-                                    {request.reason}
+                                    {request.request_message}
                                 </p>
                             </InfoCard>
 
                             {/* Attachments */}
                             <InfoCard
-                                title="عينات الأعمال"
+                                title="ملفات مرفقه"
                                 icon={<FileText size={14} />}
                             >
                                 <div className="space-y-3">
-                                    {request.attachments?.map((file, index) => (
-                                        <a
-                                            key={index}
-                                            href={file.url}
-                                            className="block text-blue-700 font-bold hover:underline"
-                                        >
-                                            📄 {file.name}
-                                        </a>
-                                    ))}
+                                    <a
+                                        href={request.documents}
+                                        className="block text-blue-700 font-bold hover:underline"
+                                        target="_blank"
+                                    >
+                                        📄 ملف الطلب
+                                    </a>
                                 </div>
+                            </InfoCard>
+
+                            {/* admin note */}
+
+                            <InfoCard
+                                title="ملاحظة الإدارة"
+                                icon={<FileText size={14} />}
+                            >
+                                {" "}
+                                {request.status === "pending" ? (
+                                    <textarea
+                                        value={adminNote}
+                                        onChange={(e) =>
+                                            setAdminNote(e.target.value)
+                                        }
+                                        placeholder="تكتب ملاحظتك هنا..."
+                                        rows={4}
+                                        className="
+                                        w-full
+                                        text-sm font-bold text-[#001246]
+                                        bg-slate-50
+                                        border border-slate-200
+                                        rounded-[1.5rem]
+                                        p-4
+                                        focus:outline-none
+                                        focus:ring-2 focus:ring-[#001246]/20
+                                        resize-none
+                                    "
+                                    />
+                                ) : (
+                                    <p className="text-[#001246] font-bold leading-relaxed bg-slate-50 p-5 rounded-[1.5rem] border">
+                                        {request.admin_notes
+                                            ? request.admin_notes
+                                            : "لا توجد ملاحظات من الإدارة."}
+                                    </p>
+                                )}
                             </InfoCard>
 
                             {/* Actions */}
@@ -101,12 +141,16 @@ export default function RequestViewModal({
                                     <ActionButton
                                         color="green"
                                         text="قبول الطلب"
-                                        onClick={() => onApprove(request)}
+                                        onClick={() =>
+                                            onApprove(request, adminNote)
+                                        }
                                     />
                                     <ActionButton
                                         color="red"
                                         text="رفض الطلب"
-                                        onClick={() => onReject(request)}
+                                        onClick={() =>
+                                            onReject(request, adminNote)
+                                        }
                                     />
                                 </div>
                             )}
@@ -138,8 +182,8 @@ const DetailRow = ({ label, value, icon }) => (
 
 const ActionButton = ({ color, text, onClick }) => {
     const colors = {
-        green: "bg-emerald-600 hover:bg-emerald-700",
-        red: "bg-red-600 hover:bg-red-700",
+        green: "bg-emerald-600 active:bg-emerald-800 hover:bg-emerald-700",
+        red: "bg-red-600 active:bg-red-800 hover:bg-red-700",
     };
 
     return (

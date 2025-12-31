@@ -32,133 +32,119 @@ import { Toaster } from "react-hot-toast";
 import RequestViewModal from "./Partials/RequestViewModal";
 import RequestsTable from "./Partials/RequestsTable";
 import AdminPagination from "@/Layouts/AdminPagination";
+import { usePage, router } from "@inertiajs/react";
 
 export default function join() {
     const [selectedStatus, setSelectedStatus] = useState("all");
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedRequest, setSelectedRequest] = useState(null);
-    const showPendingRequestsToast = () => {
-        toast.custom(
-            (t) => (
+    const { requests, stats: state, oldPendingCount } = usePage().props;
+
+    useEffect(() => {
+        if (oldPendingCount > 0) {
+            toast.custom((t) => (
                 <div
-                    className={`${
-                        t.visible ? "animate-enter" : "animate-leave"
-                    } bg-gradient-to-br from-yellow-50 to-orange-50 border border-yellow-200
-        rounded-xl shadow-lg p-4 flex gap-3`}
+                    className={`${t.visible ? "animate-enter" : "animate-leave"}
+                bg-gradient-to-br from-yellow-50 to-orange-50
+                border border-yellow-200 rounded-xl shadow-lg p-4`}
                 >
-                    <div className="flex items-start gap-3">
+                    <div className="flex gap-3">
                         <div className="bg-yellow-400 p-2 rounded-lg">
                             <Clock className="w-5 h-5 text-white" />
                         </div>
                         <div>
-                            <h4 className="font-bold text-gray-900 mb-1">
-                                تنبيه
-                            </h4>
-                            <p className="text-sm text-gray-700">
+                            <h4 className="font-bold">تنبيه</h4>
+                            <p className="text-sm">
                                 لديك{" "}
                                 <span className="font-bold text-yellow-700">
-                                    8 طلبات
+                                    {oldPendingCount} طلبات
                                 </span>{" "}
                                 تنتظر المراجعة لأكثر من 3 أيام
                             </p>
                         </div>
                     </div>
                 </div>
-            ),
-            { duration: 5000 }
-        );
-    };
-
-    useEffect(() => {
-        if (true) {
-            // Replace 'true' with actual condition to check for pending requests
-            showPendingRequestsToast();
+            ));
         }
-    }, []);
+    }, [oldPendingCount]);
 
     const stats = [
         {
             label: "إجمالي الطلبات",
-            value: "1,420",
-            change: "+14.5%",
+            value: state.total,
             icon: Users,
             color: "blue",
         },
         {
             label: "قيد المراجعة",
-            value: "24",
+            value: state.pending,
             icon: Clock,
             color: "red",
             alert: true,
         },
         {
             label: "مقبول",
-            value: "1,240",
-            change: "+8.2%",
+            value: state.accepted,
             icon: Check,
             color: "green",
         },
         {
-            label: "مرفوض", value: "156", icon: X, color: "gray"
-        }
+            label: "مرفوض",
+            value: state.rejected,
+            icon: X,
+            color: "gray",
+        },
     ];
+    console.log(stats);
 
-    const requests = [
-        {
-            id: 1,
-            name: "محمد أحمد علي",
-            email: "mohamed@email.com",
-            date: "2024-12-25",
-            status: "pending",
-            experience: "5 سنوات",
-            specialty: "صحافة استقصائية",
-        },
-        {
-            id: 2,
-            name: "فاطمة حسن محمود",
-            email: "fatma@email.com",
-            date: "2024-12-24",
-            status: "pending",
-            experience: "3 سنوات",
-            specialty: "صحافة رقمية",
-        },
-        {
-            id: 3,
-            name: "أحمد عبدالله",
-            email: "ahmed@email.com",
-            date: "2024-12-23",
-            status: "pending",
-            experience: "7 سنوات",
-            specialty: "صحافة اقتصادية",
-        },
-        {
-            id: 4,
-            name: "سارة محمد",
-            email: "sara@email.com",
-            date: "2024-12-22",
-            status: "accepted",
-            experience: "4 سنوات",
-            specialty: "صحافة سياسية",
-        },
-        {
-            id: 5,
-            name: "خالد إبراهيم",
-            email: "khaled@email.com",
-            date: "2024-12-21",
-            status: "rejected",
-            experience: "2 سنة",
-            specialty: "صحافة رياضية",
-        },
-        {
-            id: 6,
-            name: "نور الهدى أحمد",
-            email: "nour@email.com",
-            date: "2024-12-20",
-            status: "pending",
-            experience: "6 سنوات",
-            specialty: "صحافة ثقافية",
-        },
-    ];
+    useEffect(() => {
+        router.get(
+            route("admin.requests.join"),
+            {
+                search: searchTerm,
+                status: selectedStatus !== "all" ? selectedStatus : null,
+            },
+            {
+                preserveState: true,
+                replace: true,
+            }
+        );
+    }, [searchTerm, selectedStatus]);
+
+    // const handleApprove = (request, adminNote) => {
+    //     router.patch(
+    //         route("admin.requests.join.update", request.id),
+    //         {
+    //             status: "accepted",
+    //             admin_note: adminNote,
+    //         },
+    //         {
+    //             preserveScroll: true,
+    //             onSuccess: () => {
+    //                 setSelectedRequest(null); // يقفل المودال
+    //                 // showPendingRequestsToast();
+    //                 toast.success("تم تحديث حالة الطلب");
+    //             },
+    //         }
+    //     );
+    // };
+
+    // const handleReject = (request) => {
+    //     router.patch(
+    //         route("admin.requests.join.update", request.id),
+    //         {
+    //             status: "rejected",
+    //             // admin_note: adminNote,
+    //         },
+    //         {
+    //             preserveScroll: true,
+    //             onSuccess: () => {
+    //                 setSelectedRequest(null); // يقفل المودال
+    //                 toast.success("تم تحديث حالة الطلب");
+    //             },
+    //         }
+    //     );
+    // };
 
     const getStatusColor = (status) => {
         switch (status) {
@@ -186,23 +172,45 @@ export default function join() {
         }
     };
 
-    // const filteredRequests = (requests?.data || []).filter((req) => {
-    //     const matchesStatus =
-    //         selectedStatus === "all" || req.status === selectedStatus;
-    //     const matchesSearch =
-    //         req.name.includes(searchTerm) || req.email.includes(searchTerm);
-    //     return matchesStatus && matchesSearch;
-    // });
-    // console.log(filteredRequests);
+    const handleApprove = (request, adminNote) => {
+        router.patch(
+            route("admin.requests.join.update", request.id),
+            {
+                status: "accepted",
+                admin_notes: adminNote,
+            },
+            {
+                onSuccess: () => {
+                    toast.success("تم قبول الطلب بنجاح");
+                    setSelectedRequest(null);
+                },
+                onError: () => {
+                    toast.error("حدث خطأ أثناء قبول الطلب");
+                },
+            }
+        );
+    };
 
-    const handleApprove = (request) => {
-        // TODO: Implement approval logic via Inertia router
-        console.log("Approve request:", request.id);
+    const handleReject = (request, adminNote) => {
+        router.patch(
+            route("admin.requests.join.update", request.id),
+            {
+                status: "rejected",
+                admin_notes: adminNote,
+            },
+            {
+                onSuccess: () => {
+                    toast.success("تم رفض الطلب بنجاح");
+                    setSelectedRequest(null);
+                },
+                onError: () => {
+                    toast.error("حدث خطأ أثناء رفض الطلب");
+                },
+            }
+        );
     };
-    const handleReject = (request) => {
-        // TODO: Implement rejection logic via Inertia router
-        console.log("Reject request:", request.id);
-    };
+
+    console.log(requests);
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
@@ -214,6 +222,7 @@ export default function join() {
                     top: 50,
                     right: 30,
                 }}
+                duration={10000}
             />
             {/* Header */}
             <div className="bg-gradient-to-r from-blue-900 to-blue-800 text-white p-6 shadow-lg">
@@ -307,32 +316,53 @@ export default function join() {
                                 </div>
 
                                 {/* Status Filter */}
-                                <select
-                                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    value={selectedStatus}
-                                    onChange={(e) =>
-                                        setSelectedStatus(e.target.value)
-                                    }
-                                >
-                                    <option value="all">جميع الحالات</option>
-                                    <option value="pending">
-                                        قيد المراجعة
-                                    </option>
-                                    <option value="accepted">مقبول</option>
-                                    <option value="rejected">مرفوض</option>
-                                </select>
+                                <div className="relative">
+                                    <select
+                                        className="
+                                    px-10 py-2
+                                    border border-gray-300 rounded-lg
+                                    focus:ring-2 focus:ring-[#001b66] focus:border-transparent
+                                    appearance-none
+                                    text-center
+                                    w-full"
+                                        value={selectedStatus}
+                                        onChange={(e) =>
+                                            setSelectedStatus(e.target.value)
+                                        }
+                                    >
+                                        <option value="all">
+                                            جميع الحالات
+                                        </option>
+                                        <option value="pending">
+                                            قيد المراجعة
+                                        </option>
+                                        <option value="accepted">مقبول</option>
+                                        <option value="rejected">مرفوض</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
-                        <div className="bg-white rounded-xl shadow-2xl shadow-slate-200/60 border border-slate-100 overflow-hidden">
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200/60 border border-slate-100 overflow-hidden"
+                        >
+                            {/* <div className="bg-white rounded-xl shadow-2xl shadow-slate-200/60 border border-slate-100 overflow-hidden"> */}
                             <RequestsTable
-                                requests={requests}
+                                requests={requests.data}
                                 onView={(req) => setSelectedRequest(req)}
                                 onApprove={(req) => handleApprove(req)}
                                 onReject={(req) => handleReject(req)}
                                 getStatusColor={getStatusColor}
                                 getStatusText={getStatusText}
                             />
-                        </div>
+                            {/* </div> */}
+                            <AdminPagination
+                                links={requests.links}
+                                total={requests.total}
+                                label="إجمالي الطلبات"
+                            />
+                        </motion.div>
                     </div>
                 </div>
             </div>
@@ -343,6 +373,8 @@ export default function join() {
                 onClose={() => setSelectedRequest(null)}
                 getStatusColor={getStatusColor}
                 getStatusText={getStatusText}
+                onApprove={handleApprove}
+                onReject={handleReject}
             />
         </div>
     );
