@@ -23,7 +23,7 @@ class PostFactory extends Factory
 'title' => fake()->sentence(),
         'body' => fake()->paragraphs(4, true), 
         'image' => fake()->imageUrl(640, 480, 'news'), 
-        'status' => fake()->randomElement(['pending', 'published', 'rejected']),
+        'status' => fake()->randomElement(array: ['pending', 'published', 'rejected']),
         'ai_verdict' => fake()->randomElement(['trusted', 'fake', 'misleading']),
         'user_id' => User::factory(), 
         'category_id' => Category::factory(),

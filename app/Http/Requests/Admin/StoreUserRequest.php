@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -11,8 +11,7 @@ class StoreUserRequest extends FormRequest
      */
     public function authorize(): bool
     {
-    //    return $this->user() && $this->user()->role === 'admin';
-    return true;
+        return $this->user() && $this->user()->role === 'admin';
     }
 
     /**

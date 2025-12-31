@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
-use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\Admin\StoreUserRequest;
 
 
 class UserController extends Controller
