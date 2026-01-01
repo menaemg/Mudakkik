@@ -57,6 +57,7 @@ export default function AdminLayout({ children }) {
         { label: "المدفوعات", icon: CreditCard, url: "/admin/payments" },
         { label: "الفئات", icon: FolderTree, url: "/admin/categories" },
         { label: "الأوسمة", icon: Hash, url: "/admin/tags" },
+        { label: "المواقع الموثوقة", icon: Hash, url: "/admin/trusted_domains" },
     ];
     const { flash } = usePage().props;
     useEffect(() => {
