@@ -13,11 +13,17 @@ class Post extends Model
   protected $fillable = [
     'title',
     'body',
+    'image',
     'status',
     'ai_verdict',
     'user_id',
     'category_id'
   ];
+
+  public function tags()
+  {
+    return $this->belongsToMany(Tag::class);
+  }
 
   public function user()
   {
