@@ -1,11 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, usePage } from "@inertiajs/react";
+
 import { motion, AnimatePresence } from "framer-motion";
 import {
     LayoutDashboard,
     Users,
     CreditCard,
     Megaphone,
+    Hash,
+    Newspaper,
     Menu,
     X,
     Bell,
@@ -15,12 +18,12 @@ import {
     UserCheck,
     UserRoundCheck,
     MonitorCheck,
-    Hash,
     Package,
     Layers,
     FolderTree,
     LogOut,
 } from "lucide-react";
+import Swal from "sweetalert2";
 
 export default function AdminLayout({ children }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -30,6 +33,7 @@ export default function AdminLayout({ children }) {
     const menuItems = [
         { label: "الرئيسية", icon: LayoutDashboard, url: "/admin/dashboard" },
         { label: "المستخدمين", icon: Users, url: "/admin/users" },
+        { label: "المقالات", icon: Newspaper, url: "/admin/posts" },
         {
             label: "طلبات ",
             icon: ShieldCheck,
@@ -54,6 +58,28 @@ export default function AdminLayout({ children }) {
         { label: "الفئات", icon: FolderTree, url: "/admin/categories" },
         { label: "الأوسمة", icon: Hash, url: "/admin/tags" },
     ];
+    const { flash } = usePage().props;
+    useEffect(() => {
+        if (flash?.success) {
+            Swal.fire({
+                icon: "success",
+                title: "تمت العمليه بنجاح",
+                text: flash.success,
+                timer: 2000,
+                showConfirmButton: false,
+                customClass: { popup: "rounded-[2rem] font-sans" },
+            });
+        }
+        if (flash?.error) {
+            Swal.fire({
+                icon: "error",
+                title: "عزرا لقد حصل خطا ما !",
+                text: flash.error,
+                confirmButtonColor: "#D00000",
+                customClass: { popup: "rounded-[2rem] font-sans" },
+            });
+        }
+    }, [flash]);
 
     return (
         <div

@@ -17,20 +17,6 @@ export default function Index({ users, filters = {} }) {
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [isEditOpen, setIsEditOpen] = useState(false);
 
-    const { flash } = usePage().props;
-    useEffect(() => {
-        if (flash?.success) {
-            Swal.fire({
-                icon: "success",
-                title: "تمت العملية",
-                text: flash.success,
-                timer: 2000,
-                showConfirmButton: false,
-                customClass: { popup: "rounded-[2rem] font-sans" },
-            });
-        }
-    }, [flash]);
-
     useEffect(() => {
         const delayDebounceFn = setTimeout(() => {
             if (searchTerm !== (filters?.search || "")) {
@@ -42,7 +28,7 @@ export default function Index({ users, filters = {} }) {
             }
         }, 500);
         return () => clearTimeout(delayDebounceFn);
-    }, [searchTerm,filters.search]);
+    }, [searchTerm, filters.search]);
 
     const getRoleBadge = (role) => {
         switch (role) {
