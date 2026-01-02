@@ -1,9 +1,19 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Mail, Briefcase, Calendar, FileText, Info } from "lucide-react";
 import { DetailRow, ActionButton } from "./Actions";
+import {
+  X,
+  Mail,
+  Calendar,
+  FileText,
+  CalendarPlus,
+  CalendarX2,
+  Image,
+  PenSquareIcon,
+  ScanEye,
+} from "lucide-react";
 
-export default function RequestViewModal({
+export default function AdsViewModal({
   isOpen,
   request,
   onClose,
@@ -23,11 +33,11 @@ export default function RequestViewModal({
             initial={{ opacity: 0, scale: 0.92, y: 40 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.92, y: 40 }}
-            className="bg-white rounded-[3rem] w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl "
+            className="bg-white rounded-[3rem] w-full max-w-3xl max-h-[90vh] flex flex-col  shadow-2xl "
             dir="rtl"
           >
             {/* Header */}
-            <div className="bg-[#001246] text-white p-8 relative  rounded-t-[3rem]">
+            <div className="bg-[#001246] text-white p-8  relative  rounded-t-[3rem]">
               <button
                 onClick={onClose}
                 className="absolute top-6 left-6 text-white/40 hover:text-white"
@@ -35,7 +45,7 @@ export default function RequestViewModal({
                 <X size={28} />
               </button>
 
-              <h2 className="text-2xl font-black mb-2">تفاصيل طلب الانضمام</h2>
+              <h2 className="text-2xl font-black mb-2">تفاصيل الإعلان</h2>
 
               <span
                 className={`inline-block mt-2 px-4 py-1 rounded-xl text-xs font-black border ${getStatusColor(
@@ -45,8 +55,9 @@ export default function RequestViewModal({
                 {getStatusText(request.status)}
               </span>
             </div>
+
             {/* Content */}
-            <div className="flex-1 overflow-y-auto scrollbar p-8 space-y-8">
+            <div className="p-8 space-y-8 overflow-y-auto scrollbar flex-1">
               {/* Basic Info */}
               <InfoCard title="البيانات الأساسية">
                 <DetailRow label="الاسم" value={request.user.name} />
@@ -56,36 +67,72 @@ export default function RequestViewModal({
                   icon={<Mail size={14} />}
                 />
                 <DetailRow
-                  label="التخصص"
-                  value={request.user.bio}
-                  icon={<Briefcase size={14} />}
-                />
-                <DetailRow
                   label="تاريخ التقديم"
                   value={new Date(request.created_at).toLocaleDateString(
                     "ar-EG"
                   )}
                   icon={<Calendar size={14} />}
                 />
+                <DetailRow
+                  label="تاريخ بدء الإعلان"
+                  labelColor="text-green-600"
+                  valueColor="text-green-600"
+                  value={new Date(
+                    request.requested_start_date
+                  ).toLocaleDateString("ar-EG")}
+                  icon={<CalendarPlus size={14} />}
+                />
+                <DetailRow
+                  label="تاريخ نهاية الإعلان"
+                  labelColor="text-orange-600"
+                  valueColor="text-orange-600"
+                  value={new Date(
+                    request.requested_end_date
+                  ).toLocaleDateString("ar-EG")}
+                  icon={<CalendarX2 size={14} />}
+                />
+              </InfoCard>
+
+              {/* image */}
+              <InfoCard
+                title="صورة الإعلان (الصورة ستظهر في صفحة الإعلان)"
+                icon={<Image size={14} />}
+              >
+                <a href={request.image_path} target="_blank">
+                  <img
+                    src={request.image_path}
+                    alt={request.title}
+                    className="w-full h-auto object-cover rounded-lg"
+                  />
+                </a>
               </InfoCard>
 
               {/* Reason */}
-              <InfoCard title="سبب الانضمام" icon={<Info size={14} />}>
+              <InfoCard
+                title="محتوى الإعلان (العنوان)"
+                icon={<PenSquareIcon size={14} />}
+              >
                 <p className="text-[#001246] font-bold leading-relaxed bg-slate-50 p-5 rounded-[1.5rem] border">
-                  {request.request_message}
+                  {request.title}
                 </p>
               </InfoCard>
 
-              {/* Attachments */}
-              <InfoCard title="ملفات مرفقه" icon={<FileText size={14} />}>
-                <div className="space-y-3">
-                  <a
-                    href={request.documents}
-                    className="block text-blue-700 font-bold hover:underline"
-                    target="_blank"
-                  >
-                    📄 ملف الطلب
-                  </a>
+              {/* ad final look */}
+              <InfoCard
+                title="المعاينة النهائية للإعلان"
+                icon={<ScanEye size={14} />}
+              >
+                <div className="border border-slate-200 rounded-lg overflow-hidden shadow-sm">
+                  <img
+                    src={request.image_path}
+                    alt={request.title}
+                    className="w-full h-48 object-cover"
+                  />
+                  <div className="p-4 bg-slate-50">
+                    <h3 className="text-lg text-center font-black text-[#001246]">
+                      {request.title}
+                    </h3>
+                  </div>
                 </div>
               </InfoCard>
 
@@ -100,16 +147,16 @@ export default function RequestViewModal({
                     placeholder="تكتب ملاحظتك هنا..."
                     rows={4}
                     className="
-                                        w-full
-                                        text-sm font-bold text-[#001246]
-                                        bg-slate-50
-                                        border border-slate-200
-                                        rounded-[1.5rem]
-                                        p-4
-                                        focus:outline-none
-                                        focus:ring-2 focus:ring-[#001246]/20
-                                        resize-none
-                                    "
+                      w-full
+                      text-sm font-bold text-[#001246]
+                      bg-slate-50
+                      border border-slate-200
+                      rounded-[1.5rem]
+                      p-4
+                      focus:outline-none
+                      focus:ring-2 focus:ring-[#001246]/20
+                      resize-none
+                  "
                   />
                 ) : (
                   <p className="text-[#001246] font-bold leading-relaxed bg-slate-50 p-5 rounded-[1.5rem] border">

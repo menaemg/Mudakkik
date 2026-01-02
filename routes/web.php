@@ -1,21 +1,22 @@
 <?php
 
-use Inertia\Inertia;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\PaymentController;
-use App\Http\Controllers\Admin\PlanController;
-use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\AdsRequestController;
 use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\Admin\PostController as AdminPostController;
 use App\Http\Controllers\Admin\JoinRequestController;
-use App\Http\Controllers\Admin\SubscriptionController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
+use App\Http\Controllers\Admin\PlanController;
+use App\Http\Controllers\Admin\PostController as AdminPostController;
+use App\Http\Controllers\Admin\SubscriptionController;
 use App\Http\Controllers\Admin\TagController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\LikeController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PostController;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Webhooks\StripeWebhookController;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -47,7 +48,6 @@ Route::middleware(['auth', 'verified', 'can:admin-access'])
         Route::get('subscriptions/{subscription}/edit', [SubscriptionController::class, 'edit'])->name('subscriptions.edit');
         Route::put('subscriptions/{subscription}', [SubscriptionController::class, 'update'])->name('subscriptions.update');
 
-
         // Payments
         Route::get('payments', [AdminPaymentController::class, 'index'])->name('payments.index');
         Route::get('payments/{payment}', [AdminPaymentController::class, 'show'])->name('payments.show');
@@ -55,17 +55,20 @@ Route::middleware(['auth', 'verified', 'can:admin-access'])
         Route::prefix('requests')->group(function () {
             Route::get('/join', [JoinRequestController::class, 'index'])
                 ->name('requests.join');
-
             Route::patch('/join/{upgreadRequest}', [JoinRequestController::class, 'update'])
                 ->name('requests.join.update');
-
             Route::delete('/join/{upgreadRequest}', [JoinRequestController::class, 'destroy'])
                 ->name('requests.join.destroy');
 
+            Route::get('/ads', [AdsRequestController::class, 'index'])
+                ->name('requests.ads');
+            Route::patch('/ads/{AdRequest}', [AdsRequestController::class, 'update'])
+                ->name('requests.ads.update');
+            Route::delete('/ads/{AdRequest}', [AdsRequestController::class, 'destroy'])
+                ->name('requests.ads.destroy');
+
         });
     });
-
-
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
@@ -104,5 +107,4 @@ Route::post('/webhooks/stripe', [StripeWebhookController::class, 'handle'])
     ->withoutMiddleware(['web'])
     ->name('webhooks.stripe');
 
-require __DIR__ . '/auth.php';
-
+require __DIR__.'/auth.php';
