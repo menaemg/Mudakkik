@@ -45,8 +45,11 @@ class SubscribeRequest extends FormRequest
     {
         // Get plan from route parameter if not in request body
         if (!$this->has('plan') && $this->route('plan')) {
+            $routePlan = $this->route('plan');
             $this->merge([
-                'plan' => $this->route('plan')->slug ?? $this->route('plan'),
+                'plan' => is_object($routePlan) && isset($routePlan->slug) 
+                    ? $routePlan->slug 
+                    : $routePlan,
             ]);
         }
     }

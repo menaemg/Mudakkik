@@ -37,6 +37,16 @@ class StripeService implements PaymentProviderInterface
     }
 
     /**
+     * Ensure the service is configured, throw exception if not.
+     */
+    private function ensureConfigured(): void
+    {
+        if (!$this->isConfigured()) {
+            throw new \RuntimeException('Stripe service is not configured. Please set STRIPE_SECRET in .env');
+        }
+    }
+
+    /**
      * Create a Stripe Checkout session for subscription payment.
      */
     public function createCheckoutSession(
@@ -45,6 +55,8 @@ class StripeService implements PaymentProviderInterface
         string $successUrl,
         string $cancelUrl
     ): CheckoutSession {
+        $this->ensureConfigured();
+        
         try {
             $sessionParams = [
                 'customer_email' => $user->email,
@@ -156,6 +168,8 @@ class StripeService implements PaymentProviderInterface
      */
     public function retrieveSession(string $sessionId): ?SessionData
     {
+        $this->ensureConfigured();
+        
         try {
             $session = $this->stripe->checkout->sessions->retrieve($sessionId, [
                 'expand' => ['subscription', 'customer'],
@@ -186,6 +200,7 @@ class StripeService implements PaymentProviderInterface
      */
     public function cancelSubscription(string $subscriptionId): bool
     {
+        $this->ensureConfigured();
         try {
             $this->stripe->subscriptions->cancel($subscriptionId);
             return true;

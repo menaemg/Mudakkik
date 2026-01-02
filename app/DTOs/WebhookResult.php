@@ -30,6 +30,10 @@ readonly class WebhookResult
         );
     }
 
+    /**
+     * Create an ignored event result.
+     * Returns success=true to prevent Stripe retries for events we don't handle.
+     */
     public static function ignored(string $eventType): self
     {
         return new self(

@@ -90,11 +90,9 @@ class PaymentTest extends TestCase
     {
         $user = User::factory()->create();
 
-        // Simply check the route is accessible and returns 200 or redirects
-        // (Full Inertia rendering requires vite build which isn't available in CI/tests)
         $response = $this->actingAs($user)->get('/payment/cancel');
 
-        $this->assertTrue(in_array($response->getStatusCode(), [200, 302, 500]));
+        $response->assertOk();
     }
 
     public function test_inactive_plan_cannot_be_subscribed(): void

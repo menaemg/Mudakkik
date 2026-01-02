@@ -26,7 +26,7 @@ export default function Show({ subscription, history }) {
             past_due: 'متأخر',
         };
         return (
-            <span className={`rounded-full px-3 py-1 text-sm font-medium ${styles[status] || 'bg-gray-100'}`}>
+            <span className={`rounded-full px-3 py-1 text-sm font-medium ${styles[status] || 'bg-gray-100 text-gray-800'}`}>
                 {labels[status] || status}
             </span>
         );

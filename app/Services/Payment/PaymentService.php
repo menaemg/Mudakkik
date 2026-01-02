@@ -158,7 +158,7 @@ class PaymentService
         return Payment::create([
             'user_id' => $user->id,
             'subscription_id' => $subscription->id,
-            'amount' => ($data['amount_total'] ?? 0) / 100, // Convert from cents
+            'amount' => (float) ($data['amount_total'] ?? 0), // Already converted from cents
             'currency' => strtoupper($data['currency'] ?? 'USD'),
             'payment_method' => 'card',
             'transaction_id' => $data['session_id'] ?? null,
@@ -195,14 +195,5 @@ class PaymentService
     private function generateIdempotencyKey(User $user, Plan $plan): string
     {
         return Str::uuid()->toString() . "-{$user->id}-{$plan->id}";
-    }
-
-    /**
-     * Append query parameters to a URL.
-     */
-    private function appendQueryParams(string $url, array $params): string
-    {
-        $separator = str_contains($url, '?') ? '&' : '?';
-        return $url . $separator . http_build_query($params);
     }
 }

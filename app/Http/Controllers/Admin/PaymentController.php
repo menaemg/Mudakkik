@@ -31,8 +31,8 @@ class PaymentController extends Controller
         // Search by user
         if ($request->filled('search')) {
             $query->whereHas('user', function ($q) use ($request) {
-                $q->where('name', 'like', "%{$request->search}%")
-                  ->orWhere('email', 'like', "%{$request->search}%");
+                $q->where('name', 'like', '%' . str_replace(['%', '_'], ['\%', '\_'], $request->search) . '%')
+                  ->orWhere('email', 'like', '%' . str_replace(['%', '_'], ['\%', '\_'], $request->search) . '%');
             });
         }
 

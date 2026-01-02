@@ -37,6 +37,14 @@ class StripeWebhookController extends Controller
 
         // Get the raw event data from the request
         $payload = json_decode($request->getContent(), true);
+        
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            Log::error('Invalid JSON in webhook payload', [
+                'error' => json_last_error_msg(),
+            ]);
+            return response()->json(['error' => 'Invalid JSON payload'], 400);
+        }
+        
         $eventId = $payload['id'] ?? 'unknown';
         $eventType = $payload['type'] ?? 'unknown';
         $eventData = $payload['data']['object'] ?? [];

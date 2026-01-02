@@ -119,7 +119,7 @@ export default function Show({ payment }) {
                                 <div className="flex items-center gap-4">
                                     <div className="flex h-12 w-12 items-center justify-center rounded-full bg-indigo-100">
                                         <span className="text-lg font-semibold text-indigo-600">
-                                            {payment.user.name?.charAt(0)}
+                                            {payment.user.name?.charAt(0) || '?'}
                                         </span>
                                     </div>
                                     <div>

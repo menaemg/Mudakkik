@@ -16,12 +16,12 @@ class ActivePlanRule implements ValidationRule
         $plan = Plan::where('slug', $value)->first();
 
         if (!$plan) {
-            $fail('The selected plan does not exist.');
+            $fail('الخطة المحددة غير موجودة.');
             return;
         }
 
         if (!$plan->isActive()) {
-            $fail('The selected plan is not currently available.');
+            $fail('الخطة المحددة غير متاحة حالياً.');
         }
     }
 }

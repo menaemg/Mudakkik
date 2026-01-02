@@ -128,7 +128,7 @@ export default function Index({ payments, filters }) {
                 </div>
 
                 {/* Stats Summary */}
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
+                <div className="grid grid-cols-1 gap-4">
                     <div className="rounded-lg bg-white p-4 shadow">
                         <div className="flex items-center gap-3">
                             <DollarSign className="h-8 w-8 text-green-500" />

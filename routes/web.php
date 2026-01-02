@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\PostController as AdminPostController;
 use App\Http\Controllers\Admin\JoinRequestController;
 use App\Http\Controllers\Admin\SubscriptionController;
+use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
 use App\Http\Controllers\Admin\TagController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\PostController;
@@ -48,8 +49,8 @@ Route::middleware(['auth', 'verified', 'can:admin-access'])
 
 
         // Payments
-        Route::get('payments', [\App\Http\Controllers\Admin\PaymentController::class, 'index'])->name('payments.index');
-        Route::get('payments/{payment}', [\App\Http\Controllers\Admin\PaymentController::class, 'show'])->name('payments.show');
+        Route::get('payments', [AdminPaymentController::class, 'index'])->name('payments.index');
+        Route::get('payments/{payment}', [AdminPaymentController::class, 'show'])->name('payments.show');
 
         Route::prefix('requests')->group(function () {
             Route::get('/join', [JoinRequestController::class, 'index'])
