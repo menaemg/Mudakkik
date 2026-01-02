@@ -7,11 +7,13 @@ use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
 use App\Http\Controllers\Admin\PlanController;
 use App\Http\Controllers\Admin\PostController as AdminPostController;
 use App\Http\Controllers\Admin\SubscriptionController;
-use App\Http\Controllers\Admin\TagController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\Admin\TagController;
+use App\Http\Controllers\FactCheckController;
+use App\Http\Controllers\Admin\TrustedDomainController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Webhooks\StripeWebhookController;
 use Illuminate\Support\Facades\Auth;
@@ -29,24 +31,35 @@ Route::get('/', function () {
 })->name('welcome');
 
 Route::middleware(['auth', 'verified', 'can:admin-access'])
-    ->prefix('admin')
-    ->name('admin.')
-    ->group(function () {
+  ->prefix('admin')
+  ->name('admin.')
+  ->group(function () {
 
-        Route::get('/dashboard', function () {
-            return Inertia::render('Admin/Dashboard');
-        })->name('dashboard');
+    Route::get('/dashboard', function () {
+      return Inertia::render('Admin/Dashboard');
+    })->name('dashboard');
 
-        Route::resource('users', UserController::class);
-        Route::resource('categories', CategoryController::class);
-        Route::resource('tags', TagController::class);
-        Route::resource('posts', AdminPostController::class);
-        Route::patch('posts/{post}/toggle-featured', [AdminPostController::class, 'toggleFeatured'])
-            ->name('posts.toggle-featured');
-        Route::resource('plans', PlanController::class);
-        Route::get('subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions.index');
-        Route::get('subscriptions/{subscription}/edit', [SubscriptionController::class, 'edit'])->name('subscriptions.edit');
-        Route::put('subscriptions/{subscription}', [SubscriptionController::class, 'update'])->name('subscriptions.update');
+    Route::resource('users', UserController::class);
+    Route::resource('categories', CategoryController::class);
+    Route::resource('tags', TagController::class);
+    Route::resource('posts', AdminPostController::class);
+    Route::patch('posts/{post}/toggle-featured', [AdminPostController::class, 'toggleFeatured'])
+      ->name('posts.toggle-featured');
+    Route::resource('plans', PlanController::class);
+    Route::get('subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions.index');
+    Route::get('subscriptions/{subscription}/edit', [SubscriptionController::class, 'edit'])->name('subscriptions.edit');
+    Route::put('subscriptions/{subscription}', [SubscriptionController::class, 'update'])->name('subscriptions.update');
+    Route::get('/trusted-domains', [TrustedDomainController::class, 'index'])
+      ->name('trusted-domains.index');
+
+    Route::post('/trusted-domains', [TrustedDomainController::class, 'store'])
+      ->name('trusted-domains.store');
+
+    Route::delete('/trusted-domains/{trustedDomain}', [TrustedDomainController::class, 'destroy'])
+      ->name('trusted-domains.destroy');
+
+    Route::patch('/trusted-domains/{trustedDomain}/toggle', [TrustedDomainController::class, 'toggle'])
+      ->name('trusted-domains.toggle');
 
         // Payments
         Route::get('payments', [AdminPaymentController::class, 'index'])->name('payments.index');
@@ -102,6 +115,11 @@ Route::middleware(['auth'])->group(function () {
 // Plans Route
 Route::get('/plans', [PlanController::class, 'index'])->name('plans.index');
 
+Route::get('/check', function () {
+  return Inertia::render('VerifyNews');
+});
+
+Route::post('/verify-news', [FactCheckController::class, 'verify']);
 // Stripe Webhook (no CSRF, no auth)
 Route::post('/webhooks/stripe', [StripeWebhookController::class, 'handle'])
     ->withoutMiddleware(['web'])

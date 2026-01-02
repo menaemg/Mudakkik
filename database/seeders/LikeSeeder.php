@@ -13,21 +13,23 @@ class LikeSeeder extends Seeder
     /**
      * Run the database seeds.
      */
-   public function run(): void
-{
-    $users = User::all();
-    $posts = Post::all();
+    // edit
+    public function run(): void
+    {
+        $users = User::all();
+        $posts = Post::all();
 
-    if ($users->isEmpty() || $posts->isEmpty()) {
-        return;
-    }
+        if ($users->isEmpty() || $posts->isEmpty()) {
+            return;
+        }
 
-    for ($i = 0; $i < 50; $i++) {
-        $user = $users->random();
-        $post = $posts->random();
-        if (!$post->likes()->where('user_id', $user->id)->exists()) {
-            $post->likes()->attach($user->id);
+        for ($i = 0; $i < 50; $i++) {
+            $user = $users->random();
+            $post = $posts->random();
+
+            if (!$post->likes()->where('user_id', $user->id)->exists()) {
+                $post->likes()->attach($user->id);
+            }
         }
     }
-}
 }

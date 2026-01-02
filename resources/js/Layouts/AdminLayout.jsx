@@ -3,25 +3,26 @@ import { Link, usePage } from "@inertiajs/react";
 
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  LayoutDashboard,
-  Users,
-  CreditCard,
-  Megaphone,
-  Hash,
-  Newspaper,
-  Menu,
-  X,
-  Bell,
-  ChevronLeft,
-  Search,
-  ShieldCheck,
-  UserCheck,
-  UserRoundCheck,
-  MonitorCheck,
-  Package,
-  Layers,
-  FolderTree,
-  LogOut,
+    LayoutDashboard,
+    WholeWord,
+    Users,
+    CreditCard,
+    Megaphone,
+    Hash,
+    Newspaper,
+    Menu,
+    X,
+    Bell,
+    ChevronLeft,
+    Search,
+    ShieldCheck,
+    UserCheck,
+    UserRoundCheck,
+    MonitorCheck,
+    Package,
+    Layers,
+    FolderTree,
+    LogOut,  
 } from "lucide-react";
 import Swal from "sweetalert2";
 
@@ -30,7 +31,8 @@ export default function AdminLayout({ children }) {
   const [openMenu, setOpenMenu] = useState(null);
   const { auth } = usePage().props;
 
-  const menuItems = [
+      
+   const menuItems = [
     { label: "الرئيسية", icon: LayoutDashboard, url: "/admin/dashboard" },
     { label: "المستخدمين", icon: Users, url: "/admin/users" },
     { label: "المقالات", icon: Newspaper, url: "/admin/posts" },
@@ -57,7 +59,10 @@ export default function AdminLayout({ children }) {
     { label: "المدفوعات", icon: CreditCard, url: "/admin/payments" },
     { label: "الفئات", icon: FolderTree, url: "/admin/categories" },
     { label: "الأوسمة", icon: Hash, url: "/admin/tags" },
+    { label: "المواقع الموثوقة", icon: WholeWord, url: "/admin/trusted-domains" }
   ];
+
+
   const { flash } = usePage().props;
   useEffect(() => {
     if (flash?.success) {
