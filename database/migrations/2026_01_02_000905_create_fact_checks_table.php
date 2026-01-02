@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('fact_checks', function (Blueprint $table) {
             $table->id();
-            $table->text('user_input');
-            $table->string(column: 'verdict')->default('pending');
-            $table->decimal('confidence_score')->default(0);
-            $table->text('ai_explantion')->nullable();
-            $table->json('evidence_source')->nullable();
-         
-            $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
+            $table->string('hash')->unique(); 
+            $table->text('input_text');      
+            $table->string('label');       
+            $table->integer('confidence');   
+            $table->text('summary');        
+            $table->text('evidence')->nullable(); 
+            $table->json('sources');
             $table->timestamps();
         });
     }

@@ -5,63 +5,36 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Services\FactCheckServices;
 use App\Models\FactCheck;
-use Illuminate\Support\Facades\Auth;
 
 class FactCheckController extends Controller
-
 {
+    protected $service;
 
-    protected $factService;
-
-
-
-    public function __construct(FactCheckServices $factService)
-
+    public function __construct(FactCheckServices $service)
     {
-
-        $this->factService = $factService;
+        $this->service = $service;
     }
 
-
-
     public function verify(Request $request)
-
     {
-        $data = $request->validate([
-
-            'content' => 'required|string|min:10'
-
+        $request->validate([
+            'content' => 'required|string|min:10',
         ]);
 
         try {
-
-            $result = $this->factService->check($request->input('content'));
-            FactCheck::create([
-
-                'user_input'       => $request->input('content'),
-
-                'verdict'          => $result['verdict'] ?? 'غير مؤكد',
-
-                'confidence_score' => $result['confidence_score'] ?? 0,
-
-                'ai_explantion'   => $result['explanation'] ?? 'فشل التحليل',
-
-                'evidence_sources' => $result['sources'] ?? [],
-
-                'user_id'          => Auth::id(),
-
-            ]);
-
-
-
+            $input = $request->input('content');
+            $result = $this->service->check($input);
             return response()->json($result);
         } catch (\Exception $e) {
-
             return response()->json([
-
-                'error' => 'حدث خطأ: ' . $e->getMessage()
-
+                'status' => 'error',
+                'message' => 'عذراً، حدث خطأ فني: ' . $e->getMessage()
             ], 500);
         }
+    }
+    public function history()
+    {
+        $history = FactCheck::latest()->take(10)->get();
+        return response()->json($history);
     }
 }

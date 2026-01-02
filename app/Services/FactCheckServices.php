@@ -20,7 +20,7 @@ class FactCheckServices
 
             if ($response->successful()) {
                 $body = $response->body();
-              
+
                 return (strlen($body) < 150) ? "FAILED_CONTENT" : mb_substr($body, 0, 2000);
             }
             return "FAILED_CONTENT";
@@ -28,10 +28,9 @@ class FactCheckServices
             return "FAILED_CONTENT";
         }
     }
-
     private function refineContentForSearch($rawContent, $isFallback = false)
     {
-        $prompt = $isFallback 
+        $prompt = $isFallback
             ? 'حلل الرابط المستخرج. استخرج عنواناً واضحاً باللغة العربية. إذا كان النص غير مفهوم رد بـ "INVALID". رد بـ JSON: {"title": "..", "body": "..", "keywords": ".."}'
             : 'أنت خبير فحص حقائق. استخرج عنوان الخبر والكلمات المفتاحية. إذا كان النص عبارة عن رموز غير مفهومة، اجعل العنوان "INVALID". رد بـ JSON: {"title": "..", "body": "..", "keywords": ".." }';
 
@@ -52,7 +51,6 @@ class FactCheckServices
         }
     }
 
-
     private function searchInTrustedSources($data)
     {
 
@@ -62,7 +60,7 @@ class FactCheckServices
 
         try {
             $domains = TrustedDomain::where('is_active', true)->pluck('domain')->toArray();
-            
+
             $response = Http::post('https://api.tavily.com/search', [
                 'api_key' => env('TAVILY_API_KEY'),
                 'query' => $data['title'],
@@ -76,49 +74,71 @@ class FactCheckServices
             return [];
         }
     }
-
-
 private function finalVerdict($originalNews, $searchResults)
 {
     if (empty($searchResults)) {
-        return ['rating' => 'غير مؤكد', 'percentage' => 0, 'explanation' => 'لا توجد مصادر.', 'evidence' => ''];
+        return [
+            'rating' => 'غير مؤكد',
+            'percentage' => 0,
+            'explanation' => 'لم نجد نتائج مطابقة في المصادر الموثوقة حالياً.',
+            'evidence' => ''
+        ];
     }
 
     try {
         $snippets = collect($searchResults)->map(fn($i) => [
             'title' => $i['title'],
-            'content' => mb_substr($i['content'], 0, 400)
+            'content' => mb_substr($i['content'], 0, 1000) 
         ])->toArray();
 
         $response = Http::withHeaders(['Authorization' => 'Bearer ' . env('GROQ_API_KEY')])
-            ->timeout(60)
+            ->timeout(45)
             ->post('https://api.groq.com/openai/v1/chat/completions', [
                 'model' => 'llama-3.1-8b-instant',
                 'messages' => [
-                    ['role' => 'system', 'content' => 'أنت مدقق حقائق. قارن الخبر بالنتائج. رد بـ JSON فقط: {"rating": "..", "percentage": 0-100, "explanation": "..", "evidence": ".."}. إذا كان الخبر عن وفاة قديمة مؤكدة (مثل مبارك)، فالتقييم "صحيح".'],
-                    ['role' => 'user', 'content' => "الخبر: " . $originalNews['title'] . "\nالنتائج: " . json_encode($snippets)]
+                    ['role' => 'system', 'content' => 'أنت خبير تدقيق جنائي للأخبار. 
+                    مهمتك هي مقارنة "الادعاء" بمجموعة "نتائج البحث".
+                    قواعد التحليل:
+                    1. إذا كانت النتائج تتحدث عن نفس الشخص ونفس الفعل (حتى لو بصياغة مختلفة)، فالخبر "صحيح".
+                    2. لا تكن حرفياً؛ ابحث عن المعنى الجوهري. (مثلاً: "القبض على سارق" هو نفسه "ضبط مسجل خطر قام بالسرقة").
+                    3. إذا أكدت النتائج الخبر، أعطِ نسبة ثقة بين 90-100%.
+                    4. اذكر الاقتباس الحقيقي الذي يؤكد الخبر في حقل evidence.
+                    رد بـ JSON فقط: {"rating": "صحيح/كاذب/مضلل/غير مؤكد", "percentage": 0-100, "explanation": "شرح موجز باللغة العربية", "evidence": "اقتباس من المصادر"}'],
+                    ['role' => 'user', 'content' => "الادعاء المراد فحصه: " . $originalNews['title'] . "\n\nالمصادر المتاحة للتحليل:\n" . json_encode($snippets)]
                 ],
                 'response_format' => ['type' => 'json_object'],
-                'temperature' => 0, 
+                'temperature' => 0.1,
             ]);
 
         if ($response->successful()) {
             $data = $response->json();
             return json_decode($data['choices'][0]['message']['content'], true);
         }
-        return [
-            'rating' => 'تنبيه',
-            'percentage' => 50,
-            'explanation' => 'النتائج موجودة ولكن محرك التحليل مزدحم حالياً. يرجى مراجعة الروابط أدناه.',
-            'evidence' => 'المصادر المرفقة تؤكد/تنفي الخبر تاريخياً.'
-        ];
+
+        return ['rating' => 'تنبيه', 'percentage' => 50, 'explanation' => 'المحرك مشغول، لكن المصادر بالأسفل قد تفيدك.', 'evidence' => ''];
 
     } catch (\Exception $e) {
-        return ['rating' => 'تحليل يدوي', 'percentage' => 50, 'explanation' => 'يرجى التأكد من الروابط، المحرك يواجه ضغطاً.', 'evidence' => ''];
+        return ['rating' => 'خطأ في التحليل', 'percentage' => 0, 'explanation' => 'تعذر الربط التلقائي.', 'evidence' => ''];
     }
 }
     public function check($input)
     {
+        $inputHash = md5(trim(mb_strtolower($input)));
+        $existingCheck = \App\Models\FactCheck::where('hash', $inputHash)->first();
+        if ($existingCheck) {
+            return [
+                'status' => 'Fetched from Cache',
+                'verdict' => [
+                    'label' => $existingCheck->label,
+                    'confidence' => $existingCheck->confidence . "%",
+                    'summary' => $existingCheck->summary,
+                    'evidence' => $existingCheck->evidence,
+                ],
+                'sources' => $existingCheck->sources
+            ];
+        }
+
+
         $processed = $this->identifyInputType($input);
         $raw = $processed['content'];
         $isFallback = ($raw === "FAILED_CONTENT");
@@ -129,39 +149,50 @@ private function finalVerdict($originalNews, $searchResults)
 
         $data = $this->refineContentForSearch($raw, $isFallback);
         if (!$data || $data['title'] === "INVALID") {
-             dd(['status' => 'error', 'message' => 'تعذر فهم محتوى النص أو الرابط، يرجى إدخال نص واضح.']);
+            return ['status' => 'error', 'message' => 'محتوى غير مفهوم'];
         }
 
         $results = $this->searchInTrustedSources($data);
         $verdict = $this->finalVerdict($data, $results);
 
         $searchScore = collect($results)->avg('score') * 100;
-        $finalConfidence = ($verdict['percentage'] + $searchScore) / 2;
+        $finalConfidence = round(($verdict['percentage'] + $searchScore) / 2);
 
-        dd([
-            'status' => 'Fact-Check Completed',
-            'verdict' => [
-                'label' => $verdict['rating'],
-                'confidence' => round($finalConfidence) . "%",
-                'summary' => $verdict['explanation'],
-                'evidence' => $verdict['evidence'],
-            ],
-            'original_data' => [
-                'title' => $data['title'],
-                'method' => $isFallback ? 'URL Slug' : 'Content Extraction'
-            ],
-            'sources' => collect($results)->take(3)->map(fn($r) => ['title' => $r['title'], 'url' => $r['url']])
+
+        $newRecord = \App\Models\FactCheck::create([
+            'hash'        => $inputHash,
+            'input_text'  => $input,                 
+            'label'       => $verdict['rating'] ?? 'غير مؤكد', 
+            'confidence'  => (int)$finalConfidence,    
+            'summary'     => $verdict['explanation'] ?? 'فشل التحليل', 
+            'evidence'    => $verdict['evidence'] ?? '',
+            'sources'     => collect($results)->take(3)->map(fn($r) => [
+                'title' => $r['title'],
+                'url' => $r['url']
+            ])->toArray()                            
         ]);
-    }
 
-    private function identifyInputType($input) {
+        return [
+            'status' => 'New Fact-Check Completed',
+            'verdict' => [
+                'label' => $newRecord->label,
+                'confidence' => $newRecord->confidence . "%",
+                'summary' => $newRecord->summary,
+                'evidence' => $newRecord->evidence,
+            ],
+            'sources' => $newRecord->sources
+        ];
+    }
+    private function identifyInputType($input)
+    {
         if (filter_var($input, FILTER_VALIDATE_URL)) {
             return ['type' => 'url', 'content' => $this->fetchUrlContent($input)];
         }
         return ['type' => 'text', 'content' => mb_substr($input, 0, 2000)];
     }
 
-    private function extractTitleFromUrl($url) {
+    private function extractTitleFromUrl($url)
+    {
         $path = parse_url($url, PHP_URL_PATH);
         $title = str_replace(['-', '_', '/', '.html'], ' ', urldecode(basename($path)));
         return (is_numeric($title) || strlen($title) < 5) ? "INVALID" : $title;
