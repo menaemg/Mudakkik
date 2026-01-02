@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\TrustedDomain;
+use App\Rules\ValidDomain;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -26,10 +27,9 @@ class TrustedDomainController extends Controller
             'domain' => [
                 'required',
                 'unique:trusted_domains,domain',
-                'regex:/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,11}(\/[a-zA-Z0-9.-]+)*$/'
+                new ValidDomain(),
             ],
         ], [
-            'domain.regex' => 'يرجى إدخال الدومين فقط (مثال: youm7.com) بدون http://',
             'domain.unique' => 'هذا الموقع مضاف بالفعل.',
             'domain.required' => 'يرجى ادخال الدومين.'
         ]);

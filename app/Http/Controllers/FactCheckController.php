@@ -26,9 +26,11 @@ class FactCheckController extends Controller
             $result = $this->service->check($input);
             return response()->json($result);
         } catch (\Exception $e) {
+            report($e);
+
             return response()->json([
                 'status' => 'error',
-                'message' => 'عذراً، حدث خطأ فني: ' . $e->getMessage()
+                'message' => 'عذراً، حدث خطأ فني. يرجى المحاولة مرة أخرى لاحقاً.'
             ], 500);
         }
     }
