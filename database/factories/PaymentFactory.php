@@ -23,9 +23,11 @@ class PaymentFactory extends Factory
             'ad_id' => Advertisment::inRandomOrder()->first()?->id,
             'subscription_id' => Subscription::inRandomOrder()->first()?->id,
             'amount' => fake()->randomFloat(2, 10, 1000),
-            'payment_method' => fake()->randomElement(['Credit Card', 'PayPal', 'Cash']),
-            'transaction_id' => fake()->uuid(), 
-            'status' => fake()->randomElement(['accept', 'fail', 'refuse']),
+            'currency' => 'USD',
+            'payment_method' => fake()->randomElement(['card', 'paypal']),
+            'transaction_id' => fake()->uuid(),
+            'provider' => 'stripe',
+            'status' => fake()->randomElement(['pending', 'completed', 'failed', 'refunded']),
         ];
     }
 }
