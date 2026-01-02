@@ -3,105 +3,167 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
+use App\Models\TrustedDomain;
 
 class FactCheckServices
 {
-    protected $trustedDomains = [
-        'youm7.com', 'masrawy.com', 'shorouknews.com', 
-        'alarabiya.net', 'skynewsarabia.com', 'aljazeera.net',
-        'reuters.com', 'bbc.com/arabic', 'afp.com','ahram.org.eg'
-    ];
-
-    public function check($input) {
-        $query = $this->isUrl($input) ? $this->extractTextFromUrl($input) : $input;
-        
-        $searchQuery = $this->refineQueryWithAI($query);
-
-        $sources = $this->searchTavily($searchQuery);
-
-        if (empty($sources)) {
-            return [
-                'verdict' => 'غير مؤكد',
-                'confidence_score' => 0,
-                'explanation' => 'لم نجد تفاصيل كافية في المصادر الموثوقة المحددة بعد فحص الرابط.',
-                'sources' => []
-            ];
-        }
-
-        return $this->analyzeWithAI($query, $sources);
-    }
-
-    private function isUrl($input) {
-        return filter_var($input, FILTER_VALIDATE_URL);
-    }
-
-    private function extractTextFromUrl($url) {
+    private function fetchUrlContent($url)
+    {
         try {
-            $response = Http::withHeaders([
-                'X-Return-Format' => 'text'
-            ])->get("https://r.jina.ai/" . $url);
+            $response = Http::withoutVerifying()
+                ->retry(2, 500)
+                ->timeout(15)
+                ->withHeaders([
+                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36',
+                ])
+                ->get("https://r.jina.ai/" . urlencode($url));
 
             if ($response->successful()) {
-                return mb_substr($response->body(), 0, 3000);
+                $body = $response->body();
+              
+                return (strlen($body) < 150) ? "FAILED_CONTENT" : mb_substr($body, 0, 2000);
             }
+            return "FAILED_CONTENT";
         } catch (\Exception $e) {
-            Log::error("Jina Extraction Error: " . $e->getMessage());
+            return "FAILED_CONTENT";
         }
-        return $url;
     }
 
-    private function refineQueryWithAI($text) {
-        if (strlen($text) < 50) return $text;
+    private function refineContentForSearch($rawContent, $isFallback = false)
+    {
+        $prompt = $isFallback 
+            ? 'حلل الرابط المستخرج. استخرج عنواناً واضحاً باللغة العربية. إذا كان النص غير مفهوم رد بـ "INVALID". رد بـ JSON: {"title": "..", "body": "..", "keywords": ".."}'
+            : 'أنت خبير فحص حقائق. استخرج عنوان الخبر والكلمات المفتاحية. إذا كان النص عبارة عن رموز غير مفهومة، اجعل العنوان "INVALID". رد بـ JSON: {"title": "..", "body": "..", "keywords": ".." }';
 
-        $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . env('GROQ_API_KEY'),
-        ])->post('https://api.groq.com/openai/v1/chat/completions', [
-            'model' => 'llama-3.3-70b-versatile',
-            'messages' => [
-                ['role' => 'system', 'content' => 'أنت مستخرج أخبار. أعطني جملة واحدة فقط مختصرة تمثل صلب الخبر للبحث عنها، بدون مقدمات أو شرح.'],
-                ['role' => 'user', 'content' => "استخرج ملخص للبحث: " . mb_substr($text, 0, 1500)]
-            ]
-        ]);
+        try {
+            $response = Http::withHeaders(['Authorization' => 'Bearer ' . env('GROQ_API_KEY')])
+                ->post('https://api.groq.com/openai/v1/chat/completions', [
+                    'model' => 'llama-3.1-8b-instant',
+                    'messages' => [
+                        ['role' => 'system', 'content' => $prompt],
+                        ['role' => 'user', 'content' => $rawContent]
+                    ],
+                    'response_format' => ['type' => 'json_object'],
+                ]);
 
-        return $response->json()['choices'][0]['message']['content'] ?? mb_substr($text, 0, 100);
+            return json_decode($response->json()['choices'][0]['message']['content'], true);
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 
-    private function searchTavily($query) {
-        $response = Http::post('https://api.tavily.com/search', [
-            'api_key' => env('TAVILY_API_KEY'),
-            'query' => $query,
-            'include_domains' => $this->trustedDomains,
-            'max_results' => 5
-        ]);
-        return $response->json()['results'] ?? [];
-    }
 
-    private function analyzeWithAI($query, $sources) {
-        $context = "";
-        foreach ($sources as $s) {
-            $context .= "المصدر: {$s['title']} \n المحتوى: {$s['content']} \n\n";
+    private function searchInTrustedSources($data)
+    {
+
+        if (!$data || $data['title'] === "INVALID" || strlen($data['title']) < 5) {
+            return [];
         }
 
-        $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . env('GROQ_API_KEY'),
-        ])->post('https://api.groq.com/openai/v1/chat/completions', [
-            'model' => 'llama-3.3-70b-versatile',
-            'messages' => [
-                ['role' => 'system', 'content' => 'أنت خبير تدقيق حقائق. رد بتنسيق JSON فقط يحتوي على الحقول: "verdict", "confidence_score", "explanation". النسبة يجب أن تكون رقماً.'],
-                ['role' => 'user', 'content' => "الخبر: $query \n\n المصادر: \n $context"]
-            ],
-            'response_format' => ['type' => 'json_object']
-        ]);
+        try {
+            $domains = TrustedDomain::where('is_active', true)->pluck('domain')->toArray();
+            
+            $response = Http::post('https://api.tavily.com/search', [
+                'api_key' => env('TAVILY_API_KEY'),
+                'query' => $data['title'],
+                'search_depth' => 'advanced',
+                'include_domains' => $domains,
+                'max_results' => 5
+            ]);
 
-        $rawJson = $response->json()['choices'][0]['message']['content'] ?? '{}';
-        $result = json_decode($rawJson, true);
+            return $response->json()['results'] ?? [];
+        } catch (\Exception $e) {
+            return [];
+        }
+    }
 
+
+private function finalVerdict($originalNews, $searchResults)
+{
+    if (empty($searchResults)) {
+        return ['rating' => 'غير مؤكد', 'percentage' => 0, 'explanation' => 'لا توجد مصادر.', 'evidence' => ''];
+    }
+
+    try {
+        $snippets = collect($searchResults)->map(fn($i) => [
+            'title' => $i['title'],
+            'content' => mb_substr($i['content'], 0, 400)
+        ])->toArray();
+
+        $response = Http::withHeaders(['Authorization' => 'Bearer ' . env('GROQ_API_KEY')])
+            ->timeout(60)
+            ->post('https://api.groq.com/openai/v1/chat/completions', [
+                'model' => 'llama-3.1-8b-instant',
+                'messages' => [
+                    ['role' => 'system', 'content' => 'أنت مدقق حقائق. قارن الخبر بالنتائج. رد بـ JSON فقط: {"rating": "..", "percentage": 0-100, "explanation": "..", "evidence": ".."}. إذا كان الخبر عن وفاة قديمة مؤكدة (مثل مبارك)، فالتقييم "صحيح".'],
+                    ['role' => 'user', 'content' => "الخبر: " . $originalNews['title'] . "\nالنتائج: " . json_encode($snippets)]
+                ],
+                'response_format' => ['type' => 'json_object'],
+                'temperature' => 0, 
+            ]);
+
+        if ($response->successful()) {
+            $data = $response->json();
+            return json_decode($data['choices'][0]['message']['content'], true);
+        }
         return [
-            'verdict' => $result['verdict'] ?? 'غير مؤكد',
-            'confidence_score' => $result['confidence_score']*100 ?? 0,
-            'explanation' => $result['explanation'] ?? 'فشل التحليل.',
-            'sources' => $sources
+            'rating' => 'تنبيه',
+            'percentage' => 50,
+            'explanation' => 'النتائج موجودة ولكن محرك التحليل مزدحم حالياً. يرجى مراجعة الروابط أدناه.',
+            'evidence' => 'المصادر المرفقة تؤكد/تنفي الخبر تاريخياً.'
         ];
+
+    } catch (\Exception $e) {
+        return ['rating' => 'تحليل يدوي', 'percentage' => 50, 'explanation' => 'يرجى التأكد من الروابط، المحرك يواجه ضغطاً.', 'evidence' => ''];
+    }
+}
+    public function check($input)
+    {
+        $processed = $this->identifyInputType($input);
+        $raw = $processed['content'];
+        $isFallback = ($raw === "FAILED_CONTENT");
+
+        if ($isFallback) {
+            $raw = "عنوان الخبر من الرابط: " . $this->extractTitleFromUrl($input);
+        }
+
+        $data = $this->refineContentForSearch($raw, $isFallback);
+        if (!$data || $data['title'] === "INVALID") {
+             dd(['status' => 'error', 'message' => 'تعذر فهم محتوى النص أو الرابط، يرجى إدخال نص واضح.']);
+        }
+
+        $results = $this->searchInTrustedSources($data);
+        $verdict = $this->finalVerdict($data, $results);
+
+        $searchScore = collect($results)->avg('score') * 100;
+        $finalConfidence = ($verdict['percentage'] + $searchScore) / 2;
+
+        dd([
+            'status' => 'Fact-Check Completed',
+            'verdict' => [
+                'label' => $verdict['rating'],
+                'confidence' => round($finalConfidence) . "%",
+                'summary' => $verdict['explanation'],
+                'evidence' => $verdict['evidence'],
+            ],
+            'original_data' => [
+                'title' => $data['title'],
+                'method' => $isFallback ? 'URL Slug' : 'Content Extraction'
+            ],
+            'sources' => collect($results)->take(3)->map(fn($r) => ['title' => $r['title'], 'url' => $r['url']])
+        ]);
+    }
+
+    private function identifyInputType($input) {
+        if (filter_var($input, FILTER_VALIDATE_URL)) {
+            return ['type' => 'url', 'content' => $this->fetchUrlContent($input)];
+        }
+        return ['type' => 'text', 'content' => mb_substr($input, 0, 2000)];
+    }
+
+    private function extractTitleFromUrl($url) {
+        $path = parse_url($url, PHP_URL_PATH);
+        $title = str_replace(['-', '_', '/', '.html'], ' ', urldecode(basename($path)));
+        return (is_numeric($title) || strlen($title) < 5) ? "INVALID" : $title;
     }
 }

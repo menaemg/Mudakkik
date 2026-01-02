@@ -15,6 +15,7 @@ use App\Http\Controllers\PlanController;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Admin\TagController;
 use App\Http\Controllers\FactCheckController;
+use App\Http\Controllers\Admin\TrustedDomainController;
 
 Route::get('/', function () {
   return Inertia::render('Welcome', [
@@ -45,12 +46,17 @@ Route::middleware(['auth', 'verified', 'can:admin-access'])
     Route::get('subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions.index');
     Route::get('subscriptions/{subscription}/edit', [SubscriptionController::class, 'edit'])->name('subscriptions.edit');
     Route::put('subscriptions/{subscription}', [SubscriptionController::class, 'update'])->name('subscriptions.update');
-    Route::get('/trusted-domains', [App\Http\Controllers\Admin\TrustedDomainController::class, 'index'])->name('admin.domains.index');
-    Route::post('/trusted-domains', [App\Http\Controllers\Admin\TrustedDomainController::class, 'store'])->name('admin.domains.store');
-    Route::delete('/trusted-domains/{id}', [App\Http\Controllers\Admin\TrustedDomainController::class, 'destroy'])->name('admin.domains.destroy');
-    Route::patch('/trusted-domains/{id}/toggle', [App\Http\Controllers\Admin\TrustedDomainController::class, 'toggle'])->name('admin.domains.toggle');
+    Route::get('/trusted-domains', [TrustedDomainController::class, 'index'])
+      ->name('trusted-domains.index');
 
+    Route::post('/trusted-domains', [TrustedDomainController::class, 'store'])
+      ->name('trusted-domains.store');
 
+    Route::delete('/trusted-domains/{trustedDomain}', [TrustedDomainController::class, 'destroy'])
+      ->name('trusted-domains.destroy');
+
+    Route::patch('/trusted-domains/{trustedDomain}/toggle', [TrustedDomainController::class, 'toggle'])
+      ->name('trusted-domains.toggle');
 
 
     Route::prefix('requests')->group(function () {
