@@ -129,6 +129,7 @@ class User extends Authenticatable
         return $this->subscriptions()
             ->active()
             ->with('plan')
+            ->orderByDesc('created_at')
             ->first();
     }
 
