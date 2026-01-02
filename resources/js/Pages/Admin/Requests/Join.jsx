@@ -13,8 +13,8 @@ import AdminPagination from "@/Layouts/AdminPagination";
 import { usePage, router } from "@inertiajs/react";
 
 export default function join({ filters = {} }) {
-  const [selectedStatus, setSelectedStatus] = useState("all");
-  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState(filters?.search || "");
+  const [searchTerm, setSearchTerm] = useState(filters?.search || "");
   const [selectedRequest, setSelectedRequest] = useState(null);
   const { requests, stats: state, oldPendingCount } = usePage().props;
 
@@ -78,7 +78,7 @@ export default function join({ filters = {} }) {
   useEffect(() => {
     if (
       searchTerm !== (filters?.search || "") ||
-      selectedStatus !== (filters?.status || "all")
+      selectedStatus !== (filters?.status || "")
     ) {
       router.get(
         route("admin.requests.join"),

@@ -23,9 +23,7 @@ import AdsTable from "./Partials/AdsTable";
 import AdsChart from "./Partials/AdsChart";
 
 export default function Ads({ filters = {} }) {
-  const [selectedStatus, setSelectedStatus] = useState(
-    filters?.status || "all"
-  );
+  const [selectedStatus, setSelectedStatus] = useState(filters?.status || "");
   const [searchTerm, setSearchTerm] = useState(filters?.search || "");
   const [selectedRequest, setSelectedRequest] = useState(null);
   const { requests, stats: state, oldPendingCount } = usePage().props;
@@ -63,7 +61,7 @@ export default function Ads({ filters = {} }) {
     const delayDebounceFn = setTimeout(() => {
       if (
         searchTerm !== (filters?.search || "") ||
-        selectedStatus !== (filters?.status || "all")
+        selectedStatus !== (filters?.status || "")
       ) {
         router.get(
           route("admin.requests.ads"),

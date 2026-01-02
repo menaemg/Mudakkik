@@ -2,7 +2,7 @@ import React from "react";
 import { Eye, Check, X, Calendar, CalendarPlus, CalendarX } from "lucide-react";
 import { ActionIcon } from "./Actions";
 
-export default function RequestsTable({
+export default function AdsTable({
   requests,
   onView,
   onApprove,
@@ -34,7 +34,7 @@ export default function RequestsTable({
         </thead>
 
         <tbody className="divide-y divide-slate-50">
-          {requests.total === 0 && (
+          {requests.total == 0 && (
             <tr>
               <td colSpan="8" className="p-6 text-center text-slate-400">
                 لا توجد طلبات إعلانات
