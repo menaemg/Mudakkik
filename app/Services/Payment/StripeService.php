@@ -62,11 +62,6 @@ class StripeService implements PaymentProviderInterface
                 'customer_email' => $user->email,
                 'success_url' => $successUrl,
                 'cancel_url' => $cancelUrl,
-                'metadata' => [
-                    'user_id' => $user->id,
-                    'plan_id' => $plan->id,
-                    'plan_slug' => $plan->slug,
-                ],
             ];
 
             // Use Stripe Price ID if available, otherwise create line item

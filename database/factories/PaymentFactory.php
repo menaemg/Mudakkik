@@ -50,7 +50,7 @@ class PaymentFactory extends Factory
     public function forAdvertisement(?Advertisment $ad = null): static
     {
         return $this->state(fn (array $attributes) => [
-            'ad_id' => $ad?->id ?? Advertisment::inRandomOrder()->first()?->id,
+            'ad_id' => $ad?->id ?? Advertisment::inRandomOrder()->first()?->id ?? Advertisment::factory(),
             'subscription_id' => null,
         ]);
     }
