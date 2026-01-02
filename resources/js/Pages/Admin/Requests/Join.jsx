@@ -1,29 +1,7 @@
 import React from "react";
 import AdminLayout from "@/Layouts/AdminLayout";
 import { motion } from "framer-motion";
-import {
-  Search,
-  Filter,
-  MoreVertical,
-  Edit2,
-  Trash2,
-  UserPlus,
-  Mail,
-  Shield,
-  Activity,
-  Users,
-  ShieldCheck,
-  CreditCard,
-  TrendingUp,
-  ArrowUpRight,
-  Download,
-  Check,
-  X,
-  Eye,
-  Calendar,
-  Clock,
-  FileText,
-} from "lucide-react";
+import { Search, Users, TrendingUp, Check, X, Clock } from "lucide-react";
 
 import { useState } from "react";
 import toast from "react-hot-toast";
@@ -34,7 +12,7 @@ import RequestsTable from "./Partials/RequestsTable";
 import AdminPagination from "@/Layouts/AdminPagination";
 import { usePage, router } from "@inertiajs/react";
 
-export default function join() {
+export default function join({ filters = {} }) {
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRequest, setSelectedRequest] = useState(null);
@@ -98,18 +76,17 @@ export default function join() {
   // console.log(stats);
 
   useEffect(() => {
-    router.get(
-      route("admin.requests.join"),
-      {
-        search: searchTerm,
-        status: selectedStatus !== "all" ? selectedStatus : null,
-      },
-      {
-        preserveState: true,
-        replace: true,
-      }
-    );
-  }, [searchTerm, selectedStatus]);
+    if (
+      searchTerm !== (filters?.search || "") ||
+      selectedStatus !== (filters?.status || "all")
+    ) {
+      router.get(
+        route("admin.requests.join"),
+        { search: searchTerm, status: selectedStatus, page: 1 },
+        { preserveState: true, replace: true, preserveScroll: true }
+      );
+    }
+  }, [searchTerm, selectedStatus, filters.search, filters.status]);
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -287,7 +264,7 @@ export default function join() {
                     value={selectedStatus}
                     onChange={(e) => setSelectedStatus(e.target.value)}
                   >
-                    <option value="all">جميع الحالات</option>
+                    <option value="">جميع الحالات</option>
                     <option value="pending">قيد المراجعة</option>
                     <option value="accepted">مقبول</option>
                     <option value="rejected">مرفوض</option>

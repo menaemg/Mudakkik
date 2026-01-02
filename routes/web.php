@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AdsRequestController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\JoinRequestController;
 use App\Http\Controllers\Admin\PostController;
@@ -8,7 +9,7 @@ use App\Http\Controllers\Admin\TagController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\PlanController;
-use App\Http\Controllers\PostController;
+// use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -47,12 +48,17 @@ Route::middleware(['auth', 'verified', 'can:admin-access'])
         Route::prefix('requests')->group(function () {
             Route::get('/join', [JoinRequestController::class, 'index'])
                 ->name('requests.join');
-
             Route::patch('/join/{upgreadRequest}', [JoinRequestController::class, 'update'])
                 ->name('requests.join.update');
-
             Route::delete('/join/{upgreadRequest}', [JoinRequestController::class, 'destroy'])
                 ->name('requests.join.destroy');
+
+            Route::get('/ads', [AdsRequestController::class, 'index'])
+                ->name('requests.ads');
+            Route::patch('/ads/{AdRequest}', [AdsRequestController::class, 'update'])
+                ->name('requests.ads.update');
+            Route::delete('/ads/{AdRequest}', [AdsRequestController::class, 'destroy'])
+                ->name('requests.ads.destroy');
 
         });
     });
