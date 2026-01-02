@@ -48,7 +48,6 @@ class JoinRequestController extends Controller
             'admin_notes' => 'nullable|string|max:2000',
         ]);
 
-        // @dd($data);
         $upgreadRequest->update(
             [
                 'status' => $data['status'],

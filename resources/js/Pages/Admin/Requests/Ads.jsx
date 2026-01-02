@@ -22,7 +22,7 @@ import { usePage, router } from "@inertiajs/react";
 import AdsTable from "./Partials/AdsTable";
 import AdsChart from "./Partials/AdsChart";
 
-export default function join({ filters = {} }) {
+export default function Ads({ filters = {} }) {
   const [selectedStatus, setSelectedStatus] = useState(
     filters?.status || "all"
   );
@@ -327,4 +327,4 @@ export default function join({ filters = {} }) {
   );
 }
 
-join.layout = (page) => <AdminLayout children={page} />;
+Ads.layout = (page) => <AdminLayout children={page} />;

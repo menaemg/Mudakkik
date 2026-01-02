@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AdsRequestController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\JoinRequestController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
