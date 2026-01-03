@@ -140,7 +140,6 @@ class PostController extends Controller
         DB::transaction(function () use ($request, $post, $validated) {
             if ($request->hasFile('image')) {
                 $newPath = $request->file('image')->store('posts', 'public');
-                // حذف الصورة القديمة لتوفير المساحة
                 if ($post->image && Storage::disk('public')->exists($post->image)) {
                     Storage::disk('public')->delete($post->image);
                 }
