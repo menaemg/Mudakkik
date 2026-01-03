@@ -3,13 +3,13 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
+use App\Models\User;
+use App\Models\Category;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Post>
  */
-use App\Models\User;
-use App\Models\Category;
-
 class PostFactory extends Factory
 {
     /**
@@ -19,15 +19,24 @@ class PostFactory extends Factory
      */
     public function definition(): array
     {
+        $title = fake()->sentence(8);
+
         return [
-'title' => fake()->sentence(),
-        'body' => fake()->paragraphs(4, true), 
-        'image' => fake()->imageUrl(640, 480, 'news'), 
-        'status' => fake()->randomElement(array: ['pending', 'published', 'rejected']),
-        'ai_verdict' => fake()->randomElement(['trusted', 'fake', 'misleading']),
-        'user_id' => User::factory(), 
-        'category_id' => Category::factory(),
-        'is_featured' => fake()->boolean(20),
+            'title' => $title,
+            'slug' => Str::slug($title) . '-' . Str::random(6),
+            'body' => fake()->paragraphs(5, true),
+            'image' => null,
+
+            'user_id' => User::factory(),
+            'category_id' => Category::factory(),
+
+            'status' => fake()->randomElement(['pending', 'published', 'rejected']),
+
+            'type' => fake()->randomElement(['news', 'article']),
+
+            'ai_verdict' => fake()->randomElement(['trusted', 'trusted', 'checking', 'fake']),
+
+            'views' => fake()->numberBetween(50, 20000),
         ];
     }
 }

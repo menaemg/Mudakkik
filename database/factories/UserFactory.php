@@ -21,29 +21,36 @@ class UserFactory extends Factory
      *
      * @return array<string, mixed>
      */
-    public function definition(): array
+public function definition(): array
     {
+        $name = fake()->name();
+        $username = Str::slug($name) . fake()->numberBetween(10, 999);
+
         return [
-            'name' => fake()->name(),
-            'username' => fake()->unique()->userName(),
+            'name' => $name,
+            'username' => $username,
             'email' => fake()->unique()->safeEmail(),
-            'role' => fake()->randomElement(['admin', 'journalist', 'user']),
+            'role' => fake()->randomElement(['user', 'user', 'user', 'journalist']),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
-            'credibility_score' => fake()->numberBetween(50, 100),
-            'is_verified_journalist' => fake()->boolean(),
-            'bio' => fake()->sentence(),
+
+            'avatar' => 'avatars/default-avatar.png',
+            'is_active' => fake()->boolean(90),
+            'credibility_score' => fake()->numberBetween(0, 100),
+            'is_verified_journalist' => fake()->boolean(20),
+            'bio' => fake()->sentence(10),
         ];
     }
-
     /**
      * Indicate that the model's email address should be unverified.
      */
-    public function unverified(): static
+public function admin(): static
     {
-        return $this->state(fn(array $attributes) => [
-            'email_verified_at' => null,
+        return $this->state(fn (array $attributes) => [
+            'role' => 'admin',
+            'is_verified_journalist' => true,
+            'credibility_score' => 100,
         ]);
     }
 }

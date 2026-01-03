@@ -11,12 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('upgread_requests', function (Blueprint $table) {
+        Schema::create('upgrade_requests', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
 
-            $table->string('documents'); 
-            $table->text('admin_notes')->nullable(); 
+            $table->string('documents');
+
+            $table->text('request_message')->nullable();
+
+            $table->text('admin_notes')->nullable();
             $table->enum('status',['pending','rejected','accepted'])->default('pending');
             $table->timestamps();
         });
@@ -27,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('upgread_requests');
+        Schema::dropIfExists('upgrade_requests');
     }
 };
