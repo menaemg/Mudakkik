@@ -75,24 +75,23 @@ class PostController extends Controller
     public function toggleFeature(Request $request, Post $post)
     {
         $feature = $request->input('feature');
-        $allowedFeatures = ['is_cover_story', 'is_breaking', 'is_editor_choice', 'is_featured'];
+        $allowedFeatures = ['is_cover_story', 'is_breaking', 'is_editor_choice', 'is_featured', 'status'];
 
         if (in_array($feature, $allowedFeatures)) {
             if ($feature === 'is_cover_story' && !$post->is_cover_story) {
                 Post::where('is_cover_story', true)->update(['is_cover_story' => false]);
             }
 
-            $post->update([
-                $feature => !$post->$feature
-            ]);
-        }
-
         if ($feature === 'status') {
             $post->update([
                 'status' => $post->status === 'published' ? 'pending' : 'published'
             ]);
+        } else {
+            $post->update([
+                $feature => !$post->$feature
+            ]);
         }
-
+     }
         return back()->with('success', 'تم تحديث حالة المقال بنجاح');
     }
 

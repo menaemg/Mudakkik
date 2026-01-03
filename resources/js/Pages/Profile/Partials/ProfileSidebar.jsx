@@ -6,10 +6,11 @@ import { FaChartLine, FaPenNib, FaHeart, FaCog, FaBullhorn, FaSignOutAlt, FaLock
 
 const SidebarItem = ({ icon: Icon, label, active, locked, onClick, isDanger }) => (
     <div
-        onClick={onClick}
+        onClick={locked ? undefined : onClick}
         className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all duration-300 mb-2 group select-none
         ${active ? 'bg-[#000a2e] text-white shadow-lg' : 'text-gray-600 hover:bg-gray-100'}
-        ${isDanger ? 'hover:bg-red-50 hover:text-red-600' : ''}`}
+        ${isDanger ? 'hover:bg-red-50 hover:text-red-600' : ''}
+        ${locked ? 'opacity-50 cursor-not-allowed' : ''}`}
     >
         <div className="flex items-center gap-3">
             <Icon className={`${active ? 'text-brand-red' : 'text-gray-400 group-hover:text-current'} transition-colors`} />

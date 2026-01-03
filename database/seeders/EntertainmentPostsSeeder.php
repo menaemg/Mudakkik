@@ -21,20 +21,20 @@ class EntertainmentPostsSeeder extends Seeder
         }
 
         for ($i = 1; $i <= 10; $i++) {
-            Post::create([
+            $post = new Post([
                 'title' => "خبر ترفيهي تجريبي رقم {$i}",
-                'slug' => Str::slug("entertainment-post-{$i}"),
                 'body' => 'هذا محتوى تجريبي لاختبار قسم الترفيه.',
                 'image' => null,
                 'status' => 'published',
-                'type' => 'article',
                 'category_id' => $category->id,
                 'user_id' => $user->id,
-                'views' => rand(10, 500),
                 'ai_verdict' => 'trusted',
-                'created_at' => now()->subDays(rand(0, 5)),
-            ]
-          );
+              ]);
+            $post->slug = Str::slug("entertainment-post-{$i}");
+            $post->type = 'article';
+            $post->views = rand(10, 500);
+            $post->created_at = now()->subDays(rand(0, 5));
+            $post->save();
+         }
         }
     }
-}

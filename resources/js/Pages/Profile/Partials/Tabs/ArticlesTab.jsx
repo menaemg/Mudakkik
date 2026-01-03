@@ -28,7 +28,7 @@ export default function ArticlesTab({ articles, setActiveTab, setPostToEdit }) {
                 </div>
 
                 <div className="flex-1">
-                    {articles && articles.data.length > 0 ? (
+                    {articles?.data?.length > 0 ? (
                         <>
                             {articles.data.map((post) => (
                                 <ArticleListItem
@@ -57,7 +57,7 @@ export default function ArticlesTab({ articles, setActiveTab, setPostToEdit }) {
                     )}
                 </div>
 
-                {articles && articles.data.length > 0 && (
+                {articles?.data?.length > 0 && (
                     <div className="p-4 border-t border-gray-100 bg-gray-50 flex justify-center">
                         <Pagination links={articles.links} />
                     </div>

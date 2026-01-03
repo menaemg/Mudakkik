@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { FaFacebookF, FaInstagram, FaTwitter, FaBolt } from 'react-icons/fa';
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -108,6 +108,9 @@ const JustForYouItem = ({ category, title, image, colorClass }) => (
 );
 
 export default function ContentGridSection() {
+      useEffect(() => {
+        AOS.init({ duration: 800, once: true });
+    }, []);
     return (
         <section className="container mx-auto px-4 py-16 bg-white">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">

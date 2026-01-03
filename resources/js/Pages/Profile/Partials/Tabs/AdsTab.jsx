@@ -152,7 +152,7 @@ export default function AdsTab({ adRequests }) {
                                                 </div>
                                                 <div>
                                                     <p className="font-bold text-gray-900 text-sm line-clamp-1">{ad.title}</p>
-                                                    <a href={ad.target_url} target="_blank" className="text-xs text-blue-500 hover:underline truncate block max-w-[150px]">{ad.target_url}</a>
+                                                  <a href={ad.target_url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-500 hover:underline truncate block max-w-[150px]">{ad.target_url}</a>
                                                 </div>
                                             </div>
                                         </td>

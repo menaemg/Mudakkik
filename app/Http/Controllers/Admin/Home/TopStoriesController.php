@@ -77,7 +77,6 @@ public function index()
             'slot_name' => 'required|string',
             'post_id'   => [
                 'nullable',
-                'exists:posts,id',
                 Rule::exists('posts', 'id')->where(function ($query) {
                     $query->where('status', 'published')
                           ->where(function($q) {

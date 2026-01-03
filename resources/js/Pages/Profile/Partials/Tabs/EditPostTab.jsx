@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from '@inertiajs/react';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
@@ -8,13 +8,15 @@ import { FaSave, FaImage, FaArrowRight } from 'react-icons/fa';
 import Swal from 'sweetalert2';
 
 export default function EditPostTab({ post, categories, setActiveTab }) {
-
-    const getInitialImage = () => {
-        if (!post.image) return null;
-        return post.image.startsWith('http') ? post.image : `/storage/${post.image}`;
-    };
+    const [blobUrl, setBlobUrl] = useState(null);
+    const getInitialImage = () => post.image || null;
 
     const [imagePreview, setImagePreview] = useState(getInitialImage());
+    useEffect(() => {
+        return () => {
+            if (blobUrl) URL.revokeObjectURL(blobUrl);
+        };
+    }, [blobUrl]);
 
     const { data, setData, post: submitPost, processing, errors } = useForm({
         _method: 'PUT',
@@ -29,7 +31,10 @@ export default function EditPostTab({ post, categories, setActiveTab }) {
         const file = e.target.files[0];
         if (file) {
             setData('image', file);
-            setImagePreview(URL.createObjectURL(file));
+            if (blobUrl) URL.revokeObjectURL(blobUrl);
+            const newBlobUrl = URL.createObjectURL(file);
+            setBlobUrl(newBlobUrl);
+            setImagePreview(newBlobUrl);
         }
     };
 

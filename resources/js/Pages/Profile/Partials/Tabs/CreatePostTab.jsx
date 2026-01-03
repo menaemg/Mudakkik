@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm, router } from '@inertiajs/react';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
@@ -18,9 +18,20 @@ export default function CreatePostTab({ categories, setActiveTab }) {
         type: 'article',
     });
 
+         useEffect(() => {
+         return () => {
+             if (imagePreview) {
+                 URL.revokeObjectURL(imagePreview);
+             }
+         };
+     }, [imagePreview]);
+
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
+                if (imagePreview) {
+                 URL.revokeObjectURL(imagePreview);
+             }
             setData('image', file);
             setImagePreview(URL.createObjectURL(file));
         }
@@ -121,7 +132,11 @@ export default function CreatePostTab({ categories, setActiveTab }) {
                                 <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
                                 <button
                                     type="button"
-                                    onClick={() => { setImagePreview(null); setData('image', null); }}
+                                    onClick={() => {
+                                        if (imagePreview) URL.revokeObjectURL(imagePreview);
+                                        setImagePreview(null);
+                                        setData('image', null);
+                                    }}
                                     className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full shadow-lg hover:bg-red-600 transition-colors"
                                 >
                                     <FaTimes />

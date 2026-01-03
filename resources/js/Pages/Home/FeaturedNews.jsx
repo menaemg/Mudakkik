@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import { Badge } from "@/components/ui/badge";
@@ -107,9 +107,11 @@ const SubFeaturedCard = ({ post, colorClass, delay }) => {
     if (!post) return <SubCardSkeleton />;
 
     return (
-        <Link href={route('posts.show', post.slug || '#')} className="flex gap-4 items-start group cursor-pointer p-3 r
-        ounded-lg hover:bg-white hover:shadow-xl hover:-translate-y-1 transition-all
-        duration-300 border border-transparent hover:border-gray-100" data-aos="fade-up" data-aos-delay={delay}>
+        <Link href={route('posts.show', post.slug || '#')}
+        className="flex gap-4 items-start group cursor-pointer p-3
+        rounded-lg hover:bg-white hover:shadow-xl hover:-translate-y-1
+        transition-all duration-300 border border-transparent hover:border-gray-100"
+        data-aos="fade-up" data-aos-delay={delay}>
             <div className="w-[110px] h-[85px] shrink-0 overflow-hidden rounded-md shadow-sm relative bg-gray-100">
                 <img src={getImageUrl(post.image)} alt={post.title} className="w-full h-full object-cover transition-transform
                 duration-500 group-hover:scale-110" />
@@ -173,6 +175,7 @@ const SectionHeader = ({ title }) => (
 );
 
 export default function FeaturedNews({ featured }) {
+      useEffect(() => { AOS.init({ duration: 800, once: true, offset: 50 }); }, []);
     const mainPost = featured?.main;
     const subPosts = featured?.subs && featured.subs.length > 0 ? featured.subs : [null, null, null, null];
     const editorsPosts = featured?.editors && featured.editors.length > 0 ? featured.editors : [null, null, null, null];

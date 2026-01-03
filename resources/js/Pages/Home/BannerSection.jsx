@@ -1,10 +1,16 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import AOS from 'aos';
 import 'aos/dist/aos.css';
-import { FaArrowLeft, FaBolt } from 'react-icons/fa';
+import { FaBolt } from 'react-icons/fa';
 
-export default function BannerSection() {
+export default function BannerSection({ ads }) {
+      useEffect(() => {
+          AOS.init({
+              duration: 800,
+              once: true,
+          });
+      }, []);
     return (
         <section className="container mx-auto px-4 py-12 mb-8" data-aos="fade-up">
             <div className="relative w-full h-[450px] rounded-2xl overflow-hidden group cursor-pointer shadow-2xl border border-gray-100">

@@ -25,14 +25,11 @@ export default function Edit(
     current_plan }) {
       const user = usePage().props.auth.user;
 
-    const queryParams = new URLSearchParams(window.location.search);
-    const initialTab = queryParams.get('tab');
+    const initialTab = typeof window !== 'undefined'
+        ? new URLSearchParams(window.location.search).get('tab')
+        : null;
 
     const [activeTab, setActiveTab] = useState(initialTab || 'overview');
-
-    const canManageAds = stats.plan !== 'Free' && stats.plan !== 'مجاني';
-
-    const [postToEdit, setPostToEdit] = useState(null);
 
     const dashboardStats = stats || {
         role: "عضو",
@@ -42,6 +39,10 @@ export default function Edit(
         views: 0,
         posts_count: 0
     };
+
+    const canManageAds = dashboardStats.plan !== 'Free' && dashboardStats.plan !== 'مجاني';
+
+    const [postToEdit, setPostToEdit] = useState(null);
 
     return (
         <AuthenticatedLayout>

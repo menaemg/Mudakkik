@@ -25,6 +25,7 @@ use App\Http\Controllers\UserAdController;
 use App\Http\Controllers\UpgradeRequestController;
 use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\FactCheckController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Webhooks\StripeWebhookController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -75,8 +76,8 @@ Route::middleware(['auth', 'verified', 'can:admin-access'])
             Route::delete('/join/{upgradeRequest}', [JoinRequestController::class, 'destroy'])->name('requests.join.destroy');
 
             Route::get('/ads', [AdsRequestController::class, 'index'])->name('requests.ads');
-            Route::patch('/ads/{AdRequest}', [AdsRequestController::class, 'update'])->name('requests.ads.update');
-            Route::delete('/ads/{AdRequest}', [AdsRequestController::class, 'destroy'])->name('requests.ads.destroy');
+            Route::patch('/ads/{adRequest}', [AdsRequestController::class, 'update'])->name('requests.ads.update');
+            Route::delete('/ads/{adRequest}', [AdsRequestController::class, 'destroy'])->name('requests.ads.destroy');
         });
 
         Route::prefix('home')->name('home.')->group(function () {
@@ -128,8 +129,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::post('/posts/{post}/like', [LikeController::class, 'toggle'])->name('posts.like');
 
-    Route::get('/notifications', fn() => auth()->user()->notifications()->take(10)->get())->name('notifications.index');
-    Route::post('/notifications/mark-all-read', fn() => auth()->user()->unreadNotifications->markAsRead())->name('notifications.read');
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead'])->name('notifications.read');
 });
 
 Route::post('/webhooks/stripe', [StripeWebhookController::class, 'handle'])

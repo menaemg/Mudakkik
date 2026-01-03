@@ -33,7 +33,10 @@ class SubscriptionController extends Controller
     public function show(): Response
     {
         $user = Auth::user();
-        $subscription = $user->currentSubscription()?->load('plan');
+            if (!$user) {
+        abort(403, 'Unauthorized');
+    }
+    $subscription = $user->currentSubscription()?->load('plan');
 
         $history = $user->subscriptions()
             ->with('plan')
@@ -52,8 +55,10 @@ class SubscriptionController extends Controller
      */
     public function history(): Response
     {
-        $user = Auth::user();
-
+            $user = Auth::user();
+        if (!$user) {
+            abort(403, 'Unauthorized');
+        }
         $subscriptions = $user->subscriptions()
             ->with('plan')
             ->orderByDesc('created_at')

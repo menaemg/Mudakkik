@@ -105,7 +105,7 @@ if ($subscription && $subscription->plan) {
         $user = $request->user();
         $data = $request->validated();
 
-        if ($request->hasFile('avatar')) {
+        if ($request->hasFile('avatar') && $request->file('avatar')->isValid()) {
             if ($user->avatar) {
                 Storage::disk('public')->delete($user->avatar);
             }

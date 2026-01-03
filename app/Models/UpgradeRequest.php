@@ -10,7 +10,7 @@ use App\Models\User;
 
 class UpgradeRequest extends Model
 {
-    /** @use HasFactory<\Database\Factories\UpgreadRequestFactory> */
+    /** @use HasFactory<\Database\Factories\UpgradeRequestFactory> */
     use HasFactory;
     protected $fillable = [
         'user_id',

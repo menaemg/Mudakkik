@@ -11,11 +11,11 @@ class PostObserver
     public function saving(Post $post)
     {
         if ($post->is_cover_story) {
-            Post::where('id', '!=', $post->id)->where('is_cover_story', true)->update(['is_cover_story' => false]);
+        Post::where('is_breaking', true)->oldest()->update(['is_breaking' => false]);
         }
         if ($post->is_breaking) {
             $breakingCount = Post::where('is_breaking', true)->count();
-            if ($breakingCount >= 8) {
+        if ($breakingCount >= 7) {
                 Post::where('is_breaking', true)->oldest()->first()?->update(['is_breaking' => false]);
             }
         }
@@ -23,7 +23,7 @@ class PostObserver
 
     public function updated(Post $post)
     {
-        if ($post->isDirty('status') && $post->status === 'published') {
+    if ($post->wasChanged('status') && $post->status === 'published') {
             $post->user->notify(new \App\Notifications\PostPublished($post));
         }
     }

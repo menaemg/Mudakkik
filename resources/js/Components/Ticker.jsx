@@ -6,6 +6,12 @@ export default function Ticker({ news = [] }) {
     const [isPaused, setIsPaused] = useState(false);
 
     useEffect(() => {
+              if (currentIndex >= news.length) {
+            setCurrentIndex(0);
+        }
+    }, [news.length, currentIndex]);
+
+    useEffect(() => {
         if (news.length === 0 || isPaused) return;
 
         const interval = setInterval(() => {
@@ -35,7 +41,7 @@ export default function Ticker({ news = [] }) {
                 <div className="flex-1 h-full flex items-center mr-32 overflow-hidden relative">
                     <div className="w-full transition-opacity duration-500">
                         <Link
-                            href={route('articles.show', news[currentIndex]?.slug || '#')}
+                            href={news[currentIndex]?.slug ? route('articles.show', news[currentIndex].slug) : '#'}
                             className="text-xs md:text-sm font-medium text-white hover:text-yellow-300 transition-colors block truncate"
                         >
                             {news[currentIndex]?.title}

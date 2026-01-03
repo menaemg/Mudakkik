@@ -27,18 +27,24 @@ export default function Footer() {
                         </p>
 
                         <div className="flex gap-3">
-                            {[FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn].map((Icon, idx) => (
+                            {[
+                                { Icon: FaFacebookF, label: 'Facebook' },
+                                { Icon: FaTwitter, label: 'Twitter' },
+                                { Icon: FaInstagram, label: 'Instagram' },
+                                { Icon: FaLinkedinIn, label: 'LinkedIn' }
+                            ].map(({ Icon, label }, idx) => (
                                 <a
                                     key={idx}
                                     href="#"
+                                    aria-label={label}
                                     className="w-10 h-10 rounded-full border border-white/10
-                                    flex items-center justify-center text-gray-400 hover:bg-white
-                                    hover:text-[#000a2e] hover:border-white transition-all duration-300"
-                                >
-                                    <Icon size={16} />
-                                </a>
-                            ))}
-                        </div>
+                                     flex items-center justify-center text-gray-400 hover:bg-white
+                                     hover:text-[#000a2e] hover:border-white transition-all duration-300"
+                                 >
+                                     <Icon size={16} />
+                                 </a>
+                             ))}
+                         </div>
                     </div>
 
                     <div className="lg:col-span-8 grid grid-cols-2 md:grid-cols-3 gap-8 pt-2">

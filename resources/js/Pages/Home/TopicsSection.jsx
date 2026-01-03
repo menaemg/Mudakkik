@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { FaArrowLeft, FaBell, FaBolt } from 'react-icons/fa';
 import Autoplay from "embla-carousel-autoplay"
 import { Badge } from "@/components/ui/badge";
@@ -10,19 +10,12 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-
-const topics = [
-    { id: 1, name: 'صحة', count: '5 مقالات', image: 'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?w=400&fit=crop&q=60' },
-    { id: 2, name: 'أعمال', count: '8 مقالات', image: 'https://images.unsplash.com/photo-1664575602554-2087b04935a5?w=400&fit=crop&q=60' },
-    { id: 3, name: 'سياسة', count: '5 مقالات', image: 'https://images.unsplash.com/photo-1529101091760-61df6be34fc8?w=400&fit=crop&q=60' },
-    { id: 4, name: 'سفر', count: '5 مقالات', image: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=400&fit=crop&q=60' },
-    { id: 5, name: 'عالم', count: '28 مقال', image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&fit=crop&q=60' },
-    { id: 6, name: 'تكنولوجيا', count: '8 مقالات', image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&fit=crop&q=60' },
-    { id: 7, name: 'رياضة', count: '12 مقال', image: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=400&fit=crop&q=60' },
-];
+import { Link } from '@inertiajs/react';
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 
 const TopicCard = ({ topic }) => (
-    <div className="group cursor-pointer bg-white rounded-xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full overflow-hidden border border-gray-100">
+    <Link href={route('posts.index', { category: topic.slug || topic.name })} className="group cursor-pointer bg-white rounded-xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full overflow-hidden border border-gray-100 block">
         <div className="h-28 overflow-hidden relative">
             <img src={topic.image} alt={topic.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
             <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
@@ -30,17 +23,17 @@ const TopicCard = ({ topic }) => (
         <div className="p-4 flex justify-between items-center">
             <div>
                 <h3 className="font-bold text-gray-900 text-base group-hover:text-brand-blue transition-colors">{topic.name}</h3>
-                <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{topic.count}</span>
+                <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{topic.posts_count || 0} مقال</span>
             </div>
             <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-brand-blue group-hover:text-white transition-all">
                  <FaArrowLeft className="text-[10px]" />
             </div>
         </div>
-    </div>
+    </Link>
 );
 
-const AlertCard = ({ image, category, title, author, date, delay }) => (
-    <div className="flex flex-col md:flex-row bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg border border-gray-100 hover:border-brand-red/30 transition-all duration-300 h-full group" data-aos="fade-up" data-aos-delay={delay}>
+const AlertCard = ({ image, category, title, author, date, delay, slug }) => (
+    <Link href={route('posts.show', slug || '#')} className="flex flex-col md:flex-row bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg border border-gray-100 hover:border-brand-red/30 transition-all duration-300 h-full group block" data-aos="fade-up" data-aos-delay={delay}>
         <div className="w-full md:w-40 h-48 md:h-auto shrink-0 relative overflow-hidden">
              <img src={image} alt={title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
              <div className="absolute top-2 right-2 md:hidden">
@@ -69,10 +62,17 @@ const AlertCard = ({ image, category, title, author, date, delay }) => (
                 <span>{date}</span>
             </div>
         </div>
-    </div>
+    </Link>
 );
 
-export default function TopicsSection() {
+export default function TopicsSection({ topics = [], ads }) {
+
+    useEffect(() => {
+        AOS.init({ duration: 800, once: true });
+    }, []);
+
+    const sectionAd = ads?.['home_topics_bottom']?.[0];
+
     return (
         <section className="container mx-auto px-4 py-16 bg-gray-50/30">
 
@@ -139,8 +139,16 @@ export default function TopicsSection() {
             </div>
 
             <div className="mt-12 h-28 bg-white border-2 border-dashed border-gray-200 flex flex-col items-center justify-center text-gray-400 text-sm rounded-xl cursor-pointer hover:border-[#b20e1e]/30 hover:bg-red-50 transition-all duration-300" data-aos="fade-up">
-                <span className="font-bold text-gray-500">مساحة إعلانية</span>
-                <span className="text-xs">تواصل معنا</span>
+                {sectionAd ? (
+                    <a href={sectionAd.target_link} target="_blank" rel="noopener noreferrer" className="w-full h-full block">
+                        <img src={`/storage/${sectionAd.image}`} alt={sectionAd.title} className="w-full h-full object-cover rounded-xl" />
+                    </a>
+                ) : (
+                    <>
+                        <span className="font-bold text-gray-500">مساحة إعلانية</span>
+                        <span className="text-xs">تواصل معنا</span>
+                    </>
+                )}
             </div>
 
         </section>

@@ -22,8 +22,9 @@ class WelcomeController extends Controller
                          });
         };
 
-        $allSlots = HomeSlot::with(['post' => function($q) {
-                $q->select('id', 'title', 'slug', 'image', 'created_at', 'category_id', 'user_id', 'views', 'is_breaking', 'type');
+        $allSlots = HomeSlot::with(['post' => function($q) use ($safeQuery) {
+                $q->tap($safeQuery)
+                  ->select('id', 'title', 'slug', 'image', 'created_at', 'category_id', 'user_id', 'views', 'is_breaking', 'type', 'status', 'ai_verdict');
             }, 'post.user:id,name,avatar', 'post.category:id,name,slug'])
             ->get()
             ->groupBy('section');
@@ -112,25 +113,25 @@ class WelcomeController extends Controller
       }
   }
 
-    // $entertainmentCategory = Category::where('slug', 'entertainment')
-    //     ->orWhere('name', 'like', '%ترفيه%')
-    //     ->first();
+    $entertainmentCategory = Category::where('slug', 'entertainment')
+        ->orWhere('name', 'like', '%ترفيه%')
+        ->first();
 
-    // $entertainmentPosts = collect();
+    $entertainmentPosts = collect();
 
-    // if ($entertainmentCategory) {
-    //     $entSlots = $allSlots->get('entertainment')?->keyBy('slot_name') ?? collect();
+    if ($entertainmentCategory) {
+        $entSlots = $allSlots->get('entertainment')?->keyBy('slot_name') ?? collect();
 
-    //     $entertainmentPosts = Post::tap($safeQuery)
-    //         ->where('category_id', $entertainmentCategory->id)
-    //         ->whereNotIn('id', $excludeIds)
-    //         ->latest()
-    //         ->take(6)
-    //         ->with(['user', 'category'])
-    //         ->get();
+        $entertainmentPosts = Post::tap($safeQuery)
+            ->where('category_id', $entertainmentCategory->id)
+            ->whereNotIn('id', $excludeIds)
+            ->latest()
+            ->take(6)
+            ->with(['user', 'category'])
+            ->get();
 
-    //     $excludeIds = array_merge($excludeIds, $entertainmentPosts->pluck('id')->toArray());
-    // }
+        $excludeIds = array_merge($excludeIds, $entertainmentPosts->pluck('id')->toArray());
+    }
 
         return Inertia::render('Welcome', [
             'canLogin' => Route::has('login'), 'canRegister' => Route::has('register'),

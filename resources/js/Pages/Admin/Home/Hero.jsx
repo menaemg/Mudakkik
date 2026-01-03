@@ -5,11 +5,46 @@ import AsyncSelect from "react-select/async";
 import axios from "axios";
 import {
     Layout, RefreshCw,
-    Image as ImageIcon, Monitor, Flame, Megaphone, Eye, X, Check, Search, AlertTriangle
+    ImageIcon, Monitor, Flame, Megaphone, Eye, X, Check, Search, AlertTriangle
 } from "lucide-react";
 import Swal from "sweetalert2";
 import { motion, AnimatePresence } from "framer-motion";
 import PostView from "@/Pages/Admin/Components/Posts/Partials/PostView";
+
+const SelectionInput = ({ slotName, placeholder, loadOptions, handleUpdateSlot, formatOptionLabel }) => (
+    <div className="mt-4 relative group">
+        <div className="absolute right-3 top-3 text-slate-400 z-10 pointer-events-none group-focus-within:text-[#D00000] transition-colors">
+            <Search size={16} />
+        </div>
+        <AsyncSelect
+            cacheOptions
+            defaultOptions
+            loadOptions={loadOptions}
+            onChange={(opt) => handleUpdateSlot(slotName, opt)}
+            styles={{
+                control: (base, state) => ({
+                    ...base,
+                    borderRadius: "1rem",
+                    paddingRight: "2rem",
+                    paddingTop: "0.2rem",
+                    paddingBottom: "0.2rem",
+                    borderColor: state.isFocused ? "#001246" : "#e2e8f0",
+                    backgroundColor: "#f8fafc",
+                    boxShadow: "none",
+                    "&:hover": { borderColor: "#cbd5e1" }
+                }),
+                menu: (base) => ({ ...base, borderRadius: "1rem", zIndex: 100, overflow: 'hidden', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }),
+                input: (base) => ({ ...base, color: '#001246', fontWeight: 'bold', fontSize: '0.85rem' }),
+                placeholder: (base) => ({ ...base, fontSize: '0.8rem', color: '#94a3b8' }),
+            }}
+            formatOptionLabel={formatOptionLabel}
+            placeholder={placeholder}
+            noOptionsMessage={() => "لا توجد نتائج مطابقة"}
+            loadingMessage={() => "جاري البحث..."}
+            dir="rtl"
+        />
+    </div>
+);
 
 export default function Hero({ heroSettings, autoSideNews = [], trendingStats = [] }) {
     const main = heroSettings?.main || {};
@@ -23,7 +58,6 @@ export default function Hero({ heroSettings, autoSideNews = [], trendingStats = 
 
     const loadOptions = (inputValue) => {
         if (!inputValue) return Promise.resolve([]);
-        // بنبعت الطلب ونستقبل النتيجة
         return axios.get(route('admin.posts.search', { query: inputValue }))
             .then((res) => {
                 return res.data.map(post => ({
@@ -33,6 +67,10 @@ export default function Hero({ heroSettings, autoSideNews = [], trendingStats = 
                     author: post.user?.name,
                     raw: post
                 }));
+            })
+            .catch((error) => {
+                console.error('Search failed:', error);
+                return [];
             });
     };
 
@@ -46,54 +84,20 @@ export default function Hero({ heroSettings, autoSideNews = [], trendingStats = 
         </div>
     );
 
-
     const handleUpdateSlot = (slotName, selectedOption) => {
-            if (!selectedOption) return;
-            setProcessing(true);
-            router.post(route('admin.home.hero.update'), {
-                slot_name: slotName, post_id: selectedOption.value
-            }, { onFinish: () => setProcessing(false), preserveScroll: true });
-        };
+        if (!selectedOption) return;
+        setProcessing(true);
+        router.post(route('admin.home.hero.update'), {
+            slot_name: slotName, post_id: selectedOption.value
+        }, { onFinish: () => setProcessing(false), preserveScroll: true });
+    };
 
-        const handleResetSlot = (slotName) => {
-            setProcessing(true);
-            router.post(route('admin.home.hero.update'), {
-                slot_name: slotName, post_id: null
-            }, { onFinish: () => setProcessing(false), preserveScroll: true });
-        };
-
-    const SelectionInput = ({ slotName, placeholder }) => (
-        <div className="mt-4 relative group">
-            <div className="absolute right-3 top-3 text-slate-400 z-10 pointer-events-none group-focus-within:text-[#D00000] transition-colors">
-                <Search size={16} />
-            </div>
-            <AsyncSelect
-                cacheOptions defaultOptions loadOptions={loadOptions}
-                onChange={(opt) => handleUpdateSlot(slotName, opt)}
-                styles={{
-                    control: (base, state) => ({
-                        ...base,
-                        borderRadius: "1rem",
-                        paddingRight: "2rem",
-                        paddingTop: "0.2rem",
-                        paddingBottom: "0.2rem",
-                        borderColor: state.isFocused ? "#001246" : "#e2e8f0",
-                        backgroundColor: "#f8fafc",
-                        boxShadow: "none",
-                        "&:hover": { borderColor: "#cbd5e1" }
-                    }),
-                    menu: (base) => ({ ...base, borderRadius: "1rem", zIndex: 100, overflow: 'hidden', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }),
-                    input: (base) => ({ ...base, color: '#001246', fontWeight: 'bold', fontSize: '0.85rem' }),
-                    placeholder: (base) => ({ ...base, fontSize: '0.8rem', color: '#94a3b8' }),
-                }}
-                formatOptionLabel={formatOptionLabel}
-                placeholder={placeholder}
-                noOptionsMessage={() => "لا توجد نتائج مطابقة"}
-                loadingMessage={() => "جاري البحث..."}
-                dir="rtl"
-            />
-        </div>
-    );
+    const handleResetSlot = (slotName) => {
+        setProcessing(true);
+        router.post(route('admin.home.hero.update'), {
+            slot_name: slotName, post_id: null
+        }, { onFinish: () => setProcessing(false), preserveScroll: true });
+    };
 
     return (
         <div className="font-sans pb-20 px-4 md:px-8 rtl bg-[#F8FAFC] min-h-screen" dir="rtl">
@@ -109,7 +113,6 @@ export default function Hero({ heroSettings, autoSideNews = [], trendingStats = 
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="lg:col-span-8">
                     <div className="bg-white p-1 rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-white">
                         <div className="bg-slate-50/50 p-6 rounded-[2.3rem] border border-slate-100">
@@ -153,7 +156,13 @@ export default function Hero({ heroSettings, autoSideNews = [], trendingStats = 
                                     </>
                                 ) : <div className="h-full bg-slate-100 flex flex-col items-center justify-center text-slate-400 font-bold gap-2"><AlertTriangle/> لا يوجد مقال</div>}
                             </div>
-                            <SelectionInput slotName="main" placeholder="ابحث لتغيير قصة الغلاف..." />
+                            <SelectionInput
+                                slotName="main"
+                                placeholder="ابحث لتغيير قصة الغلاف..."
+                                loadOptions={loadOptions}
+                                handleUpdateSlot={handleUpdateSlot}
+                                formatOptionLabel={formatOptionLabel}
+                            />
                         </div>
                     </div>
                 </motion.div>
@@ -206,7 +215,6 @@ export default function Hero({ heroSettings, autoSideNews = [], trendingStats = 
                             ].map((slot, idx) => (
                                 <div key={idx} className="flex flex-col gap-3">
                                     <div className={`h-36 rounded-3xl relative overflow-hidden group border-2 transition-all ${slot.type === 'ad' ? 'bg-purple-50 border-dashed border-purple-200' : 'bg-slate-100 border-white shadow-md'}`}>
-
                                         {slot.type === 'post' ? (
                                             slot.data?.post ? (
                                                 <>
@@ -235,7 +243,13 @@ export default function Hero({ heroSettings, autoSideNews = [], trendingStats = 
                                     </div>
 
                                     {slot.type === 'post' && (
-                                        <SelectionInput slotName={slot.name} placeholder={`تثبيت ${slot.label}...`} />
+                                        <SelectionInput
+                                            slotName={slot.name}
+                                            placeholder={`تثبيت ${slot.label}...`}
+                                            loadOptions={loadOptions}
+                                            handleUpdateSlot={handleUpdateSlot}
+                                            formatOptionLabel={formatOptionLabel}
+                                        />
                                     )}
                                 </div>
                             ))}

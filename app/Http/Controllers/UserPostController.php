@@ -36,7 +36,7 @@ class UserPostController extends Controller
 
         $user->posts()->create([
             'title' => $validated['title'],
-            'slug' => Str::slug($validated['title']) . '-' . time(),
+            'slug' => Str::slug($validated['title']) . '-' . time() . '-' . Str::random(4),
             'body' => $validated['body'],
             'category_id' => $validated['category_id'],
             'image' => $imagePath,
@@ -66,9 +66,10 @@ class UserPostController extends Controller
 
 
         if ($request->hasFile('image')) {
-            if ($post->image) {
-                Storage::disk('public')->delete($post->image);
-            }
+          $oldImage = $post->getRawOriginal('image');
+               if ($oldImage) {
+                Storage::disk('public')->delete($oldImage);
+             }
             $validated['image'] = $request->file('image')->store('posts', 'public');
         } else {
             unset($validated['image']);
@@ -87,8 +88,9 @@ class UserPostController extends Controller
             abort(403);
         }
 
-        if ($post->image) {
-            Storage::disk('public')->delete($post->image);
+        $imagePath = $post->getRawOriginal('image');
+        if ($imagePath) {
+            Storage::disk('public')->delete($imagePath);
         }
 
         $post->delete();

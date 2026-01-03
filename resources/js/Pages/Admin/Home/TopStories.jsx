@@ -27,7 +27,11 @@ export default function TopStories({ slots }) {
                 image: getImageUrl(post.image),
                 slug: post.slug,
                 raw: post
-            })));
+            })))
+            .catch((error) => {
+                console.error('Failed to load posts:', error);
+                return [];
+            });
     };
 
     const handleUpdate = (slotName, option) => {

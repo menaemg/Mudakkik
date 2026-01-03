@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
@@ -31,10 +31,21 @@ export default function UpdateProfileInformation({ mustVerifyEmail, status, clas
     const handleAvatarChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            setData('avatar', file);
+        setData('avatar', file);
+        if (avatarPreview && avatarPreview.startsWith('blob:')) {
+            URL.revokeObjectURL(avatarPreview);
+        }
             setAvatarPreview(URL.createObjectURL(file));
         }
     };
+
+      useEffect(() => {
+          return () => {
+              if (avatarPreview && avatarPreview.startsWith('blob:')) {
+                  URL.revokeObjectURL(avatarPreview);
+              }
+          };
+      }, [avatarPreview])
 
 return (
         <section className={className}>
@@ -45,7 +56,6 @@ return (
 
             <form onSubmit={submit} className="mt-6 space-y-6">
 
-                {/* 1. حقل الصورة الجديد */}
                 <div className="flex items-center gap-4">
                     <div className="relative group w-20 h-20">
                         <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-gray-200">
@@ -53,7 +63,7 @@ return (
                                 <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover" />
                              ) : (
                                 <div className="w-full h-full bg-gray-100 flex items-center justify-center font-bold text-xl text-gray-400">
-                                    {user.name.charAt(0)}
+                                {user.name?.charAt(0) || '?'}
                                 </div>
                              )}
                         </div>

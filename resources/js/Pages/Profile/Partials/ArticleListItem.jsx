@@ -40,6 +40,9 @@ export default function ArticleListItem({ post, isLikedView = false, minimal = f
                     preserveScroll: true,
                     onSuccess: () => {
                         Swal.fire('تم الحذف!', 'تم حذف المقال بنجاح.', 'success');
+                    },
+                    onError: () => {
+                        Swal.fire('خطأ!', 'حدث خطأ أثناء حذف المقال.', 'error');
                     }
                 });
             }
@@ -49,12 +52,18 @@ export default function ArticleListItem({ post, isLikedView = false, minimal = f
     return (
         <div className={`flex items-center justify-between border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors group ${minimal ? 'p-3' : 'p-4'}`}>
             <div className="flex flex-col gap-1 flex-1">
-                <Link
-                    href={postLink}
-                    className={`font-bold text-gray-900 line-clamp-1 hover:text-brand-blue transition-colors w-fit ${minimal ? 'text-sm' : 'text-base'} ${post.status !== 'published' ? 'cursor-default hover:text-gray-900' : ''}`}
-                >
-                    {post.title}
-                </Link>
+                {post.status === 'published' ? (
+                    <Link
+                        href={postLink}
+                        className={`font-bold text-gray-900 line-clamp-1 hover:text-brand-blue transition-colors w-fit ${minimal ? 'text-sm' : 'text-base'}`}
+                    >
+                        {post.title}
+                    </Link>
+                ) : (
+                    <span className={`font-bold text-gray-900 line-clamp-1 w-fit ${minimal ? 'text-sm' : 'text-base'}`}>
+                        {post.title}
+                    </span>
+                )}
 
                 <div className="flex items-center gap-3 text-xs text-gray-400">
                     {isLikedView && post.user && (
