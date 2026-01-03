@@ -4,15 +4,15 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use App\Models\UpgreadRequest;
+use App\Models\UpgradeRequest;
 
-class UpgreadRequestSeeder extends Seeder
+class UpgradeRequestSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-        UpgreadRequest::factory(10)->create();
+        UpgradeRequest::factory(10)->create();
     }
 }

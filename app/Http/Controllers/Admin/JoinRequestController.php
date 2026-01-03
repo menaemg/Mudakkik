@@ -3,65 +3,76 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\UpgreadRequest;
+use App\Models\UpgradeRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class JoinRequestController extends Controller
 {
-    //
     public function index(Request $request)
     {
-        $requests = UpgreadRequest::query()
+        $requests = UpgradeRequest::query()
             ->latest()
             ->with('user')
-            ->filter($request)
+            ->when($request->search, function($q, $search){
+                $q->whereHas('user', fn($u) => $u->where('name', 'like', "%{$search}%"));
+            })
+            ->when($request->status, fn($q, $status) => $q->where('status', $status))
             ->paginate(10)
             ->withQueryString();
 
-        $pendingCount = UpgreadRequest::where('status', 'pending')->count();
-        $acceptedCount = UpgreadRequest::where('status', 'accepted')->count();
-        $rejectedCount = UpgreadRequest::where('status', 'rejected')->count();
-        $totalCount = UpgreadRequest::count();
+        $stats = [
+            'total' => UpgradeRequest::count(),
+            'pending' => UpgradeRequest::where('status', 'pending')->count(),
+            'accepted' => UpgradeRequest::where('status', 'accepted')->count(),
+            'rejected' => UpgradeRequest::where('status', 'rejected')->count(),
+        ];
 
-        $oldPendingCount = UpgreadRequest::where('status', 'pending')
+        $oldPendingCount = UpgradeRequest::where('status', 'pending')
             ->where('created_at', '<', now()->subDays(3))
             ->count();
 
         return Inertia::render('Admin/Requests/Join', [
             'requests' => $requests,
             'filters' => $request->only(['search', 'status']),
-            'stats' => [
-                'total' => $totalCount,
-                'pending' => $pendingCount,
-                'accepted' => $acceptedCount,
-                'rejected' => $rejectedCount,
-            ],
+            'stats' => $stats,
             'oldPendingCount' => $oldPendingCount,
         ]);
     }
 
-    public function update(Request $request, UpgreadRequest $upgreadRequest)
+    public function update(Request $request, UpgradeRequest $upgradeRequest)
     {
         $data = $request->validate([
             'status' => 'required|in:accepted,rejected',
             'admin_notes' => 'nullable|string|max:2000',
         ]);
 
-        $upgreadRequest->update(
-            [
+        DB::transaction(function () use ($upgradeRequest, $data) {
+
+            $upgradeRequest->update([
                 'status' => $data['status'],
                 'admin_notes' => $data['admin_notes'] ?? null,
-            ]
-        );
+            ]);
 
-        return back()->with('success', 'تم تحديث حالة الطلب بنجاح');
+            if ($data['status'] === 'accepted') {
+                $user = $upgradeRequest->user;
+                $user->update([
+                    'role' => 'journalist',
+                    'is_verified_journalist' => true,
+                    'credibility_score' => 50,
+                ]);
+            }
+        });
+
+        $msg = $data['status'] === 'accepted' ? 'تم قبول الطلب وترقية العضو بنجاح' : 'تم رفض الطلب';
+
+        return back()->with('success', $msg);
     }
 
-    public function destroy(UpgreadRequest $upgreadRequest)
+    public function destroy(UpgradeRequest $upgradeRequest)
     {
-        $upgreadRequest->delete();
-
+        $upgradeRequest->delete();
         return back()->with('success', 'تم حذف الطلب بنجاح');
     }
 }

@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 use App\Models\User;
 use Illuminate\Support\Facades\Gate;
+use App\Models\Post;
+use App\Observers\PostObserver;
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -25,5 +27,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('admin-access', function (User $user) {
             return $user->role === 'admin';
         });
+
+        Post::observe(PostObserver::class);
     }
 }

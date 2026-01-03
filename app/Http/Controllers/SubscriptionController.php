@@ -6,6 +6,7 @@ use App\Models\Plan;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Illuminate\Support\Facades\Auth;
 
 class SubscriptionController extends Controller
 {
@@ -14,13 +15,15 @@ class SubscriptionController extends Controller
      */
     public function index(): Response
     {
-        // Show all active plans (including free) for comparison
-        $plans = Plan::active()->ordered()->get();
-        $currentSubscription = auth()->user()->currentSubscription();
+        $plans = Plan::active()->paid()->ordered()->get();
+
+        $user = Auth::user();
+        $currentSubscription = $user ? $user->currentSubscription()?->load('plan') : null;
 
         return Inertia::render('Subscriptions/Plans', [
             'plans' => $plans,
-            'currentSubscription' => $currentSubscription?->load('plan'),
+            'currentSubscription' => $currentSubscription,
+            'isLoggedIn' => (bool) $user,
         ]);
     }
 
@@ -29,8 +32,9 @@ class SubscriptionController extends Controller
      */
     public function show(): Response
     {
-        $user = auth()->user();
+        $user = Auth::user();
         $subscription = $user->currentSubscription()?->load('plan');
+
         $history = $user->subscriptions()
             ->with('plan')
             ->orderByDesc('created_at')
@@ -48,8 +52,9 @@ class SubscriptionController extends Controller
      */
     public function history(): Response
     {
-        $subscriptions = auth()->user()
-            ->subscriptions()
+        $user = Auth::user();
+
+        $subscriptions = $user->subscriptions()
             ->with('plan')
             ->orderByDesc('created_at')
             ->paginate(10);

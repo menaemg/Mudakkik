@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
+use App\Models\Post;
+use App\Models\Category;
+use App\Models\Tag;
+use App\Models\HomeSlot;
+use App\Http\Requests\Admin\StorePostRequest;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\StorePostRequest;
-use Illuminate\Http\Request;
-use App\Models\Post;
-use Inertia\Inertia;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Category;
-use App\Models\Tag;
+use Inertia\Inertia;
 
 class PostController extends Controller
 {
@@ -28,8 +28,10 @@ class PostController extends Controller
             ->filter($request)
             ->paginate(10)
             ->withQueryString();
+
         $categories = Category::select('id', 'name')->limit(100)->get();
         $tags = Tag::select('id', 'name')->limit(100)->get();
+
         return Inertia::render('Admin/Components/Posts/Index', [
             'posts' => $posts,
             'filters' => $request->only(['search', 'status', 'category', 'verdict']),
@@ -37,6 +39,31 @@ class PostController extends Controller
             'tags' => $tags,
         ]);
     }
+
+    public function search(Request $request)
+    {
+        $query = $request->input('query');
+
+        $allPinnedIds = HomeSlot::whereNotNull('post_id')
+            ->pluck('post_id')
+            ->toArray();
+
+        $posts = Post::query()
+            ->where('title', 'like', "%{$query}%")
+            ->where('status', 'published')
+            ->whereNotIn('id', $allPinnedIds)
+            ->where(function($q) {
+                 $q->where('ai_verdict', '!=', 'fake')->orWhereNull('ai_verdict');
+            })
+            ->latest()
+            ->take(20)
+            ->get(['id', 'title', 'image', 'slug', 'user_id']);
+
+        $posts->load('user:id,name');
+
+        return response()->json($posts);
+    }
+
     public function toggleFeatured(Post $post)
     {
         $post->update([
@@ -45,9 +72,35 @@ class PostController extends Controller
         return back()->with('success', 'تم تحديث حالة تميز المقال بنجاح');
     }
 
+    public function toggleFeature(Request $request, Post $post)
+    {
+        $feature = $request->input('feature');
+        $allowedFeatures = ['is_cover_story', 'is_breaking', 'is_editor_choice', 'is_featured'];
+
+        if (in_array($feature, $allowedFeatures)) {
+            if ($feature === 'is_cover_story' && !$post->is_cover_story) {
+                Post::where('is_cover_story', true)->update(['is_cover_story' => false]);
+            }
+
+            $post->update([
+                $feature => !$post->$feature
+            ]);
+        }
+
+        if ($feature === 'status') {
+            $post->update([
+                'status' => $post->status === 'published' ? 'pending' : 'published'
+            ]);
+        }
+
+        return back()->with('success', 'تم تحديث حالة المقال بنجاح');
+    }
+
+
     /**
      * Store a newly created resource in storage.
      */
+
     public function store(StorePostRequest $request)
     {
         $validated = $request->validated();
@@ -57,7 +110,7 @@ class PostController extends Controller
             $validated['image'] = $path;
         }
 
-        $post = DB::transaction(function () use ($validated, $request) {
+        DB::transaction(function () use ($validated, $request) {
             $post = Post::create([
                 'title' => $validated['title'],
                 'body' => $validated['body'],
@@ -71,8 +124,6 @@ class PostController extends Controller
             if ($request->has('tag_ids')) {
                 $post->tags()->attach($request->tag_ids);
             }
-
-            return $post;
         });
 
         return redirect()->route('admin.posts.index')->with('success', 'تم إنشاء المقال بنجاح');
@@ -81,14 +132,15 @@ class PostController extends Controller
     /**
      * Update the specified resource in storage.
      */
+
     public function update(StorePostRequest $request, Post $post)
     {
-    
         $validated = $request->validated();
 
         DB::transaction(function () use ($request, $post, $validated) {
             if ($request->hasFile('image')) {
                 $newPath = $request->file('image')->store('posts', 'public');
+                // حذف الصورة القديمة لتوفير المساحة
                 if ($post->image && Storage::disk('public')->exists($post->image)) {
                     Storage::disk('public')->delete($post->image);
                 }
@@ -113,26 +165,26 @@ class PostController extends Controller
     /**
      * Remove the specified resource from storage.
      */
- public function destroy(Post $post)
-{
-    try {
-        DB::transaction(function () use ($post) {
-            $imagePath = $post->getRawOriginal('image');
 
-            $post->tags()->detach();
+    public function destroy(Post $post)
+    {
+        try {
+            DB::transaction(function () use ($post) {
+                $imagePath = $post->getRawOriginal('image');
 
-            $post->delete();
+                $post->tags()->detach();
+                $post->delete();
 
-            if ($imagePath && Storage::disk('public')->exists($imagePath)) {
-                Storage::disk('public')->delete($imagePath);
-            }
-        });
+                if ($imagePath && Storage::disk('public')->exists($imagePath)) {
+                    Storage::disk('public')->delete($imagePath);
+                }
+            });
 
-        return back()->with('success', 'تم حذف المقال وكل ملفاته بنجاح');
+            return back()->with('success', 'تم حذف المقال وكل ملفاته بنجاح');
 
-    } catch (\Exception $e) {
-        Log::error('فشل حذف المقال: ' . $e->getMessage(), ['post_id' => $post->id]);
-        return back()->with('error', 'عذراً، حدث خطأ أثناء محاولة الحذف');
+        } catch (\Exception $e) {
+            Log::error('فشل حذف المقال: ' . $e->getMessage(), ['post_id' => $post->id]);
+            return back()->with('error', 'عذراً، حدث خطأ أثناء محاولة الحذف');
+        }
     }
-}
 }

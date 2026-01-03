@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\UpgreadRequest>
  */
 use App\Models\User;
-class UpgreadRequestFactory extends Factory
+class UpgradeRequestFactory extends Factory
 {
     /**
      * Define the model's default state.

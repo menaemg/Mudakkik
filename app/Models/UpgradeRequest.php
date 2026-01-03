@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use App\Models\User;
 
-class UpgreadRequest extends Model
+class UpgradeRequest extends Model
 {
     /** @use HasFactory<\Database\Factories\UpgreadRequestFactory> */
     use HasFactory;

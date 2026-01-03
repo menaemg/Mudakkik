@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -90,15 +90,35 @@ class User extends Authenticatable
     {
         return $this->hasMany(Follow::class, 'followed_user_id');
     }
+
     public function following()
     {
         return $this->hasMany(Follow::class, 'following_user_id');
     }
-    // edit
     public function likes()
     {
-        return $this->belongsToMany(Post::class, 'likes');
+        return $this->belongsToMany(Post::class, 'likes')->withTimestamps();
     }
+
+    public function likedPosts()
+    {
+        return $this->likes();
+    }
+
+    public function adRequests()
+    {
+        return $this->hasMany(AdRequest::class);
+    }
+
+    public function upgradeRequests()
+    {
+        return $this->hasMany(UpgradeRequest::class);
+    }
+    public function subscriptions()
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
     public function scopeFilter($query, $filter)
     {
         if ($filter->filled('search')) {
@@ -111,14 +131,6 @@ class User extends Authenticatable
         }
 
         return $query;
-    }
-
-    /**
-     * Get all subscriptions for the user.
-     */
-    public function subscriptions()
-    {
-        return $this->hasMany(Subscription::class);
     }
 
     /**
@@ -180,7 +192,6 @@ class User extends Authenticatable
             return $value;
         }
 
-
         if (is_numeric($value)) {
             return (int) $value > 0;
         }
@@ -195,10 +206,6 @@ class User extends Authenticatable
 
     /**
      * Get a numeric feature limit from the user's plan.
-     * 
-     * @param string $feature The feature key to look up
-     * @return int|null Returns int for explicit numeric limits (including 0),
-     *                  null if no plan, feature missing, or unlimited
      */
     public function getFeatureLimit(string $feature): ?int
     {
@@ -215,12 +222,10 @@ class User extends Authenticatable
 
         $value = $features[$feature];
 
-        // null in features means unlimited
         if ($value === null) {
             return null;
         }
 
-        // Return numeric value or null for non-numeric
         if (is_numeric($value)) {
             return (int) $value;
         }
