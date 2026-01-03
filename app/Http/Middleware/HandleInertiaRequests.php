@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
 use Inertia\Middleware;
+use App\Models\PostReport; // <--- أضفنا هذا السطر
 
 class HandleInertiaRequests extends Middleware
 {
@@ -31,6 +32,7 @@ class HandleInertiaRequests extends Middleware
     {
         return [
             ...parent::share($request),
+
             'auth' => [
                 'user' => $request->user() ? [
                     'id' => $request->user()->id,
@@ -40,9 +42,15 @@ class HandleInertiaRequests extends Middleware
                     'unread_notifications_count' => $request->user()->unreadNotifications()->count(),
                 ] : null,
             ],
+
+            // <--- أضفنا هذا الجزء عشان العدادات
+            'admin' => [
+                'pendingReportsCount' => PostReport::where('status', 'pending')->count(),
+            ],
+
             'flash' => [
                 'success' => fn() => $request->session()->pull('success'),
-                'error' => fn() => $request->session()->pull('error'),
+                'error'   => fn() => $request->session()->pull('error'),
                 'warning' => fn() => $request->session()->pull('warning'),
             ],
         ];

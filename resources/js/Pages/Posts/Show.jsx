@@ -292,6 +292,18 @@ export default function PostShow({ auth, post }) {
                       </>
                     )}
                   </button>
+
+
+                    {/* Report Button - للمستخدمين المسجلين فقط */}
+                    {auth.user && (
+                    <Link
+                        href={route("posts.report.form", post.id)}
+                        className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-4 rounded-2xl font-semibold text-white bg-red-600 hover:bg-red-700 shadow-lg transition-colors"
+                    >
+                        <AlertTriangle size={20} />
+                        <span>تقديم بلاغ</span>
+                    </Link>
+                    )}
                 </div>
               </div>
             </div>

@@ -74,10 +74,15 @@ class Post extends Model
         );
     }
 
-    public function likes()
+ public function likes()
     {
-      return $this->hasMany(Like::class);
+        return $this->hasMany(Like::class);
     }
+    public function reports()
+    {
+        return $this->hasMany(PostReport::class);
+    }
+
     public function isLikedBy($userId)
     {
         return $this->likes()->where('user_id', $userId)->exists();
