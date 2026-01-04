@@ -51,12 +51,27 @@ php artisan migrate --force
 echo "🔗 Switching to new release..."
 ln -nfs "$RELEASE_DIR" "$APP_DIR/current"
 
+# Fix permissions
+echo "🔐 Fixing permissions..."
+sudo chown -R ubuntu:www-data "$RELEASE_DIR/bootstrap/cache"
+sudo chmod -R 775 "$RELEASE_DIR/bootstrap/cache"
+
 # Restart PHP-FPM
 echo "🔄 Restarting services..."
 sudo systemctl reload php8.3-fpm
 
 # Restart queue workers
 sudo supervisorctl restart mudakkik-worker:* || true
+
+# Health check
+echo "🏥 Running health check..."
+sleep 2
+HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost || echo "000")
+if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 400 ]; then
+    echo "✅ Health check passed (HTTP $HTTP_CODE)"
+else
+    echo "⚠️ Health check returned HTTP $HTTP_CODE (may need manual verification)"
+fi
 
 # Cleanup old releases
 echo "🧹 Cleaning up old releases..."

@@ -33,7 +33,7 @@ class CategoryFactory extends Factory
         
         return [
             'name' => $category['name'],
-            'slug' => $category['slug'] . '-' . Str::random(4),
+            'slug' => $category['slug'] . '-' . fake()->unique()->randomNumber(4),
             'description' => $category['description'],
         ];
     }
