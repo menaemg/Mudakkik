@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { Head, useForm, router } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Check, Star, Zap, Crown } from "lucide-react";
 
 export default function PlansIndex({ auth, plans, currentSubscription }) {
   const { post, processing } = useForm();
+  const [processingPlan, setProcessingPlan] = useState(null);
   const isGuest = !auth?.user;
 
   const handleSubscribe = (planSlug) => {
@@ -12,7 +13,10 @@ export default function PlansIndex({ auth, plans, currentSubscription }) {
       router.visit(route('login'));
       return;
     }
-    post(route('payment.subscribe', planSlug));
+    setProcessingPlan(planSlug);
+    post(route('payment.subscribe', planSlug), {
+      onFinish: () => setProcessingPlan(null),
+    });
   };
 
   const isCurrentPlan = (plan) => {
@@ -193,13 +197,13 @@ export default function PlansIndex({ auth, plans, currentSubscription }) {
                     ) : (
                       <button
                         onClick={() => handleSubscribe(plan.slug)}
-                        disabled={processing}
+                        disabled={processingPlan !== null}
                         className={`w-full py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed ${isPopular
                           ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 shadow-lg"
                           : "bg-blue-500 text-white hover:bg-blue-600"
                           }`}
                       >
-                        {processing ? "جاري المعالجة..." : "اشترك الآن"}
+                        {processingPlan === plan.slug ? "جاري المعالجة..." : "اشترك الآن"}
                       </button>
                     )}
                   </div>

@@ -134,17 +134,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 
-Route::get('/check', function () {
-  return Inertia::render('VerifyNews');
-});
-
-Route::post('/verify-news', [FactCheckController::class, 'verify']);
 // Stripe Webhook (no CSRF, no auth)
 Route::post('/webhooks/stripe', [StripeWebhookController::class, 'handle'])
     ->withoutMiddleware(['web'])
     ->name('webhooks.stripe');
 
-Route::post('/webhook/stripe', [StripeWebhookController::class, 'handle'])
-    ->withoutMiddleware(['web']);
 
 require __DIR__.'/auth.php';
