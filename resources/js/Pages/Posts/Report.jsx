@@ -1,4 +1,4 @@
-import { useForm } from '@inertiajs/react';
+import { Head, useForm } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 
 export default function Report({ post }) {
@@ -14,6 +14,7 @@ export default function Report({ post }) {
 
     return (
         <AuthenticatedLayout>
+            <Head title={`الإبلاغ عن: ${post.title}`} />
             <div className="max-w-2xl mx-auto p-6">
                 <h1 className="text-xl font-bold mb-4">
                     الإبلاغ عن المقال: {post.title}

@@ -42,6 +42,7 @@ Route::get('/check', function () {
 });
 Route::post('/verify-news', [FactCheckController::class, 'verify']);
 
+
 Route::middleware(['auth', 'verified', 'can:admin-access'])
     ->prefix('admin')
     ->name('admin.')
@@ -143,7 +144,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead'])->name('notifications.read');
+});
 
+/*
+|--------------------------------------------------------------------------
+| Post Reports (User)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'throttle:5,1'])->group(function () {
     Route::get('/posts/{post}/report', [PostReportController::class, 'create'])
         ->name('posts.report.form');
 

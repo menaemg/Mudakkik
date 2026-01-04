@@ -43,9 +43,13 @@ class HandleInertiaRequests extends Middleware
                 ] : null,
             ],
 
-            // <--- أضفنا هذا الجزء عشان العدادات
+            // Admin counters - only computed for admin users with caching
             'admin' => [
-                'pendingReportsCount' => PostReport::where('status', 'pending')->count(),
+                'pendingReportsCount' => $request->user()?->role === 'admin'
+                    ? \Cache::remember('admin.pending_reports_count', 60, fn() =>
+                        PostReport::where('status', 'pending')->count()
+                      )
+                    : 0,
             ],
 
             'flash' => [
