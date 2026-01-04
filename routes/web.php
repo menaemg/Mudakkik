@@ -133,8 +133,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead'])->name('notifications.read');
 });
 
+
+// Stripe Webhook (no CSRF, no auth)
 Route::post('/webhooks/stripe', [StripeWebhookController::class, 'handle'])
     ->withoutMiddleware(['web'])
     ->name('webhooks.stripe');
+
 
 require __DIR__.'/auth.php';
