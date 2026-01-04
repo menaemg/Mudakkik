@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
+use App\Models\User;
 
 class UpgreadRequest extends Model
 {
@@ -20,6 +23,22 @@ class UpgreadRequest extends Model
     protected $casts = [
         'status' => 'string',
     ];
+
+    public function scopeFilter(Builder $query, Request $request): Builder
+{
+    return $query
+        ->when($request->filled('search'), function ($q) use ($request) {
+            $search = $request->search;
+
+            $q->whereHas('user', function ($uq) use ($search) {
+                $uq->where('name', 'like', "%{$search}%")
+                   ->orWhere('email', 'like', "%{$search}%");
+            });
+        })
+        ->when($request->filled('status'), function ($q) use ($request) {
+            $q->where('status', $request->status);
+        });
+    }
 
     public function user()
     {

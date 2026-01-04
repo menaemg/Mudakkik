@@ -36,7 +36,7 @@ class FactCheckServices
             : 'أنت خبير فحص حقائق. استخرج عنوان الخبر والكلمات المفتاحية. إذا كان النص عبارة عن رموز غير مفهومة، اجعل العنوان "INVALID". رد بـ JSON: {"title": "..", "body": "..", "keywords": ".." }';
 
         try {
-            $response = Http::withHeaders(['Authorization' => 'Bearer ' . env('GROQ_API_KEY')])
+            $response = Http::withHeaders(['Authorization' => 'Bearer ' . config('services.groq.api_key')])
                 ->post('https://api.groq.com/openai/v1/chat/completions', [
                     'model' => 'llama-3.1-8b-instant',
                     'messages' => [
@@ -65,9 +65,15 @@ class FactCheckServices
                 return [];
             }
 
+<<<<<<< HEAD
             $response = Http::timeout(20)->post('https://api.tavily.com/search', [
                 'api_key' => env('TAVILY_API_KEY'),
                 'query'   => $data['title'],
+=======
+            $response = Http::post('https://api.tavily.com/search', [
+                'api_key' => config('services.tavily.api_key'),
+                'query' => $data['title'],
+>>>>>>> a954854991c128eca5bc7c5b53e52afce28ca44c
                 'search_depth' => 'advanced',
                 'include_domains' => $domains,
                 'max_results' => 5
@@ -91,6 +97,7 @@ class FactCheckServices
             return [];
         }
     }
+<<<<<<< HEAD
     private function finalVerdict($originalNews, $searchResults)
     {
         if (empty($searchResults)) {
@@ -100,6 +107,47 @@ class FactCheckServices
                 'explanation' => 'لم نجد نتائج مطابقة في المصادر الموثوقة حالياً.',
                 'evidence' => ''
             ];
+=======
+private function finalVerdict($originalNews, $searchResults)
+{
+    if (empty($searchResults)) {
+        return [
+            'rating' => 'غير مؤكد',
+            'percentage' => 0,
+            'explanation' => 'لم نجد نتائج مطابقة في المصادر الموثوقة حالياً.',
+            'evidence' => ''
+        ];
+    }
+
+    try {
+        $snippets = collect($searchResults)->map(fn($i) => [
+            'title' => $i['title'],
+            'content' => mb_substr($i['content'], 0, 1000) 
+        ])->toArray();
+
+        $response = Http::withHeaders(['Authorization' => 'Bearer ' . config('services.groq.api_key')])
+            ->timeout(45)
+            ->post('https://api.groq.com/openai/v1/chat/completions', [
+                'model' => 'llama-3.1-8b-instant',
+                'messages' => [
+                    ['role' => 'system', 'content' => 'أنت خبير تدقيق جنائي للأخبار. 
+                    مهمتك هي مقارنة "الادعاء" بمجموعة "نتائج البحث".
+                    قواعد التحليل:
+                    1. إذا كانت النتائج تتحدث عن نفس الشخص ونفس الفعل (حتى لو بصياغة مختلفة)، فالخبر "صحيح".
+                    2. لا تكن حرفياً؛ ابحث عن المعنى الجوهري. (مثلاً: "القبض على سارق" هو نفسه "ضبط مسجل خطر قام بالسرقة").
+                    3. إذا أكدت النتائج الخبر، أعطِ نسبة ثقة بين 90-100%.
+                    4. اذكر الاقتباس الحقيقي الذي يؤكد الخبر في حقل evidence.
+                    رد بـ JSON فقط: {"rating": "صحيح/كاذب/مضلل/غير مؤكد", "percentage": 0-100, "explanation": "شرح موجز باللغة العربية", "evidence": "اقتباس من المصادر"}'],
+                    ['role' => 'user', 'content' => "الادعاء المراد فحصه: " . $originalNews['title'] . "\n\nالمصادر المتاحة للتحليل:\n" . json_encode($snippets)]
+                ],
+                'response_format' => ['type' => 'json_object'],
+                'temperature' => 0.1,
+            ]);
+
+        if ($response->successful()) {
+            $data = $response->json();
+            return json_decode($data['choices'][0]['message']['content'], true);
+>>>>>>> a954854991c128eca5bc7c5b53e52afce28ca44c
         }
 
         try {

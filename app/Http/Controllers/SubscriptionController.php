@@ -14,7 +14,8 @@ class SubscriptionController extends Controller
      */
     public function index(): Response
     {
-        $plans = Plan::active()->paid()->ordered()->get();
+        // Show all active plans (including free) for comparison
+        $plans = Plan::active()->ordered()->get();
         $currentSubscription = auth()->user()->currentSubscription();
 
         return Inertia::render('Subscriptions/Plans', [

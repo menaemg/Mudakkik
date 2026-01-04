@@ -17,9 +17,15 @@ return new class extends Migration
             $table->foreignId('ad_id')->nullable()->constrained('advertisments')->onDelete('set null');
             $table->foreignId('subscription_id')->nullable()->constrained('subscriptions')->onDelete('set null');
             $table->decimal('amount', 10, 2);
+            $table->string('currency', 3)->default('USD');
             $table->string('payment_method');
-            $table->string('transaction_id')->unique();
-            $table->enum('status', ['accept', 'fail', 'refuse'])->default('fail');
+            $table->string('transaction_id')->unique()->nullable();
+            $table->string('idempotency_key')->unique()->nullable();
+            $table->string('provider')->default('stripe');
+            $table->string('provider_payment_id')->nullable();
+            $table->enum('status', ['pending', 'completed', 'failed', 'refunded'])->default('pending');
+            $table->json('metadata')->nullable();
+            $table->text('failure_reason')->nullable();
             $table->timestamps();
         });
     }
