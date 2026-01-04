@@ -14,13 +14,17 @@ class Post extends Model
     use HasFactory;
     protected $fillable = [
         'title',
+        'slug',
         'body',
         'image',
         'status',
+        'type',
         'ai_verdict',
         'user_id',
         'category_id',
-        'is_featured'
+        'is_featured',
+        'views',
+
     ];
 
     public function user()
@@ -70,10 +74,15 @@ class Post extends Model
         );
     }
 
-    public function likes()
+ public function likes()
     {
-      return $this->hasMany(Like::class);
+        return $this->hasMany(Like::class);
     }
+    public function reports()
+    {
+        return $this->hasMany(PostReport::class);
+    }
+
     public function isLikedBy($userId)
     {
         return $this->likes()->where('user_id', $userId)->exists();
@@ -81,6 +90,11 @@ class Post extends Model
 
     public function getLikesCountAttribute()
     {
+        // Use pre-loaded count if available (from withCount)
+        if (array_key_exists('likes_count', $this->attributes)) {
+            return $this->attributes['likes_count'];
+        }
+
         return $this->likes()->count();
     }
 

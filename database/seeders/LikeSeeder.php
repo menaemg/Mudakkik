@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\Like;
 use App\Models\User;
@@ -13,9 +12,8 @@ class LikeSeeder extends Seeder
     /**
      * Run the database seeds.
      */
-    // edit
-    public function run(): void
-    {
+   public function run(): void
+   {
         $users = User::all();
         $posts = Post::all();
 
@@ -26,10 +24,10 @@ class LikeSeeder extends Seeder
         for ($i = 0; $i < 50; $i++) {
             $user = $users->random();
             $post = $posts->random();
-
-            if (!$post->likes()->where('user_id', $user->id)->exists()) {
-                $post->likes()->attach($user->id);
-            }
+            Like::firstOrCreate([
+                'user_id' => $user->id,
+                'post_id' => $post->id
+            ]);
         }
     }
 }

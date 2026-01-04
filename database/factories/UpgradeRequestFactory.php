@@ -5,10 +5,10 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\UpgreadRequest>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\UpgradeRequest>
  */
 use App\Models\User;
-class UpgreadRequestFactory extends Factory
+class UpgradeRequestFactory extends Factory
 {
     /**
      * Define the model's default state.

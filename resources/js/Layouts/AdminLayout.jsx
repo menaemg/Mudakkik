@@ -22,36 +22,73 @@ import {
     Package,
     Layers,
     FolderTree,
-    LogOut,  
+    LogOut,
+    Monitor,
+    ScrollText,
+    LayoutTemplate
 } from "lucide-react";
 import Swal from "sweetalert2";
 
 export default function AdminLayout({ children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState(null);
-  const { auth } = usePage().props;
+  const { auth, admin } = usePage().props;
+const pendingReports = admin?.pendingReportsCount || 0; 
 
-      
-   const menuItems = [
+
+const menuItems = [
     { label: "الرئيسية", icon: LayoutDashboard, url: "/admin/dashboard" },
     { label: "المستخدمين", icon: Users, url: "/admin/users" },
     { label: "المقالات", icon: Newspaper, url: "/admin/posts" },
     {
-      label: "طلبات ",
-      icon: ShieldCheck,
-      url: "/admin/requests",
-      list: [
-        {
-          label: "الانضمام لمجتمع الحصفيين",
-          icon: UserRoundCheck,
-          url: "/admin/requests/join",
-        },
-        {
-          label: "الاعلانات علي مدقق",
-          icon: Megaphone,
-          url: "/admin/requests/ads",
-        },
-      ],
+        label: "إدارة الواجهة",
+        icon: Monitor,
+        url: "/admin/home",
+        list: [
+            {
+                label: "شريط الأخبار",
+                icon: ScrollText,
+                url: "/admin/home/ticker"
+            },
+            {
+                label: "الهيرو سكشن",
+                icon: LayoutTemplate,
+                url: "/admin/home/hero",
+            },
+            {
+                label: "أخبار مميزة",
+                icon: LayoutTemplate,
+                url: "/admin/home/featured",
+            },
+            {
+                label: "أهم قصص اليوم",
+                icon: LayoutTemplate,
+                url: "/admin/home/top-stories",
+            },
+        ],
+    },
+    {
+            label: "البلاغات",
+            icon: Bell,
+            url: "/admin/reports",
+            badge: pendingReports, // <-- العداد الأحمر
+    },
+    {
+        label: "طلبات ",
+        icon: ShieldCheck,
+        url: "/admin/requests",
+        list: [
+            {
+                label: "الانضمام لمجتمع الحصفيين",
+                icon: UserRoundCheck,
+                url: "/admin/requests/join",
+            },
+            {
+                label: "الاعلانات علي مدقق",
+                icon: Megaphone,
+                url: "/admin/requests/ads",
+            },
+        ],
     },
     { label: "الخطط", icon: Package, url: "/admin/plans" },
     { label: "الاشتراكات", icon: Layers, url: "/admin/subscriptions" },
@@ -60,8 +97,7 @@ export default function AdminLayout({ children }) {
     { label: "الفئات", icon: FolderTree, url: "/admin/categories" },
     { label: "الأوسمة", icon: Hash, url: "/admin/tags" },
     { label: "المواقع الموثوقة", icon: WholeWord, url: "/admin/trusted-domains" }
-  ];
-
+];
 
   const { flash } = usePage().props;
   useEffect(() => {
