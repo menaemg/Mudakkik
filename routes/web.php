@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminReportController;
 use App\Http\Controllers\Admin\AdsRequestController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\JoinRequestController;
@@ -18,6 +19,7 @@ use App\Http\Controllers\LikeController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PlanController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\PostReportController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserPostController;
@@ -39,6 +41,7 @@ Route::get('/check', function () {
     return Inertia::render('VerifyNews');
 });
 Route::post('/verify-news', [FactCheckController::class, 'verify']);
+
 
 Route::middleware(['auth', 'verified', 'can:admin-access'])
     ->prefix('admin')
@@ -101,6 +104,16 @@ Route::middleware(['auth', 'verified', 'can:admin-access'])
                 Route::post('/top-stories/update', 'update')->name('top-stories.update');
             });
         });
+
+        /* Reports */
+        Route::get('/reports', [AdminReportController::class, 'index'])
+            ->name('reports.index');
+
+        Route::post('/reports/{report}/approve', [AdminReportController::class, 'approve'])
+            ->name('reports.approve');
+
+        Route::post('/reports/{report}/reject', [AdminReportController::class, 'reject'])
+            ->name('reports.reject');
     });
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -131,6 +144,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead'])->name('notifications.read');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Post Reports (User)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'throttle:5,1'])->group(function () {
+    Route::get('/posts/{post}/report', [PostReportController::class, 'create'])
+        ->name('posts.report.form');
+
+    Route::post('/posts/{post}/report', [PostReportController::class, 'store'])
+        ->name('posts.report.store');
 });
 
 

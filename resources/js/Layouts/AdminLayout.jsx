@@ -32,7 +32,8 @@ import Swal from "sweetalert2";
 export default function AdminLayout({ children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState(null);
-  const { auth } = usePage().props;
+  const { auth, admin } = usePage().props;
+const pendingReports = admin?.pendingReportsCount || 0; 
 
 
 const menuItems = [
@@ -65,6 +66,12 @@ const menuItems = [
                 url: "/admin/home/top-stories",
             },
         ],
+    },
+    {
+            label: "البلاغات",
+            icon: Bell,
+            url: "/admin/reports",
+            badge: pendingReports, // <-- العداد الأحمر
     },
     {
         label: "طلبات ",

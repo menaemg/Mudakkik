@@ -180,7 +180,7 @@ export default function PostsIndex({ auth, posts, categories, filters }) {
                   >
                     {/* Post Image */}
                     {post.image ? (
-                      <Link href={route("posts.show", post.id)} className="block relative">
+                      <Link href={route("posts.show", post.slug)} className="block relative">
                         <div className="aspect-[16/10] overflow-hidden">
                           <img
                             src={`/storage/${post.image}`}
@@ -218,7 +218,7 @@ export default function PostsIndex({ auth, posts, categories, filters }) {
                       </div>
 
                       {/* Content */}
-                      <Link href={route("posts.show", post.id)} className="block group/link">
+                      <Link href={route("posts.show", post.slug)} className="block group/link">
                         <h2 className="text-xl font-bold text-slate-900 mb-3 leading-snug group-hover/link:text-indigo-600 transition-colors line-clamp-2">
                           {post.title}
                         </h2>
@@ -256,11 +256,10 @@ export default function PostsIndex({ auth, posts, categories, filters }) {
                         <div className="flex items-center gap-4">
                           <div className="flex items-center gap-1.5">
                             <Heart
-                              className={`w-4 h-4 transition-all ${
-                                post.is_liked
+                              className={`w-4 h-4 transition-all ${post.is_liked
                                   ? "fill-rose-500 text-rose-500 scale-110"
                                   : "text-slate-400 group-hover:text-rose-400"
-                              }`}
+                                }`}
                             />
                             <span className={`text-xs font-bold ${post.is_liked ? "text-rose-500" : "text-slate-500"}`}>
                               {post.likes_count || 0}
@@ -268,7 +267,7 @@ export default function PostsIndex({ auth, posts, categories, filters }) {
                           </div>
 
                           <Link
-                            href={route("posts.show", post.id)}
+                            href={route("posts.show", post.slug)}
                             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/25 hover:shadow-xl hover:shadow-indigo-500/40 transition-all hover:-translate-y-0.5"
                           >
                             <span>اقرأ</span>
@@ -306,9 +305,9 @@ export default function PostsIndex({ auth, posts, categories, filters }) {
                       link.active
                         ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-xl shadow-indigo-500/30 scale-110"
                         : link.url
-                        ? "bg-white/80 backdrop-blur-sm text-slate-600 hover:bg-white hover:shadow-lg border border-slate-200/50 hover:border-indigo-200 hover:-translate-y-0.5"
-                        : "bg-slate-50 text-slate-400 cursor-not-allowed"
-                    }`}
+                          ? "bg-white/80 backdrop-blur-sm text-slate-600 hover:bg-white hover:shadow-lg border border-slate-200/50 hover:border-indigo-200 hover:-translate-y-0.5"
+                          : "bg-slate-50 text-slate-400 cursor-not-allowed"
+                      }`}
                     preserveScroll
                   >
                     {decodeLabel(link.label)}
