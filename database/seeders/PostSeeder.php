@@ -17,6 +17,12 @@ class PostSeeder extends Seeder
         $journalists = User::where('role', 'journalist')->get();
         $tags = Tag::all();
 
+        // Defensive check for empty collections
+        if ($categories->isEmpty() || $journalists->isEmpty() || $tags->isEmpty()) {
+            $this->command->warn('PostSeeder: Missing required seed data (categories, journalists, or tags). Skipping.');
+            return;
+        }
+
         // Create published articles (trusted)
         Post::factory(25)->create([
             'type' => 'article',
@@ -25,8 +31,9 @@ class PostSeeder extends Seeder
             'user_id' => fn() => $journalists->random()->id,
             'category_id' => fn() => $categories->random()->id,
         ])->each(function ($post) use ($tags) {
-            // Attach 2-4 random tags
-            $post->tags()->attach($tags->random(rand(2, 4))->pluck('id'));
+
+            $tagCount = min(rand(2, 4), $tags->count());
+            $post->tags()->attach($tags->random($tagCount)->pluck('id'));
         });
 
         // Create published news (trusted)
@@ -37,7 +44,8 @@ class PostSeeder extends Seeder
             'user_id' => fn() => $journalists->random()->id,
             'category_id' => fn() => $categories->random()->id,
         ])->each(function ($post) use ($tags) {
-            $post->tags()->attach($tags->random(rand(2, 3))->pluck('id'));
+            $tagCount = min(rand(2, 3), $tags->count());
+            $post->tags()->attach($tags->random($tagCount)->pluck('id'));
         });
 
         // Create some pending posts for admin review

@@ -23,16 +23,12 @@ class TagFactory extends Factory
         'المناخ', 'الطاقة_المتجددة', 'البيئة', 'التنمية_المستدامة', 'المياه',
     ];
 
-    private static int $index = 0;
-
     public function definition(): array
     {
-        if (self::$index < count(self::$tags)) {
-            $tag = self::$tags[self::$index];
-            self::$index++;
-            return ['name' => $tag];
+        if (fake()->boolean(90)) {
+            return ['name' => fake()->randomElement(self::$tags)];
         }
-
+        
         return ['name' => 'وسم_' . fake()->unique()->numberBetween(1, 1000)];
     }
 }

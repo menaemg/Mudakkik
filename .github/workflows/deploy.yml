@@ -111,4 +111,4 @@ jobs:
             ./ ${EC2_USER}@${EC2_HOST}:/var/www/mudakkik/releases/${RELEASE}/
           
           # Execute deployment script on server
-          ssh ${EC2_USER}@${EC2_HOST} "cd /var/www/mudakkik && ./scripts/deploy.sh ${RELEASE}"
+          ssh "${EC2_USER}@${EC2_HOST}" "bash /var/www/mudakkik/releases/${RELEASE}/scripts/deploy.sh ${RELEASE}"
