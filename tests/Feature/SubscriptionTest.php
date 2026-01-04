@@ -33,7 +33,7 @@ class SubscriptionTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->get('/subscription');
+        $response = $this->actingAs($user)->get('/my-subscription');
 
         $response->assertStatus(200);
     }

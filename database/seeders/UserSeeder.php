@@ -24,6 +24,18 @@ class UserSeeder extends Seeder
         ]);
 
         User::factory()->create([
+            'name' => 'Super Admin',
+            'username' => 'superadmin',
+            'email' => 'admin@mudakkik.com',
+            'password' => Hash::make('12345678'),
+            'role' => 'admin',
+            'is_active' => true,
+            'is_verified_journalist' => true,
+            'credibility_score' => 100,
+            'bio' => 'Super Admin',
+        ]);
+
+        User::factory()->create([
             'name' => 'Journalist User',
             'username' => 'writer',
             'email' => 'writer@test.com',

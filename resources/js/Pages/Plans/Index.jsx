@@ -1,9 +1,24 @@
 import React from "react";
-import { Head } from "@inertiajs/react";
+import { Head, useForm, router } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Check, Star, Zap, Crown } from "lucide-react";
 
-export default function PlansIndex({ auth, plans }) {
+export default function PlansIndex({ auth, plans, currentSubscription }) {
+  const { post, processing } = useForm();
+  const isGuest = !auth?.user;
+
+  const handleSubscribe = (planSlug) => {
+    if (isGuest) {
+      router.visit(route('login'));
+      return;
+    }
+    post(route('payment.subscribe', planSlug));
+  };
+
+  const isCurrentPlan = (plan) => {
+    return currentSubscription?.plan?.id === plan.id;
+  };
+
   const getBillingText = (interval) => {
     const texts = {
       monthly: "شهرياً",
@@ -29,8 +44,8 @@ export default function PlansIndex({ auth, plans }) {
       features.ads_limit === null
         ? "إعلانات غير محدودة"
         : features.ads_limit === 0
-        ? "بدون إعلانات"
-        : `${features.ads_limit} إعلان`,
+          ? "بدون إعلانات"
+          : `${features.ads_limit} إعلان`,
       features.priority_support ? "دعم فني ذو أولوية" : "دعم فني أساسي",
     ];
   };
@@ -41,6 +56,24 @@ export default function PlansIndex({ auth, plans }) {
 
       <div className="py-16 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 min-h-screen">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Current Subscription Badge */}
+          {currentSubscription && (
+            <div className="mb-8 rounded-lg bg-indigo-50 p-4 border border-indigo-100">
+              <p className="text-center text-sm text-indigo-700">
+                أنت مشترك حالياً في خطة{' '}
+                <span className="font-bold">
+                  {currentSubscription.plan?.name}
+                </span>
+                {currentSubscription.ends_at && (
+                  <span>
+                    {' '}حتى{' '}
+                    {new Date(currentSubscription.ends_at).toLocaleDateString('ar-EG')}
+                  </span>
+                )}
+              </p>
+            </div>
+          )}
+
           {/* Header */}
           <div className="text-center mb-16">
             <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-4">
@@ -55,26 +88,33 @@ export default function PlansIndex({ auth, plans }) {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {plans.map((plan, index) => {
               const isPopular = plan.slug === "pro";
+              const isCurrent = isCurrentPlan(plan);
               const features = getFeatureDisplay(plan.features);
 
               return (
                 <div
                   key={plan.id}
-                  className={`relative bg-white rounded-3xl shadow-xl overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-2xl ${
-                    isPopular ? "ring-4 ring-purple-500 lg:scale-105" : ""
-                  }`}
+                  className={`relative bg-white rounded-3xl shadow-xl overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-2xl ${isPopular ? "ring-4 ring-purple-500 lg:scale-105" : ""
+                    } ${isCurrent ? "ring-4 ring-green-500" : ""}`}
                   style={{
                     animationDelay: `${index * 0.1}s`,
                   }}
                 >
+                  {/* Current Plan Badge */}
+                  {isCurrent && (
+                    <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-center py-2 text-sm font-bold">
+                      ✓ خطتك الحالية
+                    </div>
+                  )}
+
                   {/* Popular Badge */}
-                  {isPopular && (
+                  {isPopular && !isCurrent && (
                     <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-center py-2 text-sm font-bold">
                       ⭐ الأكثر شعبية
                     </div>
                   )}
 
-                  <div className={`p-8 ${isPopular ? "pt-14" : ""}`}>
+                  <div className={`p-8 ${(isPopular || isCurrent) ? "pt-14" : ""}`}>
                     {/* Icon */}
                     <div className="mb-6 flex justify-center">
                       {getPlanIcon(plan.slug)}
@@ -127,17 +167,41 @@ export default function PlansIndex({ auth, plans }) {
                     </ul>
 
                     {/* CTA Button */}
-                    <button
-                      className={`w-full py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-105 ${
-                        isPopular
+                    {isCurrent ? (
+                      <button
+                        disabled
+                        className="w-full py-4 rounded-xl font-bold text-lg bg-gray-300 text-gray-500 cursor-not-allowed"
+                      >
+                        خطتك الحالية
+                      </button>
+                    ) : plan.is_free ? (
+                      isGuest ? (
+                        <button
+                          onClick={() => router.visit(route('register'))}
+                          className="w-full py-4 rounded-xl font-bold text-lg bg-green-500 text-white hover:bg-green-600 transition-all transform hover:scale-105"
+                        >
+                          ابدأ الآن
+                        </button>
+                      ) : (
+                        <button
+                          disabled
+                          className="w-full py-4 rounded-xl font-bold text-lg bg-gray-200 text-gray-600 cursor-not-allowed"
+                        >
+                          مجاني للأبد
+                        </button>
+                      )
+                    ) : (
+                      <button
+                        onClick={() => handleSubscribe(plan.slug)}
+                        disabled={processing}
+                        className={`w-full py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed ${isPopular
                           ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 shadow-lg"
-                          : plan.is_free
-                          ? "bg-green-500 text-white hover:bg-green-600"
                           : "bg-blue-500 text-white hover:bg-blue-600"
-                      }`}
-                    >
-                      {plan.is_free ? "ابدأ مجاناً" : "اشترك الآن"}
-                    </button>
+                          }`}
+                      >
+                        {processing ? "جاري المعالجة..." : "اشترك الآن"}
+                      </button>
+                    )}
                   </div>
                 </div>
               );
