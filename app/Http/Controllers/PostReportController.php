@@ -19,7 +19,7 @@ class PostReportController extends Controller
 
         if ($existingReport) {
             return redirect()
-                ->route('posts.show', $post->id)
+                ->route('posts.show', $post->slug)
                 ->with('error', 'لقد قمت بالإبلاغ عن هذا المقال مسبقاً');
         }
 
@@ -41,7 +41,7 @@ class PostReportController extends Controller
 
         if ($existingReport) {
             return redirect()
-                ->route('posts.show', $post->id)
+                ->route('posts.show', $post->slug)
                 ->with('error', 'لقد قمت بالإبلاغ عن هذا المقال مسبقاً');
         }
 
