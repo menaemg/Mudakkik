@@ -34,8 +34,20 @@ class RegisteredUserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:' . User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'username' => ['required', 'string', 'max:255', 'unique:users'],
+            'username' => [
+                'required',
+                'string',
+                'min:3',
+                'max:255',
+                'unique:users',
+                'regex:/^[a-zA-Z0-9._-]+$/',
+            ],
             'role' => 'nullable|string|in:user,journalist,admin'
+        ], [
+            'username.required' => 'اسم المستخدم مطلوب.',
+            'username.min' => 'يجب أن يكون اسم المستخدم 3 أحرف على الأقل.',
+            'username.unique' => 'اسم المستخدم هذا مستخدم بالفعل.',
+            'username.regex' => 'اسم المستخدم يمكن أن يحتوي على أحرف إنجليزية وأرقام ونقاط وشرطات فقط.',
         ]);
 
         $user = User::create([
@@ -47,7 +59,9 @@ class RegisteredUserController extends Controller
         ]);
 
         event(new Registered($user));
-        
+
+        // Send welcome notification
+        $user->notify(new \App\Notifications\WelcomeNewUser());
 
         Auth::login($user);
 
