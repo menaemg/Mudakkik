@@ -20,14 +20,14 @@ class FactCheckServices
 
             if ($response->successful()) {
                 $body = $response->body();
-
-                return (strlen($body) < 150) ? "FAILED_CONTENT" : mb_substr($body, 0, 2000);
+                return (strlen($body) < 10) ? "FAILED_CONTENT" : mb_substr($body, 0, 2000);
             }
             return "FAILED_CONTENT";
         } catch (\Exception $e) {
             return "FAILED_CONTENT";
         }
     }
+
     private function refineContentForSearch($rawContent, $isFallback = false)
     {
         $prompt = $isFallback
@@ -53,74 +53,96 @@ class FactCheckServices
 
     private function searchInTrustedSources($data)
     {
-
-        if (!$data || $data['title'] === "INVALID" || strlen($data['title']) < 5) {
+        if (!$data || !isset($data['title']) || strlen($data['title']) < 10) {
             return [];
         }
 
         try {
             $domains = TrustedDomain::where('is_active', true)->pluck('domain')->toArray();
+            if (empty($domains)) {
+                return [];
+            }
 
-            $response = Http::post('https://api.tavily.com/search', [
+            $response = Http::timeout(20)->post('https://api.tavily.com/search', [
                 'api_key' => config('services.tavily.api_key'),
-                'query' => $data['title'],
+                'query'   => $data['title'],
                 'search_depth' => 'advanced',
                 'include_domains' => $domains,
                 'max_results' => 5
             ]);
 
-            return $response->json()['results'] ?? [];
+            if ($response->successful()) {
+                $results = $response->json()['results'] ?? [];
+                return collect($results)->filter(function ($result) use ($domains) {
+                    foreach ($domains as $domain) {
+                        if (str_contains($result['url'], $domain)) {
+                            return true;
+                        }
+                    }
+                    return false;
+                })->values()->all();
+            }
+
+            return [];
         } catch (\Exception $e) {
             return [];
         }
     }
-private function finalVerdict($originalNews, $searchResults)
-{
-    if (empty($searchResults)) {
-        return [
-            'rating' => 'غير مؤكد',
-            'percentage' => 0,
-            'explanation' => 'لم نجد نتائج مطابقة في المصادر الموثوقة حالياً.',
-            'evidence' => ''
-        ];
-    }
 
-    try {
-        $snippets = collect($searchResults)->map(fn($i) => [
-            'title' => $i['title'],
-            'content' => mb_substr($i['content'], 0, 1000) 
-        ])->toArray();
-
-        $response = Http::withHeaders(['Authorization' => 'Bearer ' . config('services.groq.api_key')])
-            ->timeout(45)
-            ->post('https://api.groq.com/openai/v1/chat/completions', [
-                'model' => 'llama-3.1-8b-instant',
-                'messages' => [
-                    ['role' => 'system', 'content' => 'أنت خبير تدقيق جنائي للأخبار. 
-                    مهمتك هي مقارنة "الادعاء" بمجموعة "نتائج البحث".
-                    قواعد التحليل:
-                    1. إذا كانت النتائج تتحدث عن نفس الشخص ونفس الفعل (حتى لو بصياغة مختلفة)، فالخبر "صحيح".
-                    2. لا تكن حرفياً؛ ابحث عن المعنى الجوهري. (مثلاً: "القبض على سارق" هو نفسه "ضبط مسجل خطر قام بالسرقة").
-                    3. إذا أكدت النتائج الخبر، أعطِ نسبة ثقة بين 90-100%.
-                    4. اذكر الاقتباس الحقيقي الذي يؤكد الخبر في حقل evidence.
-                    رد بـ JSON فقط: {"rating": "صحيح/كاذب/مضلل/غير مؤكد", "percentage": 0-100, "explanation": "شرح موجز باللغة العربية", "evidence": "اقتباس من المصادر"}'],
-                    ['role' => 'user', 'content' => "الادعاء المراد فحصه: " . $originalNews['title'] . "\n\nالمصادر المتاحة للتحليل:\n" . json_encode($snippets)]
-                ],
-                'response_format' => ['type' => 'json_object'],
-                'temperature' => 0.1,
-            ]);
-
-        if ($response->successful()) {
-            $data = $response->json();
-            return json_decode($data['choices'][0]['message']['content'], true);
+    private function finalVerdict($originalNews, $searchResults)
+    {
+        if (empty($searchResults)) {
+            return [
+                'rating' => 'غير مؤكد',
+                'percentage' => 0,
+                'summary' => 'لم نجد نتائج مطابقة في المصادر الموثوقة حالياً.',
+                'evidence' => ''
+            ];
         }
 
-        return ['rating' => 'تنبيه', 'percentage' => 50, 'explanation' => 'المحرك مشغول، لكن المصادر بالأسفل قد تفيدك.', 'evidence' => ''];
+        try {
+            $snippets = collect($searchResults)->map(fn($i) => [
+                'title' => $i['title'],
+                'content' => mb_substr($i['content'], 0, 1000)
+            ])->toArray();
 
-    } catch (\Exception $e) {
-        return ['rating' => 'خطأ في التحليل', 'percentage' => 0, 'explanation' => 'تعذر الربط التلقائي.', 'evidence' => ''];
+            $response = Http::withHeaders(['Authorization' => 'Bearer ' .config('services.groq.api_key')])
+                ->timeout(45)
+                ->post('https://api.groq.com/openai/v1/chat/completions', [
+                    'model' => 'llama-3.1-8b-instant',
+                    'messages' => [
+                        ['role' => 'system', 'content' => 'أنت خبير تدقيق جنائي للأخبار والروابط. مهمتك الأولى هي تحديد ما إذا كانت نتائج البحث "مرتبطة سياقياً" بالادعاء أم لا. قواعد صارمة للحكم: 1. إذا كانت النتائج لا تتعلق بالموضوع: الرد {"rating": "غير مؤكد", "percentage": 0, ...}. 2. بناءً على نسبة ثقتك، اختر المسمى الصحيح: - أقل من 50%: "غير صحيح" - من 50% لـ 70%: "غير مؤكد" - من 70% لـ 90%: "صحيح" - أعلى من 90%: "رسمي" 3. اذكر الاقتباس الذي أكد أو نفى الخبر في حقل evidence. رد بـ JSON فقط بنفس هذا التنسيق.'],
+                        ['role' => 'user', 'content' => "الادعاء المراد فحصه: " . $originalNews['title'] . "\n\nالمصادر المتاحة للتحليل:\n" . json_encode($snippets)]
+                    ],
+                    'response_format' => ['type' => 'json_object'],
+                    'temperature' => 0.1,
+                ]);
+
+            if ($response->successful()) {
+                $data = $response->json();
+                return json_decode($data['choices'][0]['message']['content'], true);
+            }
+
+            $fallbackExplanation = !empty($searchResults)
+                ? "بناءً على المصادر المتاحة: " . mb_substr($searchResults[0]['content'], 0, 150) . "..."
+                : 'لم نجد تفاصيل كافية في المصادر الموثوقة.';
+
+            return [
+                'rating' => 'غير مؤكد',
+                'percentage' => 55,
+                'summary' => $fallbackExplanation,
+                'evidence' => $searchResults[0]['title'] ?? ''
+            ];
+        } catch (\Exception $e) {
+            return [
+                'rating' => 'غير مؤكد',
+                'percentage' => 50,
+                'summary' => "تعذر الربط التلقائي، والمصادر تشير إلى: " . ($searchResults[0]['title'] ?? 'أخبار متعلقة'),
+                'evidence' => ''
+            ];
+        }
     }
-}
+
     public function check($input)
     {
         $inputHash = md5(trim(mb_strtolower($input)));
@@ -137,7 +159,6 @@ private function finalVerdict($originalNews, $searchResults)
                 'sources' => $existingCheck->sources
             ];
         }
-
 
         $processed = $this->identifyInputType($input);
         $raw = $processed['content'];
@@ -158,18 +179,17 @@ private function finalVerdict($originalNews, $searchResults)
         $searchScore = collect($results)->avg('score') * 100;
         $finalConfidence = round(($verdict['percentage'] + $searchScore) / 2);
 
-
         $newRecord = \App\Models\FactCheck::create([
             'hash'        => $inputHash,
-            'input_text'  => $input,                 
-            'label'       => $verdict['rating'] ?? 'غير مؤكد', 
-            'confidence'  => (int)$finalConfidence,    
-            'summary'     => $verdict['explanation'] ?? 'فشل التحليل', 
+            'input_text'  => $input,
+            'label'       => $verdict['rating'] ?? 'غير مؤكد',
+            'confidence'  => (int)$finalConfidence,
+            'summary'     => $verdict['summary'] ?? 'فشل التحليل',
             'evidence'    => $verdict['evidence'] ?? '',
             'sources'     => collect($results)->take(3)->map(fn($r) => [
                 'title' => $r['title'],
                 'url' => $r['url']
-            ])->toArray()                            
+            ])->toArray()
         ]);
 
         return [
@@ -183,6 +203,7 @@ private function finalVerdict($originalNews, $searchResults)
             'sources' => $newRecord->sources
         ];
     }
+
     private function identifyInputType($input)
     {
         if (filter_var($input, FILTER_VALIDATE_URL)) {

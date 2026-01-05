@@ -34,9 +34,5 @@ class FactCheckController extends Controller
             ], 500);
         }
     }
-    public function history()
-    {
-        $history = FactCheck::latest()->take(10)->get();
-        return response()->json($history);
-    }
+
 }
