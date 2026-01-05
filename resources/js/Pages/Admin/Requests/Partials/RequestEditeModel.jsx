@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Mail, Briefcase, Calendar, FileText, Info } from "lucide-react";
-import { DetailRow, ActionButton } from "./Actions";
+import { DetailRow, ActionButton, InfoCard } from "./Actions";
 
-export default function RequestViewModal({
+export default function RequestEditeModal({
   isOpen,
   request,
   onClose,
@@ -14,6 +14,10 @@ export default function RequestViewModal({
 }) {
   // console.log(request);
   const [adminNote, setAdminNote] = useState(request?.admin_notes || "");
+
+  useEffect(() => {
+    setAdminNote(request?.admin_notes || "");
+  }, [request]);
 
   return (
     <AnimatePresence>
@@ -83,7 +87,6 @@ export default function RequestViewModal({
                     href={request.documents}
                     className="block text-blue-700 font-bold hover:underline"
                     target="_blank"
-                    rel="noopener noreferrer"
                   >
                     📄 ملف الطلب
                   </a>
@@ -94,13 +97,16 @@ export default function RequestViewModal({
 
               <InfoCard title="ملاحظة الإدارة" icon={<FileText size={14} />}>
                 {" "}
-                {request.status === "pending" ? (
-                  <textarea
-                    value={adminNote}
-                    onChange={(e) => setAdminNote(e.target.value)}
-                    placeholder="تكتب ملاحظتك هنا..."
-                    rows={4}
-                    className="
+                <textarea
+                  value={adminNote}
+                  onChange={(e) => setAdminNote(e.target.value)}
+                  placeholder={`${
+                    request.admin_notes
+                      ? request.admin_notes
+                      : "لا يوجد ملاحظات ..."
+                  }`}
+                  rows={4}
+                  className="
                                         w-full
                                         text-sm font-bold text-[#001246]
                                         bg-slate-50
@@ -111,31 +117,26 @@ export default function RequestViewModal({
                                         focus:ring-2 focus:ring-[#001246]/20
                                         resize-none
                                     "
-                  />
-                ) : (
-                  <p className="text-[#001246] font-bold leading-relaxed bg-slate-50 p-5 rounded-[1.5rem] border">
-                    {request.admin_notes
-                      ? request.admin_notes
-                      : "لا توجد ملاحظات من الإدارة."}
-                  </p>
-                )}
+                />
               </InfoCard>
 
               {/* Actions */}
-              {request.status === "pending" && (
-                <div className="flex gap-4 pt-6 border-t">
-                  <ActionButton
-                    color="green"
-                    text="قبول الطلب"
-                    onClick={() => onApprove(request, adminNote)}
-                  />
+
+              <div className="flex gap-4 pt-6 border-t">
+                {request.status === "accepted" ? (
                   <ActionButton
                     color="red"
                     text="رفض الطلب"
                     onClick={() => onReject(request, adminNote)}
                   />
-                </div>
-              )}
+                ) : (
+                  <ActionButton
+                    color="green"
+                    text="قبول الطلب"
+                    onClick={() => onApprove(request, adminNote)}
+                  />
+                )}
+              </div>
             </div>
           </motion.div>
         </div>
@@ -143,12 +144,3 @@ export default function RequestViewModal({
     </AnimatePresence>
   );
 }
-
-const InfoCard = ({ title, icon, children }) => (
-  <div className="bg-white rounded-[2rem] p-6 border border-slate-100 shadow-sm">
-    <h4 className="text-xs font-black text-slate-400 mb-4 flex items-center gap-2">
-      {icon} {title}
-    </h4>
-    {children}
-  </div>
-);

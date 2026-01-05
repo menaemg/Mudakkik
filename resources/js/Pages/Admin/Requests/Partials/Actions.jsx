@@ -6,6 +6,7 @@ export function ActionIcon({ icon, color, onClick }) {
     green:
       "text-emerald-600 bg-emerald-50 hover:bg-emerald-600 hover:text-white",
     red: "text-red-600 bg-red-50 hover:bg-red-600 hover:text-white",
+    gray: "text-gray-600 bg-gray-50 hover:bg-gray-600 hover:text-white",
   };
 
   return (
@@ -46,4 +47,13 @@ const ActionButton = ({ color, text, onClick }) => {
     </button>
   );
 };
-export { DetailRow, ActionButton };
+
+const InfoCard = ({ title, icon, children }) => (
+  <div className="bg-white rounded-[2rem] p-6 border border-slate-100 shadow-sm">
+    <h4 className="text-xs font-black text-slate-400 mb-4 flex items-center gap-2">
+      {icon} {title}
+    </h4>
+    {children}
+  </div>
+);
+export { DetailRow, ActionButton, InfoCard };
