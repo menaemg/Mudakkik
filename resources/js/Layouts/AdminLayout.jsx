@@ -3,29 +3,30 @@ import { Link, usePage } from "@inertiajs/react";
 
 import { motion, AnimatePresence } from "framer-motion";
 import {
-    LayoutDashboard,
-    WholeWord,
-    Users,
-    CreditCard,
-    Megaphone,
-    Hash,
-    Newspaper,
-    Menu,
-    X,
-    Bell,
-    ChevronLeft,
-    Search,
-    ShieldCheck,
-    UserCheck,
-    UserRoundCheck,
-    MonitorCheck,
-    Package,
-    Layers,
-    FolderTree,
-    LogOut,
-    Monitor,
-    ScrollText,
-    LayoutTemplate
+  LayoutDashboard,
+  WholeWord,
+  Users,
+  CreditCard,
+  Megaphone,
+  Hash,
+  Newspaper,
+  Menu,
+  X,
+  Bell,
+  ChevronLeft,
+  Search,
+  ShieldCheck,
+  UserCheck,
+  UserRoundCheck,
+  MonitorCheck,
+  Package,
+  Layers,
+  FolderTree,
+  LogOut,
+  Monitor,
+  ScrollText,
+  LayoutTemplate,
+  House,
 } from "lucide-react";
 import Swal from "sweetalert2";
 
@@ -33,71 +34,73 @@ export default function AdminLayout({ children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState(null);
   const { auth, admin } = usePage().props;
-const pendingReports = admin?.pendingReportsCount || 0; 
+  const pendingReports = admin?.pendingReportsCount || 0;
 
-
-const menuItems = [
+  const menuItems = [
     { label: "الرئيسية", icon: LayoutDashboard, url: "/admin/dashboard" },
     { label: "المستخدمين", icon: Users, url: "/admin/users" },
     { label: "المقالات", icon: Newspaper, url: "/admin/posts" },
     {
-        label: "إدارة الواجهة",
-        icon: Monitor,
-        url: "/admin/home",
-        list: [
-            {
-                label: "شريط الأخبار",
-                icon: ScrollText,
-                url: "/admin/home/ticker"
-            },
-            {
-                label: "الهيرو سكشن",
-                icon: LayoutTemplate,
-                url: "/admin/home/hero",
-            },
-            {
-                label: "أخبار مميزة",
-                icon: LayoutTemplate,
-                url: "/admin/home/featured",
-            },
-            {
-                label: "أهم قصص اليوم",
-                icon: LayoutTemplate,
-                url: "/admin/home/top-stories",
-            },
-        ],
+      label: "إدارة الواجهة",
+      icon: Monitor,
+      url: "/admin/home",
+      list: [
+        {
+          label: "شريط الأخبار",
+          icon: ScrollText,
+          url: "/admin/home/ticker",
+        },
+        {
+          label: "الهيرو سكشن",
+          icon: LayoutTemplate,
+          url: "/admin/home/hero",
+        },
+        {
+          label: "أخبار مميزة",
+          icon: LayoutTemplate,
+          url: "/admin/home/featured",
+        },
+        {
+          label: "أهم قصص اليوم",
+          icon: LayoutTemplate,
+          url: "/admin/home/top-stories",
+        },
+      ],
     },
     {
-            label: "البلاغات",
-            icon: Bell,
-            url: "/admin/reports",
-            badge: pendingReports, // <-- العداد الأحمر
+      label: "البلاغات",
+      icon: Bell,
+      url: "/admin/reports",
+      badge: pendingReports, // <-- العداد الأحمر
     },
     {
-        label: "طلبات ",
-        icon: ShieldCheck,
-        url: "/admin/requests",
-        list: [
-            {
-                label: "الانضمام لمجتمع الحصفيين",
-                icon: UserRoundCheck,
-                url: "/admin/requests/join",
-            },
-            {
-                label: "الاعلانات علي مدقق",
-                icon: Megaphone,
-                url: "/admin/requests/ads",
-            },
-        ],
+      label: "طلبات ",
+      icon: ShieldCheck,
+      url: "/admin/requests",
+      list: [
+        {
+          label: "الانضمام لمجتمع الحصفيين",
+          icon: UserRoundCheck,
+          url: "/admin/requests/join",
+        },
+        {
+          label: "الاعلانات علي مدقق",
+          icon: Megaphone,
+          url: "/admin/requests/ads",
+        },
+      ],
     },
     { label: "الخطط", icon: Package, url: "/admin/plans" },
     { label: "الاشتراكات", icon: Layers, url: "/admin/subscriptions" },
-    // { label: "طلبات الترقية", icon: ShieldCheck, url: "/admin/upgrades" },
     { label: "المدفوعات", icon: CreditCard, url: "/admin/payments" },
     { label: "الفئات", icon: FolderTree, url: "/admin/categories" },
     { label: "الأوسمة", icon: Hash, url: "/admin/tags" },
-    { label: "المواقع الموثوقة", icon: WholeWord, url: "/admin/trusted-domains" }
-];
+    {
+      label: "المواقع الموثوقة",
+      icon: WholeWord,
+      url: "/admin/trusted-domains",
+    },
+  ];
 
   const { flash } = usePage().props;
   useEffect(() => {
@@ -283,6 +286,16 @@ const menuItems = [
               </div>
             </div>
 
+            <Link
+              href={route("welcome")}
+              method="get"
+              as="button"
+              className="p-2.5 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 hover:scale-105
+              transition-all duration-200 "
+              title=" الصفحة الرئيسية"
+            >
+              <House size={20} />
+            </Link>
             <Link
               href={route("logout")}
               method="post"

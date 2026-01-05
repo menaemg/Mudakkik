@@ -101,8 +101,8 @@ export default function RequestEditeModal({
                   value={adminNote}
                   onChange={(e) => setAdminNote(e.target.value)}
                   placeholder={`${
-                    request.adminNotes
-                      ? request.adminNotes
+                    request.admin_notes
+                      ? request.admin_notes
                       : "لا يوجد ملاحظات ..."
                   }`}
                   rows={4}

@@ -3,32 +3,32 @@
 use App\Http\Controllers\Admin\AdminReportController;
 use App\Http\Controllers\Admin\AdsRequestController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\Home\FeaturedController;
+use App\Http\Controllers\Admin\Home\HeroController;
+use App\Http\Controllers\Admin\Home\TickerController;
+use App\Http\Controllers\Admin\Home\TopStoriesController;
 use App\Http\Controllers\Admin\JoinRequestController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
 use App\Http\Controllers\Admin\PlanController as AdminPlanController;
 use App\Http\Controllers\Admin\PostController as AdminPostController;
 use App\Http\Controllers\Admin\SubscriptionController as AdminSubscriptionController;
-use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\TagController;
 use App\Http\Controllers\Admin\TrustedDomainController;
-use App\Http\Controllers\Admin\Home\HeroController;
-use App\Http\Controllers\Admin\Home\TickerController;
-use App\Http\Controllers\Admin\Home\FeaturedController;
-use App\Http\Controllers\Admin\Home\TopStoriesController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\FactCheckController;
 use App\Http\Controllers\LikeController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PlanController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\PostReportController;
-use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\UserPostController;
-use App\Http\Controllers\UserAdController;
+use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\UpgradeRequestController;
-use App\Http\Controllers\WelcomeController;
-use App\Http\Controllers\FactCheckController;
-use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\UserAdController;
+use App\Http\Controllers\UserPostController;
 use App\Http\Controllers\Webhooks\StripeWebhookController;
+use App\Http\Controllers\WelcomeController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -41,7 +41,6 @@ Route::get('/check', function () {
     return Inertia::render('VerifyNews');
 });
 Route::post('/verify-news', [FactCheckController::class, 'verify']);
-
 
 Route::middleware(['auth', 'verified', 'can:admin-access'])
     ->prefix('admin')
@@ -84,22 +83,22 @@ Route::middleware(['auth', 'verified', 'can:admin-access'])
         });
 
         Route::prefix('home')->name('home.')->group(function () {
-            Route::controller(HeroController::class)->group(function(){
+            Route::controller(HeroController::class)->group(function () {
                 Route::get('/hero', 'index')->name('hero');
                 Route::post('/hero/update', 'update')->name('hero.update');
             });
 
-            Route::controller(TickerController::class)->group(function(){
+            Route::controller(TickerController::class)->group(function () {
                 Route::get('/ticker', 'index')->name('ticker');
                 Route::post('/ticker/update', 'update')->name('ticker.update');
             });
 
-            Route::controller(FeaturedController::class)->group(function(){
+            Route::controller(FeaturedController::class)->group(function () {
                 Route::get('/featured', 'index')->name('featured');
                 Route::post('/featured/update', 'update')->name('featured.update');
             });
 
-            Route::controller(TopStoriesController::class)->group(function(){
+            Route::controller(TopStoriesController::class)->group(function () {
                 Route::get('/top-stories', 'index')->name('top-stories');
                 Route::post('/top-stories/update', 'update')->name('top-stories.update');
             });
@@ -117,7 +116,7 @@ Route::middleware(['auth', 'verified', 'can:admin-access'])
     });
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/dashboard', fn() => redirect()->route('profile.edit'))->name('dashboard');
+    Route::get('/dashboard', fn () => redirect()->route('profile.edit'))->name('dashboard');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -159,11 +158,9 @@ Route::middleware(['auth', 'throttle:5,1'])->group(function () {
         ->name('posts.report.store');
 });
 
-
 // Stripe Webhook (no CSRF, no auth)
 Route::post('/webhooks/stripe', [StripeWebhookController::class, 'handle'])
     ->withoutMiddleware(['web'])
     ->name('webhooks.stripe');
-
 
 require __DIR__.'/auth.php';

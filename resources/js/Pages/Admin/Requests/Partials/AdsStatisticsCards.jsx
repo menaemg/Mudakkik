@@ -36,7 +36,7 @@ export default function AdsStatisticsCard({ state }) {
               className="
                       flex items-center gap-4
                       flex-col md:flex-row
-                      text-center md:text-rightl"
+                      text-center md:text-right"
             >
               <div className="p-3 rounded-xl">
                 <ClipboardList className="w-6 h-6 text-blue-600" />
