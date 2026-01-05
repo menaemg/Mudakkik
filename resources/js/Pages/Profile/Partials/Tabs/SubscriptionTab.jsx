@@ -69,7 +69,8 @@ export default function SubscriptionTab({ subscription, plan, subscription_histo
                     {isFree ? (
                         <Badge className="bg-gray-100 text-gray-600 hover:bg-gray-200 pointer-events-none">باقة مجانية</Badge>
                     ) : (
-                        <Badge className={`${subscription?.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'} hover:bg-opacity-80 pointer-events-none`}>
+                        <Badge className={`${subscription?.status === 'active' ? 'bg-green-100 text-green-700' :
+                        'bg-red-100 text-red-700'} hover:bg-opacity-80 pointer-events-none`}>
                             {subscription?.status === 'active' ? 'نشط' : 'منتهي/ملغي'}
                         </Badge>
                     )}
@@ -102,7 +103,8 @@ export default function SubscriptionTab({ subscription, plan, subscription_histo
                                         <FaCalendarAlt className="text-brand-blue" />
                                         <span>البدء: <span dir="ltr" className="font-mono">{formatDate(subscription.start_at || subscription.created_at)}</span></span>
                                     </div>
-                                    <div className={`flex items-center gap-2 text-sm font-bold px-4 py-2 rounded-xl border ${subscription.status === 'active' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-700 border-red-200'}`}>
+                                    <div className={`flex items-center gap-2 text-sm font-bold px-4 py-2 rounded-xl border ${subscription.status
+                                       === 'active' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-700 border-red-200'}`}>
                                         <FaCalendarCheck />
                                         <span>
                                             {subscription.status === 'active'
@@ -118,7 +120,8 @@ export default function SubscriptionTab({ subscription, plan, subscription_histo
                         <div className="flex flex-col gap-3 w-full md:w-auto min-w-[200px]">
                             {isFree ? (
                                 <Link href={route('plans.index')} className="w-full">
-                                    <Button className="bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700 text-white font-black w-full shadow-xl border-0 h-12 text-lg transform transition hover:-translate-y-1">
+                                    <Button className="bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-600
+                                    hover:to-orange-700 text-white font-black w-full shadow-xl border-0 h-12 text-lg transform transition hover:-translate-y-1">
                                         <FaCrown className="ml-2" /> ترقية الباقة الآن
                                     </Button>
                                 </Link>
@@ -142,7 +145,8 @@ export default function SubscriptionTab({ subscription, plan, subscription_histo
                     {currentFeatures.length > 0 ? (
                         <div className="grid gap-3">
                             {currentFeatures.map((feature, index) => (
-                                <div key={index} className="flex items-center gap-4 bg-white p-4 rounded-xl border border-blue-100/50 shadow-sm hover:shadow-md transition-shadow">
+                                <div key={index} className="flex items-center gap-4 bg-white p-4 rounded-xl border border-blue-100/50
+                                shadow-sm hover:shadow-md transition-shadow">
                                     <div className={`p-3 rounded-full ${feature.bg} ${feature.color}`}>
                                         <feature.icon size={18} />
                                     </div>
@@ -162,7 +166,8 @@ export default function SubscriptionTab({ subscription, plan, subscription_histo
                         </h4>
                         <div className="space-y-3 overflow-y-auto custom-scrollbar flex-1 pr-2 max-h-[400px]">
                             {subscription_history.map((sub) => (
-                                <div key={sub.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100 hover:bg-gray-100 transition-colors group">
+                                <div key={sub.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl
+                                border border-gray-100 hover:bg-gray-100 transition-colors group">
                                     <div>
                                         <p className="font-bold text-base text-gray-800 group-hover:text-brand-blue transition-colors">
                                             {sub.plan?.name}
@@ -182,7 +187,8 @@ export default function SubscriptionTab({ subscription, plan, subscription_histo
                         </div>
                     </div>
                 ) : (
-                    <div className="bg-gray-50 p-6 rounded-2xl border border-gray-100 flex flex-col items-center justify-center text-center text-gray-400 h-full min-h-[300px]">
+                    <div className="bg-gray-50 p-6 rounded-2xl border border-gray-100 flex flex-col items-center
+                    justify-center text-center text-gray-400 h-full min-h-[300px]">
                         <FaHistory size={40} className="mb-4 opacity-50" />
                         <p className="font-medium">لا يوجد سجل اشتراكات سابق</p>
                     </div>

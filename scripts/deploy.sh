@@ -60,8 +60,9 @@ sudo chmod -R 775 "$RELEASE_DIR/bootstrap/cache"
 echo "🔄 Restarting services..."
 sudo systemctl reload php8.3-fpm
 
-# Restart queue workers
-sudo supervisorctl restart mudakkik-worker:* || true
+# Restart Horizon workers (graceful termination)
+php artisan horizon:terminate
+sudo supervisorctl restart mudakkik-horizon || true
 
 # Health check
 echo "🏥 Running health check..."
@@ -80,3 +81,8 @@ ls -dt */ | tail -n +$((KEEP_RELEASES + 1)) | xargs -r rm -rf
 
 echo "✅ Deployment completed successfully!"
 echo "📍 Current release: $RELEASE_NAME"
+echo ""
+echo "📅 Scheduled Jobs (ensure cron is configured):"
+echo "   - ReconcilePendingPayments: */10 * * * *"
+echo "   - HandleExpiredSubscriptions: 0 0 * * *"
+echo "   - Queue Workers: Handling Welcome, Payments, Subscriptions notifications"

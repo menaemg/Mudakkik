@@ -140,7 +140,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/upgrade-requests', [UpgradeRequestController::class, 'store'])->name('upgrade-requests.store');
 
     Route::post('/posts/{post}/like', [LikeController::class, 'toggle'])->name('posts.like');
+});
 
+Route::middleware(['auth'])->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead'])->name('notifications.read');
     Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
