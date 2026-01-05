@@ -20,12 +20,13 @@ import AdsViewModal from "./Partials/AdsViewModal";
 import AdminPagination from "@/Layouts/AdminPagination";
 import { usePage, router } from "@inertiajs/react";
 import AdsTable from "./Partials/AdsTable";
-import AdsChart from "./Partials/AdsChart";
-
+import AdsStatisticsCard from "./Partials/AdsStatisticsCards";
+import AdsEditeModal from "./Partials/AdsEditeModal";
 export default function Ads({ filters = {} }) {
   const [selectedStatus, setSelectedStatus] = useState(filters?.status || "");
   const [searchTerm, setSearchTerm] = useState(filters?.search || "");
   const [selectedRequest, setSelectedRequest] = useState(null);
+  const [selectedEditeRequest, setSelectedEditeRequest] = useState(null);
   const { requests, stats: state, oldPendingCount } = usePage().props;
 
   useEffect(() => {
@@ -93,14 +94,13 @@ export default function Ads({ filters = {} }) {
         return "مقبول";
       case "rejected":
         return "مرفوض";
-      case "waiting_payment":
-        return "في انتظار الدفع";
       default:
         return status;
     }
   };
 
   const handleApprove = (request, adminNote) => {
+    console.log(request);
     router.patch(
       route("admin.requests.ads.update", request.id),
       {
@@ -111,6 +111,7 @@ export default function Ads({ filters = {} }) {
         onSuccess: () => {
           toast.success("تم قبول الطلب بنجاح");
           setSelectedRequest(null);
+          setSelectedEditeRequest(null);
         },
         onError: () => {
           toast.error("حدث خطأ أثناء قبول الطلب");
@@ -130,6 +131,7 @@ export default function Ads({ filters = {} }) {
         onSuccess: () => {
           toast.success("تم رفض الطلب بنجاح");
           setSelectedRequest(null);
+          setSelectedEditeRequest(null);
         },
         onError: () => {
           toast.error("حدث خطأ أثناء رفض الطلب");
@@ -165,87 +167,7 @@ export default function Ads({ filters = {} }) {
 
       <div className="max-w-7xl mx-auto p-6">
         {/* Statistics Cards */}
-        <div
-          className="
-        grid grid-cols-1 md:grid-cols-3 gap-6 mb-6
-        "
-        >
-          {/* Stats */}
-          <motion.div
-            whileHover={{ y: -10 }}
-            className="
-            md:col-span-1 flex bg-gradient-to-br
-            from-[#001246] via-[#001b66] to-[#002a80]
-            rounded-[2.5rem] shadow-2xl shadow-blue-900/30
-         text-white relative overflow-hidden group
-            cursor-pointer
-            "
-          >
-            <div
-              className="
-                  rounded-3xl
-                  p-6
-                  flex flex-row md:flex-col
-                  justify-between
-                  relative
-                  w-full
-                  text-center
-                  "
-            >
-              <div
-                className="
-                flex items-center gap-4
-                flex-col md:flex-row
-                text-center md:text-rightl"
-              >
-                <div className="p-3 rounded-xl">
-                  <ClipboardList className="w-6 h-6 text-blue-600" />
-                </div>
-                <p className="text-white/40 text-sm mb-1">
-                  {" "}
-                  عدد الإعلانات المسجلة بالنظام
-                </p>
-              </div>
-              <p
-                className="
-                text-4xl md:text-5xl lg:text-6xl
-                font-black tracking-tighter italic
-                text-center
-                md:absolute md:left-0 md:right-0 md:top-1/2 md:-translate-y-1/2"
-                style={{ alignSelf: "center" }}
-              >
-                {state.total || 0}
-              </p>
-            </div>
-            <Tv
-              size={80}
-              className="absolute -bottom-4 -left-4 text-white/5 -rotate-10 transition-transform group-hover:scale-110"
-            />
-          </motion.div>
-
-          {/* Chart */}
-          <div className="lg:col-span-2 md:col-span-2 ">
-            {/* chart card here */}
-            <div className="bg-white rounded-3xl shadow-md hover:shadow-lg transition-shadow p-6 border border-gray-100">
-              {/* Header */}
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3 ">
-                  <div className="p-3 rounded-lg bg-indigo-100">
-                    <TrendingUp className="w-6 h-6 text-indigo-600" />
-                  </div>
-                  <h3 className="font-black text-gray-800 text-sm">
-                    توزيع حالات الطلبات
-                  </h3>
-                </div>
-              </div>
-
-              {/* Chart */}
-              <div className="relative flex-1 min-h-[260px] ">
-                <AdsChart state={state} />
-              </div>
-            </div>
-          </div>
-        </div>
+        <AdsStatisticsCard state={state} />
 
         <div className="grid grid-rows-1 md:grid-rows-2 lg:grid-rows-3 gap-6">
           {/* Main Content */}
@@ -282,7 +204,6 @@ export default function Ads({ filters = {} }) {
                     <option value="pending">قيد المراجعة</option>
                     <option value="approved">مقبول</option>
                     <option value="rejected">مرفوض</option>
-                    <option value="waiting_payment">في انتظار الدفع</option>
                   </select>
                 </div>
               </div>
@@ -296,6 +217,7 @@ export default function Ads({ filters = {} }) {
               <AdsTable
                 requests={requests.data}
                 onView={(req) => setSelectedRequest(req)}
+                onEdit={(req) => setSelectedEditeRequest(req)}
                 onApprove={(req) => handleApprove(req)}
                 onReject={(req) => handleReject(req)}
                 getStatusColor={getStatusColor}
@@ -316,6 +238,16 @@ export default function Ads({ filters = {} }) {
         isOpen={!!selectedRequest}
         request={selectedRequest}
         onClose={() => setSelectedRequest(null)}
+        getStatusColor={getStatusColor}
+        getStatusText={getStatusText}
+        onApprove={handleApprove}
+        onReject={handleReject}
+      />
+
+      <AdsEditeModal
+        isOpen={!!selectedEditeRequest}
+        request={selectedEditeRequest}
+        onClose={() => setSelectedEditeRequest(null)}
         getStatusColor={getStatusColor}
         getStatusText={getStatusText}
         onApprove={handleApprove}

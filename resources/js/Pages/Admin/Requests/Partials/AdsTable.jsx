@@ -1,5 +1,13 @@
 import React from "react";
-import { Eye, Check, X, Calendar, CalendarPlus, CalendarX } from "lucide-react";
+import {
+  Eye,
+  Check,
+  X,
+  Calendar,
+  CalendarPlus,
+  CalendarX,
+  FileCog,
+} from "lucide-react";
 import { ActionIcon } from "./Actions";
 
 export default function AdsTable({
@@ -9,6 +17,7 @@ export default function AdsTable({
   onReject,
   getStatusColor,
   getStatusText,
+  onEdit,
 }) {
   return (
     <div className="overflow-x-auto">
@@ -26,8 +35,10 @@ export default function AdsTable({
               {" "}
               تاريخ التقديم{" "}
             </th>
-            <th className="p-3 font-black text-sm uppercase"> بداية </th>
-            <th className="p-3 font-black text-sm uppercase"> نهاية </th>
+            <th className="p-3 font-black text-sm uppercase">
+              {" "}
+              المدة المطلوبة{" "}
+            </th>
             <th className="p-3 font-black text-sm uppercase"> الحالة </th>
             <th className="p-3 font-black text-sm text-center">الإجراءات</th>
           </tr>
@@ -68,7 +79,7 @@ export default function AdsTable({
               {/* image */}
               <td className="p-3">
                 <img
-                  src={request.image_path}
+                  src={request.image_url}
                   alt={request.title}
                   className="w-16 h-16 object-cover rounded-lg"
                 />
@@ -82,23 +93,11 @@ export default function AdsTable({
                 </div>
               </td>
 
-              {/* start date */}
+              {/* duration */}
               <td className="p-3">
-                <div className="inline-flex items-center gap-2 text-sm font-black text-green-700 bg-green-50 px-3 py-1.5 rounded-lg border border-green-100">
-                  <CalendarPlus size={14} className="text-green-900" />
-                  {new Date(request.requested_start_date).toLocaleDateString(
-                    "ar-EG"
-                  )}
-                </div>
-              </td>
-
-              {/* end date */}
-              <td className="p-3">
-                <div className="inline-flex items-center gap-2 text-sm font-black text-orange-700 bg-orange-50 px-3 py-1.5 rounded-lg border border-orange-100">
-                  <CalendarX size={14} />
-                  {new Date(request.requested_end_date).toLocaleDateString(
-                    "ar-EG"
-                  )}
+                <div className="inline-flex items-center gap-2 text-sm font-black text-[#001758] bg-indigo-50 px-3 py-1.5 rounded-lg border border-green-100">
+                  <CalendarPlus size={14} className="text-[#001758]" />
+                  {request.number_of_days} أيام
                 </div>
               </td>
 
@@ -122,7 +121,7 @@ export default function AdsTable({
                     onClick={() => onView(request)}
                   />
 
-                  {request.status === "pending" && (
+                  {request.status === "pending" ? (
                     <>
                       <ActionIcon
                         icon={<Check size={18} />}
@@ -133,6 +132,14 @@ export default function AdsTable({
                         icon={<X size={18} />}
                         color="red"
                         onClick={() => onReject(request)}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <ActionIcon
+                        icon={<FileCog size={18} />}
+                        color="gray"
+                        onClick={() => onEdit(request)}
                       />
                     </>
                   )}
@@ -151,17 +158,17 @@ export default function AdsTable({
             className="bg-white rounded-xl border shadow-sm flex flex-row-reverse "
           >
             {/* ads image */}
-            <div className="w-1/3 h-72">
+            <div className="w-1/3 h-74">
               <img
-                src={request.image_path}
+                src={request.image_url}
                 alt={request.title}
                 className="w-full h-full object-cover rounded-r-xl"
               />
             </div>
 
-            <div className="flex-1 flex flex-col justify-between p-4 space-y-4">
+            <div className="flex-1 flex flex-col justify-between p-2 space-y-4">
               {/* ads Details */}
-              <div className="w-2/3 p-4 space-y-3">
+              <div className="w-2/3 p-2 space-y-3">
                 <div>
                   <p className="font-black text-[#001246]">
                     {request.user?.name}
@@ -180,16 +187,8 @@ export default function AdsTable({
                 <div className="flex items-center justify-between">
                   <div className="flex flex-col space-y-1">
                     <span className="text-sm text-slate-600">
-                      <span className="font-bold">بداية:</span>{" "}
-                      {new Date(
-                        request.requested_start_date
-                      ).toLocaleDateString("ar-EG")}
-                    </span>
-                    <span className="text-sm text-slate-600">
-                      <span className="font-bold">نهاية:</span>{" "}
-                      {new Date(request.requested_end_date).toLocaleDateString(
-                        "ar-EG"
-                      )}
+                      <span className="font-bold">المدة المطلوبة:</span>{" "}
+                      {request.number_of_days}
                     </span>
                   </div>
                 </div>
@@ -212,7 +211,7 @@ export default function AdsTable({
                       color="blue"
                       onClick={() => onView(request)}
                     />
-                    {request.status === "pending" && (
+                    {request.status === "pending" ? (
                       <>
                         <ActionIcon
                           icon={<Check size={16} />}
@@ -223,6 +222,14 @@ export default function AdsTable({
                           icon={<X size={16} />}
                           color="red"
                           onClick={() => onReject(request)}
+                        />
+                      </>
+                    ) : (
+                      <>
+                        <ActionIcon
+                          icon={<FileCog size={16} />}
+                          color="gray"
+                          onClick={() => onEdit(request)}
                         />
                       </>
                     )}

@@ -15,10 +15,10 @@ class JoinRequestController extends Controller
         $requests = UpgradeRequest::query()
             ->latest()
             ->with('user')
-            ->when($request->search, function($q, $search){
-                $q->whereHas('user', fn($u) => $u->where('name', 'like', "%{$search}%"));
+            ->when($request->search, function ($q, $search) {
+                $q->whereHas('user', fn ($u) => $u->where('name', 'like', "%{$search}%"));
             })
-            ->when($request->status, fn($q, $status) => $q->where('status', $status))
+            ->when($request->status, fn ($q, $status) => $q->where('status', $status))
             ->paginate(10)
             ->withQueryString();
 
@@ -43,7 +43,7 @@ class JoinRequestController extends Controller
 
     public function update(Request $request, UpgradeRequest $upgradeRequest)
     {
-          abort_unless(auth()->user()->role === 'admin', 403);
+        abort_unless(auth()->user()->role === 'admin', 403);
         $data = $request->validate([
             'status' => 'required|in:accepted,rejected',
             'admin_notes' => 'nullable|string|max:2000',
@@ -58,9 +58,9 @@ class JoinRequestController extends Controller
 
             if ($data['status'] === 'accepted') {
                 $user = $upgradeRequest->user;
-                if (!$user) {
-                throw new \Exception('Associated user not found');
-            }
+                if (! $user) {
+                    throw new \Exception('Associated user not found');
+                }
                 $user->update([
                     'role' => 'journalist',
                     'is_verified_journalist' => true,
@@ -77,10 +77,11 @@ class JoinRequestController extends Controller
     public function destroy(UpgradeRequest $upgradeRequest)
     {
         abort_unless(auth()->user()->role === 'admin', 403);
-    if (in_array($upgradeRequest->status, ['accepted', 'rejected'])) {
-        return back()->with('error', 'لا يمكن حذف طلب تمت معالجته');
-    }
+        if (in_array($upgradeRequest->status, ['accepted', 'rejected'])) {
+            return back()->with('error', 'لا يمكن حذف طلب تمت معالجته');
+        }
         $upgradeRequest->delete();
+
         return back()->with('success', 'تم حذف الطلب بنجاح');
     }
 }

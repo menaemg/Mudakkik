@@ -11,11 +11,13 @@ import RequestViewModal from "./Partials/RequestViewModal";
 import RequestsTable from "./Partials/RequestsTable";
 import AdminPagination from "@/Layouts/AdminPagination";
 import { usePage, router } from "@inertiajs/react";
+import RequestEditeModal from "./Partials/RequestEditeModel";
 
 export default function join({ filters = {} }) {
   const [selectedStatus, setSelectedStatus] = useState(filters?.search || "");
   const [searchTerm, setSearchTerm] = useState(filters?.search || "");
   const [selectedRequest, setSelectedRequest] = useState(null);
+  const [selectedEditeRequest, setSelectedEditeRequest] = useState(null);
   const { requests, stats: state, oldPendingCount } = usePage().props;
 
   useEffect(() => {
@@ -76,10 +78,7 @@ export default function join({ filters = {} }) {
   // console.log(stats);
 
   useEffect(() => {
-    if (
-      searchTerm !== (filters?.search || "") ||
-      selectedStatus !== (filters?.status || "")
-    ) {
+    if (searchTerm !== filters?.search || selectedStatus !== filters?.status) {
       router.get(
         route("admin.requests.join"),
         { search: searchTerm, status: selectedStatus, page: 1 },
@@ -125,6 +124,7 @@ export default function join({ filters = {} }) {
         onSuccess: () => {
           toast.success("تم قبول الطلب بنجاح");
           setSelectedRequest(null);
+          setSelectedEditeRequest(null);
         },
         onError: () => {
           toast.error("حدث خطأ أثناء قبول الطلب");
@@ -144,6 +144,7 @@ export default function join({ filters = {} }) {
         onSuccess: () => {
           toast.success("تم رفض الطلب بنجاح");
           setSelectedRequest(null);
+          setSelectedEditeRequest(null);
         },
         onError: () => {
           toast.error("حدث خطأ أثناء رفض الطلب");
@@ -178,7 +179,7 @@ export default function join({ filters = {} }) {
 
       <div className="max-w-7xl mx-auto p-6">
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
           {stats.map((stat, index) => {
             const Icon = stat.icon;
             return (
@@ -281,6 +282,7 @@ export default function join({ filters = {} }) {
               <RequestsTable
                 requests={requests.data}
                 onView={(req) => setSelectedRequest(req)}
+                onEdit={(req) => setSelectedEditeRequest(req)}
                 onApprove={(req) => handleApprove(req)}
                 onReject={(req) => handleReject(req)}
                 getStatusColor={getStatusColor}
@@ -301,6 +303,15 @@ export default function join({ filters = {} }) {
         isOpen={!!selectedRequest}
         request={selectedRequest}
         onClose={() => setSelectedRequest(null)}
+        getStatusColor={getStatusColor}
+        getStatusText={getStatusText}
+        onApprove={handleApprove}
+        onReject={handleReject}
+      />
+      <RequestEditeModal
+        isOpen={!!selectedEditeRequest}
+        request={selectedEditeRequest}
+        onClose={() => setSelectedEditeRequest(null)}
         getStatusColor={getStatusColor}
         getStatusText={getStatusText}
         onApprove={handleApprove}
