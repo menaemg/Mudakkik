@@ -14,9 +14,7 @@ use Inertia\Response;
 
 class ProfileController extends Controller
 {
-    /**
-     * Display the user's profile form.
-     */
+
     public function edit(Request $request): Response
     {
         /** @var \App\Models\User $user */
@@ -97,9 +95,7 @@ if ($subscription && $subscription->plan) {
             'current_plan' => $currentPlan,
         ]);
     }
-    /**
-     * Update the user's profile information.
-     */
+
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
         $user = $request->user();
@@ -109,9 +105,11 @@ if ($subscription && $subscription->plan) {
             if ($user->avatar) {
                 Storage::disk('public')->delete($user->avatar);
             }
-        $path = $request->file('avatar')->store('avatars', 'public');
-        $user->avatar = $path;
+            $path = $request->file('avatar')->store('avatars', 'public');
+            $user->avatar = $path;
         }
+
+        unset($data['avatar']);
 
         $user->fill($data);
 
@@ -121,13 +119,15 @@ if ($subscription && $subscription->plan) {
 
         $user->save();
 
-        return Redirect::route('profile.edit')->with('success', 'تم تحديث الملف الشخصي بنجاح');
+        $redirectUrl = route('profile.edit');
+        if ($request->has('tab')) {
+            $redirectUrl .= '?tab=' . $request->get('tab');
+        }
+
+        return Redirect::to($redirectUrl)->with('success', 'تم تحديث الملف الشخصي بنجاح');
     }
 
-    /**
-     * Delete the user's account.
-     */
-    public function destroy(Request $request): RedirectResponse
+       public function destroy(Request $request): RedirectResponse
     {
         $request->validate([
             'password' => ['required', 'current_password'],

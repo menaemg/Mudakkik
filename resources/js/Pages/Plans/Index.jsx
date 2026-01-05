@@ -1,9 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Head, useForm, router } from "@inertiajs/react";
-import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
+import Header from "@/Components/Header";
+import Footer from "@/Components/Footer";
 import { Check, Star, Zap, Crown } from "lucide-react";
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 
 export default function PlansIndex({ auth, plans, currentSubscription }) {
+  useEffect(() => {
+    AOS.init({ duration: 800, once: true });
+  }, []);
+
   const { post, processing } = useForm();
   const [processingPlan, setProcessingPlan] = useState(null);
   const isGuest = !auth?.user;
@@ -35,61 +42,53 @@ export default function PlansIndex({ auth, plans, currentSubscription }) {
   const getPlanIcon = (slug) => {
     if (slug === "free") return <Star className="text-yellow-500" size={32} />;
     if (slug === "basic") return <Zap className="text-blue-500" size={32} />;
-    if (slug.includes("pro"))
-      return <Crown className="text-purple-500" size={32} />;
+    if (slug.includes("pro")) return <Crown className="text-purple-500" size={32} />;
     return <Star className="text-gray-500" size={32} />;
   };
 
   const getFeatureDisplay = (features) => {
     return [
-      features.posts_limit === null
-        ? "منشورات غير محدودة"
-        : `${features.posts_limit} منشور`,
-      features.ads_limit === null
-        ? "إعلانات غير محدودة"
-        : features.ads_limit === 0
-          ? "بدون إعلانات"
-          : `${features.ads_limit} إعلان`,
+      features.posts_limit === null ? "منشورات غير محدودة" : `${features.posts_limit} منشور`,
+      features.ads_limit === null ? "إعلانات غير محدودة" : features.ads_limit === 0 ? "بدون إعلانات" : `${features.ads_limit} إعلان`,
       features.priority_support ? "دعم فني ذو أولوية" : "دعم فني أساسي",
     ];
   };
 
   return (
-    <AuthenticatedLayout user={auth.user}>
-      <Head title="الباقات" />
+    <div className="flex flex-col min-h-screen bg-slate-50 font-sans text-right" dir="rtl">
+      <Head title="الباقات والاشتراكات" />
 
-      <div className="py-16 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 min-h-screen">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Current Subscription Badge */}
+      <Header auth={auth} />
+
+      <main className="flex-grow pt-[130px] pb-16 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-purple-50 pointer-events-none -z-10" />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+
           {currentSubscription && (
-            <div className="mb-8 rounded-lg bg-indigo-50 p-4 border border-indigo-100">
-              <p className="text-center text-sm text-indigo-700">
-                أنت مشترك حالياً في خطة{' '}
-                <span className="font-bold">
-                  {currentSubscription.plan?.name}
-                </span>
+            <div className="mb-12 rounded-2xl bg-indigo-50/80 backdrop-blur-sm p-4 border border-indigo-100 flex justify-center" data-aos="fade-down">
+              <p className="text-center text-sm font-bold text-indigo-900 flex items-center gap-2">
+                <Crown size={16} />
+                أنت مشترك حالياً في خطة <span className="text-brand-blue font-black text-base mx-1">{currentSubscription.plan?.name}</span>
                 {currentSubscription.ends_at && (
-                  <span>
-                    {' '}حتى{' '}
-                    {new Date(currentSubscription.ends_at).toLocaleDateString('ar-EG')}
+                  <span className="text-indigo-600 font-normal">
+                    (ينتهي في {new Date(currentSubscription.ends_at).toLocaleDateString('ar-EG')})
                   </span>
                 )}
               </p>
             </div>
           )}
 
-          {/* Header */}
-          <div className="text-center mb-16">
-            <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-4">
-              اختر الباقة المناسبة لك
+          <div className="text-center mb-16 space-y-4" data-aos="fade-up">
+            <h1 className="text-4xl md:text-6xl font-black text-gray-900 tracking-tight">
+              استثمر في <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-red to-purple-600">نجاحك</span>
             </h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              انضم إلى منصة مدقق واختر الباقة التي تناسب احتياجاتك
+            <p className="text-xl text-gray-500 max-w-2xl mx-auto leading-relaxed">
+              اختر الباقة المثالية التي تناسب احتياجاتك الصحفية وانضم لنخبة الكتاب في منصة مدقق
             </p>
           </div>
 
-          {/* Plans Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 items-start">
             {plans.map((plan, index) => {
               const isPopular = plan.slug === "pro";
               const isCurrent = isCurrentPlan(plan);
@@ -98,112 +97,79 @@ export default function PlansIndex({ auth, plans, currentSubscription }) {
               return (
                 <div
                   key={plan.id}
-                  className={`relative bg-white rounded-3xl shadow-xl overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-2xl ${isPopular ? "ring-4 ring-purple-500 lg:scale-105" : ""
-                    } ${isCurrent ? "ring-4 ring-green-500" : ""}`}
-                  style={{
-                    animationDelay: `${index * 0.1}s`,
-                  }}
+                  className={`relative bg-white rounded-3xl overflow-hidden transition-all duration-300 group
+                    ${isPopular ? "shadow-2xl shadow-purple-200 ring-2 ring-purple-500 transform lg:-translate-y-4 z-10" : "shadow-xl border border-slate-100 hover:-translate-y-2"}
+                    ${isCurrent ? "ring-2 ring-green-500 bg-green-50/30" : ""}
+                  `}
+                  data-aos="fade-up"
+                  data-aos-delay={index * 100}
                 >
-                  {/* Current Plan Badge */}
                   {isCurrent && (
-                    <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-center py-2 text-sm font-bold">
-                      ✓ خطتك الحالية
+                    <div className="bg-green-500 text-white text-center py-2 text-xs font-bold uppercase tracking-wider">
+                      مشترك حالياً
                     </div>
                   )}
-
-                  {/* Popular Badge */}
                   {isPopular && !isCurrent && (
-                    <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-center py-2 text-sm font-bold">
-                      ⭐ الأكثر شعبية
+                    <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-center py-2 text-xs font-bold uppercase tracking-wider">
+                      الأكثر مبيعاً
                     </div>
                   )}
 
-                  <div className={`p-8 ${(isPopular || isCurrent) ? "pt-14" : ""}`}>
-                    {/* Icon */}
-                    <div className="mb-6 flex justify-center">
+                  <div className="p-8">
+                    <div className="mb-6 flex justify-center p-4 bg-slate-50 rounded-2xl w-fit mx-auto group-hover:scale-110 transition-transform">
                       {getPlanIcon(plan.slug)}
                     </div>
 
-                    {/* Plan Name */}
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2 text-center">
-                      {plan.name}
-                    </h3>
+                    <h3 className="text-2xl font-black text-gray-900 mb-2 text-center">{plan.name}</h3>
 
-                    {/* Price */}
-                    <div className="text-center mb-6">
-                      <div className="flex items-baseline justify-center gap-2">
+                    <div className="text-center mb-8 pb-8 border-b border-gray-100">
+                      <div className="flex items-baseline justify-center gap-1">
                         {plan.is_free ? (
-                          <span className="text-5xl font-bold text-green-600">
-                            مجاني
-                          </span>
+                          <span className="text-4xl font-black text-gray-900">مجاني</span>
                         ) : (
                           <>
-                            <span className="text-5xl font-bold text-gray-900">
-                              {plan.price}
-                            </span>
-                            <span className="text-gray-600">جنيه</span>
+                            <span className="text-4xl font-black text-gray-900">{Math.floor(plan.price)}</span>
+                            <span className="text-sm font-bold text-gray-500">ج.م</span>
                           </>
                         )}
                       </div>
-                      <p className="text-sm text-gray-500 mt-2">
+                      <p className="text-xs font-bold text-gray-400 uppercase mt-1">
                         {getBillingText(plan.billing_interval)}
                       </p>
-                      {plan.duration_days && (
-                        <p className="text-xs text-gray-400 mt-1">
-                          ({plan.duration_days} يوم)
-                        </p>
-                      )}
                     </div>
 
-                    {/* Features */}
                     <ul className="space-y-4 mb-8">
                       {features.map((feature, idx) => (
-                        <li key={idx} className="flex items-start gap-3">
-                          <Check
-                            className="text-green-500 flex-shrink-0 mt-1"
-                            size={20}
-                          />
-                          <span className="text-gray-700 text-sm">
-                            {feature}
-                          </span>
+                        <li key={idx} className="flex items-start gap-3 text-sm text-gray-600 font-medium">
+                          <div className="mt-0.5 min-w-[18px] h-[18px] rounded-full bg-green-100 text-green-600 flex items-center justify-center">
+                            <Check size={10} strokeWidth={4} />
+                          </div>
+                          {feature}
                         </li>
                       ))}
                     </ul>
 
-                    {/* CTA Button */}
                     {isCurrent ? (
-                      <button
-                        disabled
-                        className="w-full py-4 rounded-xl font-bold text-lg bg-gray-300 text-gray-500 cursor-not-allowed"
-                      >
-                        خطتك الحالية
+                      <button disabled className="w-full py-4 rounded-xl font-bold text-sm bg-green-100 text-green-700 cursor-default">
+                        تم الاشتراك
                       </button>
                     ) : plan.is_free ? (
-                      isGuest ? (
-                        <button
-                          onClick={() => router.visit(route('register'))}
-                          className="w-full py-4 rounded-xl font-bold text-lg bg-green-500 text-white hover:bg-green-600 transition-all transform hover:scale-105"
-                        >
-                          ابدأ الآن
-                        </button>
-                      ) : (
-                        <button
-                          disabled
-                          className="w-full py-4 rounded-xl font-bold text-lg bg-gray-200 text-gray-600 cursor-not-allowed"
-                        >
-                          مجاني للأبد
-                        </button>
-                      )
+                      <button
+                        onClick={() => isGuest && router.visit(route('register'))}
+                        disabled={!isGuest}
+                        className="w-full py-4 rounded-xl font-bold text-sm bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        {isGuest ? 'سجل مجاناً' : 'مفعل افتراضياً'}
+                      </button>
                     ) : (
                       <button
                         onClick={() => handleSubscribe(plan.slug)}
                         disabled={processingPlan !== null}
-                        className={`w-full py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed ${isPopular
-                          ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 shadow-lg"
-                          : "bg-blue-500 text-white hover:bg-blue-600"
-                          }`}
+                        className={`w-full py-4 rounded-xl font-bold text-sm text-white shadow-lg transition-all hover:shadow-xl hover:-translate-y-1 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none
+                          ${isPopular ? "bg-gradient-to-r from-purple-600 to-indigo-600 shadow-purple-200" : "bg-gray-900 hover:bg-black shadow-gray-200"}
+                        `}
                       >
-                        {processingPlan === plan.slug ? "جاري المعالجة..." : "اشترك الآن"}
+                        {processingPlan === plan.slug ? "جاري التحويل..." : "اشترك الآن"}
                       </button>
                     )}
                   </div>
@@ -212,20 +178,18 @@ export default function PlansIndex({ auth, plans, currentSubscription }) {
             })}
           </div>
 
-          {/* FAQ or Additional Info */}
-          <div className="mt-16 text-center">
-            <p className="text-gray-600">
-              هل لديك أسئلة؟{" "}
-              <a
-                href="#"
-                className="text-blue-600 hover:text-blue-800 font-semibold"
-              >
-                تواصل معنا
+          <div className="mt-20 text-center border-t border-gray-200 pt-10" data-aos="fade-up">
+            <p className="text-gray-500 font-medium">
+              هل تحتاج لمساعدة في اختيار الباقة؟{" "}
+              <a href="#" className="text-brand-blue font-bold hover:underline decoration-2 underline-offset-4">
+                تحدث مع فريق المبيعات
               </a>
             </p>
           </div>
         </div>
-      </div>
-    </AuthenticatedLayout>
+      </main>
+
+      <Footer />
+    </div>
   );
 }

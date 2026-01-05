@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { FaChartLine, FaPenNib, FaHeart, FaCog, FaBullhorn, FaSignOutAlt, FaLock, FaCreditCard } from 'react-icons/fa';
@@ -20,7 +20,8 @@ const SidebarItem = ({ icon: Icon, label, active, locked, onClick, isDanger }) =
     </div>
 );
 
-export default function ProfileSidebar({ user, stats, activeTab, setActiveTab, canManageAds }) {
+export default function ProfileSidebar({ stats, activeTab, setActiveTab, canManageAds }) {
+    const { user } = usePage().props.auth;
       return (
         <div className="flex flex-col gap-6">
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center relative overflow-hidden group">

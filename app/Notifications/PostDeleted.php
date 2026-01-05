@@ -2,19 +2,12 @@
 
 namespace App\Notifications;
 
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 
-class PostDeleted extends Notification implements ShouldQueue
+class PostDeleted extends Notification
 {
-    use Queueable;
-
     public $postTitle;
 
-    /**
-     * Create a new notification instance.
-     */
     public function __construct($postTitle)
     {
         $this->postTitle = $postTitle;
@@ -27,12 +20,10 @@ class PostDeleted extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return ['database', 'mail'];
     }
 
-    /**
-     * Get the array representation of the notification.
-     */
+
     public function toArray(object $notifiable): array
     {
         return [
@@ -40,5 +31,20 @@ class PostDeleted extends Notification implements ShouldQueue
             'type' => 'danger',
             'url' => null
         ];
+    }
+
+    /**
+     * Get the mail representation of the notification.
+     */
+    public function toMail(object $notifiable)
+    {
+        return (new \Illuminate\Notifications\Messages\MailMessage)
+            ->subject('تم حذف مقالك من الموقع')
+            ->greeting('مرحباً ' . $notifiable->name)
+            ->line("نأسف لإبلاغك أن مقالك '{$this->postTitle}' تم حذفه من الموقع لمخالفته الشروط والأحكام.")
+            ->line('إذا كنت تعتقد أن هذا خطأ، يرجى التواصل معنا لمراجعة القرار.')
+            ->action('تواصل معنا', url('/contact'))
+            ->line('شكراً لتفهمك.')
+            ->salutation('مع خالص التحية، فريق الموقع');
     }
 }

@@ -37,17 +37,23 @@ export default function OverviewTab({ stats, recentPosts, setActiveTab, setPostT
                     </Button>
                 </div>
 
-                <div className="flex flex-col">
+                <div className="flex flex-col min-h-[400px] w-full">
                     {recentPosts && recentPosts.data && recentPosts.data.length > 0 ? (
-                        recentPosts.data.map((post) => (
-                            <ArticleListItem
-                            key={post.id}
-                            post={post}
-                            minimal={true}
-                            setActiveTab={setActiveTab}
-                            setPostToEdit={setPostToEdit}
-                            />
-                        ))
+                        <div className="divide-y divide-gray-50 w-full">
+                            {recentPosts.data.map((post) => (
+                                <ArticleListItem
+                                key={post.id}
+                                post={post}
+                                minimal={true}
+                                setActiveTab={setActiveTab}
+                                setPostToEdit={setPostToEdit}
+                                />
+                            ))}
+                            {/* Add invisible spacer to maintain consistent height when there are fewer posts */}
+                            {recentPosts.data.length < 3 && (
+                                <div className="h-12 invisible" style={{ height: `${(3 - recentPosts.data.length) * 48}px` }}></div>
+                            )}
+                        </div>
                     ) : (
                         <div className="p-10 text-center text-gray-400 flex flex-col items-center">
                             <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-3">

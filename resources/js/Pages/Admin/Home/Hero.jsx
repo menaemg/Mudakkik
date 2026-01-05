@@ -54,7 +54,7 @@ export default function Hero({ heroSettings, autoSideNews = [], trendingStats = 
     const [processing, setProcessing] = useState(false);
     const [previewPost, setPreviewPost] = useState(null);
 
-    const getImageUrl = (image) => image ? (image.startsWith('http') ? image : `/storage/${image}`) : '/assets/images/placeholder.webp';
+    const getImageUrl = (image) => image ? (image.startsWith('http') ? image : `/storage/${image}`) : '/assets/images/post.webp';
 
     const loadOptions = (inputValue) => {
         if (!inputValue) return Promise.resolve([]);
@@ -122,18 +122,24 @@ export default function Hero({ heroSettings, autoSideNews = [], trendingStats = 
                                     قصة الغلاف
                                 </h2>
                                 {main.post_id ?
-                                    <span className="flex items-center gap-1 text-[10px] bg-amber-100 text-amber-700 px-3 py-1.5 rounded-full font-black border border-amber-200"><Check size={12}/> مثبت يدوياً</span> :
-                                    <span className="flex items-center gap-1 text-[10px] bg-blue-100 text-blue-700 px-3 py-1.5 rounded-full font-black border border-blue-200"><RefreshCw size={12}/> تلقائي</span>
+                                    <span className="flex items-center gap-1 text-[10px] bg-amber-100 text-amber-700 px-3 py-1.5
+                                     rounded-full font-black border border-amber-200"><Check size={12}/> مثبت يدوياً</span> :
+                                    <span className="flex items-center gap-1 text-[10px] bg-blue-100 text-blue-700 px-3 py-1.5
+                                    rounded-full font-black border border-blue-200"><RefreshCw size={12}/> تلقائي</span>
                                 }
                             </div>
 
-                            <div className="relative h-[320px] rounded-[2rem] overflow-hidden group shadow-md border-4 border-white transition-all hover:shadow-lg">
+                            <div className="relative h-[320px] rounded-[2rem] overflow-hidden group shadow-md
+                            border-4 border-white transition-all hover:shadow-lg">
                                 {main.post ? (
                                     <>
-                                        <img src={getImageUrl(main.post.image)} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-[#001246]/90 via-transparent to-transparent"></div>
+                                        <img src={getImageUrl(main.post.image)} className="w-full h-full object-cover
+                                        transition-transform duration-700 group-hover:scale-105" />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-[#001246]/90
+                                        via-transparent to-transparent"></div>
                                         <div className="absolute bottom-0 right-0 p-8 w-full">
-                                            <span className="bg-[#D00000] text-white text-[10px] px-2 py-1 rounded-lg font-black mb-2 inline-block shadow-sm">
+                                            <span className="bg-[#D00000] text-white text-[10px] px-2 py-1
+                                            rounded-lg font-black mb-2 inline-block shadow-sm">
                                                 {main.post.category?.name || 'عام'}
                                             </span>
                                             <h3 className="text-2xl font-black text-white leading-tight mb-2 drop-shadow-md">{main.post.title}</h3>
@@ -144,7 +150,9 @@ export default function Hero({ heroSettings, autoSideNews = [], trendingStats = 
                                         </div>
 
                                         <div className="absolute top-4 left-4 flex gap-2 z-20">
-                                            <button onClick={() => setPreviewPost(main.post)} className="bg-white/20 backdrop-blur hover:bg-white text-white hover:text-[#001246] p-2.5 rounded-xl transition-all shadow-lg border border-white/10" title="معاينة">
+                                            <button onClick={() => setPreviewPost(main.post)} className="bg-white/20 backdrop-blur
+                                            hover:bg-white text-white hover:text-[#001246] p-2.5 rounded-xl transition-all shadow-lg
+                                            border border-white/10" title="معاينة">
                                                 <Eye size={18} />
                                             </button>
                                             {main.post_id && (
@@ -154,7 +162,8 @@ export default function Hero({ heroSettings, autoSideNews = [], trendingStats = 
                                             )}
                                         </div>
                                     </>
-                                ) : <div className="h-full bg-slate-100 flex flex-col items-center justify-center text-slate-400 font-bold gap-2"><AlertTriangle/> لا يوجد مقال</div>}
+                                ) : <div className="h-full bg-slate-100 flex flex-col items-center
+                                justify-center text-slate-400 font-bold gap-2"><AlertTriangle/> لا يوجد مقال</div>}
                             </div>
                             <SelectionInput
                                 slotName="main"
@@ -175,13 +184,18 @@ export default function Hero({ heroSettings, autoSideNews = [], trendingStats = 
                         </h3>
                         <div className="flex-1 space-y-4">
                             {autoSideNews.map((item, i) => (
-                                <div key={item.id} className="flex gap-4 p-3 bg-slate-50 hover:bg-white border border-transparent hover:border-slate-100 hover:shadow-md transition-all rounded-2xl group items-center cursor-default">
-                                    <span className="font-black text-slate-300 w-6 text-center text-lg italic group-hover:text-[#D00000] transition-colors">{i+1}</span>
+                                <div key={item.id} className="flex gap-4 p-3 bg-slate-50 hover:bg-white border
+                                border-transparent hover:border-slate-100 hover:shadow-md transition-all
+                                rounded-2xl group items-center cursor-default">
+                                    <span className="font-black text-slate-300 w-6 text-center text-lg italic
+                                    group-hover:text-[#D00000] transition-colors">{i+1}</span>
                                     <div className="flex-1 min-w-0">
                                         <p className="text-xs font-bold text-[#001246] truncate leading-relaxed">{item.title}</p>
                                         <p className="text-[10px] text-slate-400 mt-1">{new Date(item.created_at).toLocaleDateString('ar-EG')}</p>
                                     </div>
-                                    <button onClick={() => setPreviewPost(item)} className="w-8 h-8 rounded-full bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:text-blue-600 hover:border-blue-100 transition-all opacity-0 group-hover:opacity-100 shadow-sm"><Eye size={14} /></button>
+                                    <button onClick={() => setPreviewPost(item)} className="w-8 h-8 rounded-full
+                                    bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:text-blue-600
+                                     hover:border-blue-100 transition-all opacity-0 group-hover:opacity-100 shadow-sm"><Eye size={14} /></button>
                                 </div>
                             ))}
                         </div>
@@ -214,16 +228,23 @@ export default function Hero({ heroSettings, autoSideNews = [], trendingStats = 
                                 { data: null, name: 'ad_2', type: 'ad', label: 'مساحة إعلانية 2' }
                             ].map((slot, idx) => (
                                 <div key={idx} className="flex flex-col gap-3">
-                                    <div className={`h-36 rounded-3xl relative overflow-hidden group border-2 transition-all ${slot.type === 'ad' ? 'bg-purple-50 border-dashed border-purple-200' : 'bg-slate-100 border-white shadow-md'}`}>
+                                    <div className={`h-36 rounded-3xl relative overflow-hidden group border-2 transition-all ${slot.type === 'ad' ?
+                                      'bg-purple-50 border-dashed border-purple-200' : 'bg-slate-100 border-white shadow-md'}`}>
                                         {slot.type === 'post' ? (
                                             slot.data?.post ? (
                                                 <>
-                                                    <img src={getImageUrl(slot.data.post.image)} className="w-full h-full object-cover opacity-90 transition-transform duration-500 group-hover:scale-110" />
-                                                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
-                                                        <button onClick={() => setPreviewPost(slot.data.post)} className="text-white bg-white/20 p-3 rounded-full backdrop-blur hover:bg-[#001246] transition shadow-xl border border-white/20"><Eye size={20}/></button>
+                                                    <img src={getImageUrl(slot.data.post.image)} className="w-full h-full object-cover
+                                                    opacity-90 transition-transform duration-500 group-hover:scale-110" />
+                                                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center
+                                                    opacity-0 group-hover:opacity-100 transition-all">
+                                                        <button onClick={() => setPreviewPost(slot.data.post)}
+                                                        className="text-white bg-white/20 p-3 rounded-full backdrop-blur hover:bg-[#001246]
+                                                        transition shadow-xl border border-white/20"><Eye size={20}/></button>
                                                     </div>
                                                     {slot.data.post_id && (
-                                                        <button onClick={() => handleResetSlot(slot.name)} className="absolute top-3 left-3 bg-red-500/90 text-white p-1.5 rounded-lg text-[10px] z-20 shadow-md backdrop-blur border border-white/20 hover:scale-105 transition"><X size={14}/></button>
+                                                        <button onClick={() => handleResetSlot(slot.name)} className="absolute top-3 left-3
+                                                        bg-red-500/90 text-white p-1.5 rounded-lg text-[10px] z-20 shadow-md backdrop-blur
+                                                        border border-white/20 hover:scale-105 transition"><X size={14}/></button>
                                                     )}
                                                     <div className="absolute bottom-0 left-0 w-full p-3 bg-gradient-to-t from-black/80 to-transparent">
                                                         <p className="text-white text-xs font-bold line-clamp-1">{slot.data.post.title}</p>
@@ -237,7 +258,8 @@ export default function Hero({ heroSettings, autoSideNews = [], trendingStats = 
                                             </div>
                                         )}
 
-                                        <span className={`absolute top-0 right-0 text-white text-[10px] px-3 py-1 rounded-bl-2xl font-black shadow-sm ${slot.type === 'post' ? 'bg-[#001246]' : 'bg-purple-400'}`}>
+                                        <span className={`absolute top-0 right-0 text-white text-[10px] px-3 py-1 rounded-bl-2xl
+                                          font-black shadow-sm ${slot.type === 'post' ? 'bg-[#001246]' : 'bg-purple-400'}`}>
                                             {slot.label}
                                         </span>
                                     </div>
@@ -269,11 +291,13 @@ export default function Hero({ heroSettings, autoSideNews = [], trendingStats = 
                         <motion.div
                             initial={{ x: "-100%" }} animate={{ x: 0 }} exit={{ x: "-100%" }}
                             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                            className="fixed top-2 bottom-2 left-2 w-full md:w-[500px] bg-white shadow-2xl z-[100] rounded-[2.5rem] overflow-hidden flex flex-col border border-slate-100"
+                            className="fixed top-2 bottom-2 left-2 w-full md:w-[500px] bg-white shadow-2xl z-[100]
+                            rounded-[2.5rem] overflow-hidden flex flex-col border border-slate-100"
                         >
                             <div className="p-5 border-b border-slate-50 flex justify-between items-center bg-white sticky top-0 z-10">
                                 <h3 className="font-black text-[#001246] text-lg flex items-center gap-2"><Eye size={18} className="text-blue-500"/> معاينة سريعة</h3>
-                                <button onClick={() => setPreviewPost(null)} className="w-8 h-8 flex items-center justify-center bg-slate-50 hover:bg-red-50 hover:text-red-500 rounded-full transition-colors"><X size={18} /></button>
+                                <button onClick={() => setPreviewPost(null)} className="w-8 h-8 flex items-center justify-center bg-slate-50
+                                hover:bg-red-50 hover:text-red-500 rounded-full transition-colors"><X size={18} /></button>
                             </div>
                             <div className="flex-1 overflow-y-auto custom-scrollbar bg-slate-50/50">
                                <PostView post={previewPost} onBack={() => setPreviewPost(null)} isPreview={true} />

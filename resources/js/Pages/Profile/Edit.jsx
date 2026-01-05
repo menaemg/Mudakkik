@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, usePage, Link } from '@inertiajs/react';
+import { Head, usePage, router } from '@inertiajs/react';
 import { FaLock } from 'react-icons/fa';
 import ProfileSidebar from './Partials/ProfileSidebar';
 import OverviewTab from './Partials/Tabs/OverviewTab';
@@ -25,11 +25,51 @@ export default function Edit(
     current_plan }) {
       const user = usePage().props.auth.user;
 
-    const initialTab = typeof window !== 'undefined'
-        ? new URLSearchParams(window.location.search).get('tab')
-        : null;
+    const getTabFromUrl = () => {
+        if (typeof window === 'undefined') return 'overview';
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get('tab') || 'overview';
+    };
 
-    const [activeTab, setActiveTab] = useState(initialTab || 'overview');
+    const [activeTab, setActiveTab] = useState(getTabFromUrl());
+
+    useEffect(() => {
+        let timeoutId = null;
+
+        const handlePopState = () => {
+            if (timeoutId) clearTimeout(timeoutId);
+
+            timeoutId = setTimeout(() => {
+                const newTab = getTabFromUrl();
+                setActiveTab(prevTab => {
+                    return prevTab !== newTab ? newTab : prevTab;
+                });
+            }, 10);
+        };
+
+        const initialTab = getTabFromUrl();
+        setActiveTab(initialTab);
+
+        window.addEventListener('popstate', handlePopState);
+        return () => {
+            if (timeoutId) clearTimeout(timeoutId);
+            window.removeEventListener('popstate', handlePopState);
+        };
+    }, []);
+
+    useEffect(() => {
+        if (activeTab === getTabFromUrl()) return;
+
+        const url = new URL(window.location);
+        if (activeTab === 'overview') {
+            url.searchParams.delete('tab');
+        } else {
+            url.searchParams.set('tab', activeTab);
+        }
+
+        // Update URL without causing a page reload
+        window.history.replaceState({}, '', url.toString());
+    }, [activeTab]);
 
     const dashboardStats = stats || {
         role: "عضو",
@@ -54,7 +94,6 @@ export default function Edit(
 
                         <div className="lg:col-span-3">
                             <ProfileSidebar
-                                user={user}
                                 stats={dashboardStats}
                                 activeTab={activeTab}
                                 setActiveTab={setActiveTab}
@@ -62,7 +101,7 @@ export default function Edit(
                             />
                         </div>
 
-                        <div className="lg:col-span-9">
+                        <div className="lg:col-span-9 min-w-0">
 
                             {activeTab === 'ads' && (
                                 canManageAds ? (

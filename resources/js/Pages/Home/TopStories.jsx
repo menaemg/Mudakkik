@@ -3,9 +3,10 @@ import { FaBolt, FaArrowLeft } from 'react-icons/fa';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import { Link } from '@inertiajs/react';
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 const getImageUrl = (path) => {
-    if (!path) return '/assets/images/placeholder.webp';
+    if (!path) return '/assets/images/post.webp';
     if (path.startsWith('http')) return path;
     return `/storage/${path}`;
 };
@@ -87,8 +88,11 @@ const StoryCard = ({ post, index, delay }) => {
 
                 <div className="flex items-center gap-3 text-xs text-gray-300 font-medium pt-4 border-t border-white/20 group-hover:border-white/40 transition-colors">
                     <div className="flex items-center gap-2">
-                            <img src={getImageUrl(post.user?.avatar)} className="w-6 h-6 rounded-full border border-white/30" alt={post.user?.name} />
-                            <span className="text-gray-100 font-bold">{post.user?.name}</span>
+                        <Avatar className="w-6 h-6 border border-white/30">
+                            <AvatarImage src={getImageUrl(post.user?.avatar)} />
+                            <AvatarFallback className="bg-[#b20e1e] text-white font-bold text-xs">{post.user?.name?.charAt(0)?.toUpperCase() || 'U'}</AvatarFallback>
+                        </Avatar>
+                        <span className="text-gray-100 font-bold">{post.user?.name}</span>
                     </div>
                     <span className="w-1 h-1 rounded-full bg-gray-500"></span>
                     <span>{formatDate(post.created_at)}</span>

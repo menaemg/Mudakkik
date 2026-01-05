@@ -1,51 +1,51 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Head, Link, router } from "@inertiajs/react";
-import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
+import Header from '@/Components/Header';
+import Footer from '@/Components/Footer';
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 import {
   Heart,
-  Calendar,
-  User,
-  Tag,
-  Hash,
+  Clock,
   CheckCircle2,
   AlertTriangle,
   XCircle,
   Share2,
-  ArrowRight,
-  Clock,
-  Sparkles,
-  BookOpen,
-  Copy,
+  Shield,
+  ChevronLeft,
   Check,
+  FileText,
+  Sparkles,
+
 } from "lucide-react";
 
 export default function PostShow({ auth, post }) {
   const [copied, setCopied] = React.useState(false);
+
+  useEffect(() => {
+    AOS.init({ duration: 800, once: true, offset: 50 });
+  }, []);
 
   const handleLike = () => {
     if (!auth.user) {
       alert("يجب تسجيل الدخول أولاً");
       return;
     }
-
-    router.post(
-      route("posts.like", post.id),
-      {},
-      {
-        preserveScroll: true,
-        onSuccess: () => {},
-      }
-    );
+    router.post(route("posts.like", post.id), {}, { preserveScroll: true });
   };
 
   const handleShare = async () => {
     const url = window.location.href;
+    if (navigator.share) {
+        try {
+            await navigator.share({ title: post.title, url: url });
+            return;
+        } catch (err) { console.log(err); }
+    }
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      // Fallback for older browsers
       const textArea = document.createElement("textarea");
       textArea.value = url;
       document.body.appendChild(textArea);
@@ -53,274 +53,227 @@ export default function PostShow({ auth, post }) {
       document.execCommand("copy");
       document.body.removeChild(textArea);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
     }
+    setTimeout(() => setCopied(false), 2000);
   };
 
   const getVerdictStyle = (verdict) => {
     const styles = {
       trusted: {
-        label: "موثوق",
-        bg: "bg-emerald-50",
-        border: "border-emerald-300",
-        text: "text-emerald-700",
-        iconBg: "bg-emerald-500",
-        iconColor: "text-white",
-        Icon: CheckCircle2,
-        description: "تم التحقق من صحة هذا المحتوى - المعلومات دقيقة وموثوقة",
-        cardBorder: "border-emerald-300",
-        glowColor: "shadow-emerald-100",
+          label: "محتوى موثوق",
+          description: "تمت مراجعة هذا المحتوى والتحقق من مصادره بدقة. المعلومات الواردة هنا صحيحة وتستند إلى حقائق.",
+          containerClass: "bg-emerald-50 border-emerald-200 text-emerald-900",
+          icon: <CheckCircle2 size={36} className="text-emerald-600" />,
+          badgeColor: "bg-emerald-600",
+          accentBorder: "border-l-4 border-l-emerald-600"
       },
       fake: {
-        label: "كاذب",
-        bg: "bg-rose-50",
-        border: "border-rose-300",
-        text: "text-rose-700",
-        iconBg: "bg-rose-500",
-        iconColor: "text-white",
-        Icon: XCircle,
-        description: "تحذير: هذا المحتوى يحتوي على معلومات غير صحيحة",
-        cardBorder: "border-rose-300",
-        glowColor: "shadow-rose-100",
+          label: "محتوى زائف",
+          description: "تحذير: هذا المحتوى تم تصنيفه كمعلومات غير صحيحة أو مفبركة بناءً على تحليل البيانات والمصادر.",
+          containerClass: "bg-red-50 border-red-200 text-red-900",
+          icon: <XCircle size={36} className="text-red-600" />,
+          badgeColor: "bg-red-600",
+          accentBorder: "border-l-4 border-l-red-600"
       },
       misleading: {
-        label: "مضلل",
-        bg: "bg-amber-50",
-        border: "border-amber-300",
-        text: "text-amber-700",
-        iconBg: "bg-amber-500",
-        iconColor: "text-white",
-        Icon: AlertTriangle,
-        description: "تنبيه: هذا المحتوى قد يحتوي على معلومات مضللة",
-        cardBorder: "border-amber-300",
-        glowColor: "shadow-amber-100",
+          label: "محتوى مضلل",
+          description: "تنبيه: هذا المحتوى قد يحتوي على حقائق ممزوجة بمعلومات غير دقيقة أو تم إخراجها عن سياقها.",
+          containerClass: "bg-amber-50 border-amber-200 text-amber-900",
+          icon: <AlertTriangle size={36} className="text-amber-600" />,
+          badgeColor: "bg-amber-600",
+          accentBorder: "border-l-4 border-l-amber-600"
       },
     };
     return styles[verdict] || styles["misleading"];
   };
 
   const verdictStyle = getVerdictStyle(post.ai_verdict);
-  const VerdictIcon = verdictStyle.Icon;
 
   return (
-    <AuthenticatedLayout user={auth.user}>
+    <div className="flex flex-col min-h-screen bg-[#f8fafc] font-sans text-right" dir="rtl">
       <Head title={post.title} />
+      <Header auth={auth} />
 
-      {/* Animated Background */}
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/30 to-purple-50/30 relative overflow-hidden">
-        {/* Decorative Elements */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-20 right-10 w-72 h-72 bg-gradient-to-r from-indigo-300/20 to-purple-300/20 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-40 left-10 w-96 h-96 bg-gradient-to-r from-pink-300/15 to-rose-300/15 rounded-full blur-3xl animate-pulse delay-1000" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-r from-blue-200/10 to-cyan-200/10 rounded-full blur-3xl" />
-        </div>
+      <main className="flex-grow">
 
-        <div className="relative z-10 py-12">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            {/* Back Button */}
-            <Link
-              href={route("posts.index")}
-              className="inline-flex items-center gap-2 px-5 py-2.5 mb-8 bg-white/80 backdrop-blur-sm rounded-2xl text-slate-600 font-semibold hover:bg-white hover:shadow-lg border border-slate-200/50 transition-all hover:-translate-y-0.5 group"
-            >
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              <span>العودة للمنشورات</span>
-            </Link>
+        <div className="relative pt-40 pb-36 md:pb-52 overflow-hidden bg-[#020617]">
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:32px_32px]"></div>
+            <div className="absolute left-0 top-20 w-[500px] h-[500px] bg-[#b20e1e]/20 rounded-full blur-[120px] animate-pulse"></div>
+            <div className="absolute right-0 bottom-0 w-[400px] h-[400px] bg-blue-600/10 rounded-full blur-[100px] animate-pulse delay-1000"></div>
 
-            {/* Main Card */}
-            <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-200">
-              {/* Verdict Banner - Clean */}
-              <div className={`px-8 py-6 ${verdictStyle.bg} border-b ${verdictStyle.border}`}>
-                <div className="flex items-center gap-4">
-                  <div className={`p-3 ${verdictStyle.iconBg} rounded-xl ${verdictStyle.iconColor}`}>
-                    <VerdictIcon size={28} strokeWidth={2.5} />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className={`text-xl font-bold ${verdictStyle.text}`}>
-                      {verdictStyle.label}
-                    </h3>
-                    <p className={`text-sm mt-1 ${verdictStyle.text} opacity-80`}>
-                      {verdictStyle.description}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Post Image - Enhanced */}
-              {post.image && (
-                <div className="relative aspect-video overflow-hidden">
-                  <img
-                    src={`/storage/${post.image}`}
-                    alt={post.title}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
-                </div>
-              )}
-
-              <div className="p-8 md:p-12 relative">
-                {/* Meta Info Bar */}
-                <div className="flex flex-wrap items-center gap-4 mb-8">
-                  {post.category && (
-                    <span className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-700 text-sm font-bold rounded-xl border border-indigo-100 shadow-sm">
-                      <Tag size={14} />
-                      {post.category.name}
-                    </span>
-                  )}
-                  <span className="inline-flex items-center gap-2 text-slate-500 text-sm font-medium">
-                    <div className="p-1.5 bg-slate-100 rounded-lg">
-                      <Calendar size={14} className="text-slate-500" />
-                    </div>
-                    {new Date(post.created_at).toLocaleDateString("ar-EG", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
-                  </span>
-                  <span className="inline-flex items-center gap-2 text-slate-500 text-sm font-medium">
-                    <div className="p-1.5 bg-slate-100 rounded-lg">
-                      <BookOpen size={14} className="text-slate-500" />
-                    </div>
-                    {Math.ceil(post.body?.length / 200) || 1} دقائق قراءة
-                  </span>
+            <div className="max-w-5xl mx-auto px-4 relative z-10 text-center">
+                <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-white/5 border border-white/10 text-gray-300 text-xs font-bold mb-8 backdrop-blur-md shadow-2xl" data-aos="fade-down">
+                    {post.category && <span className="text-[#b20e1e] font-black uppercase tracking-wider">{post.category.name}</span>}
+                    <span className="w-1 h-1 rounded-full bg-gray-500"></span>
+                    <Clock size={14} />
+                    <span>{new Date(post.created_at).toLocaleDateString("ar-EG", {month: 'long', day: 'numeric'})}</span>
                 </div>
 
-                {/* Title - Enhanced */}
-                <h1 className="text-3xl md:text-5xl font-extrabold bg-gradient-to-r from-slate-900 via-indigo-900 to-purple-900 bg-clip-text text-transparent mb-8 leading-tight">
-                  {post.title}
+                <h1 className="text-3xl md:text-5xl lg:text-7xl font-black text-white leading-tight mb-10 drop-shadow-lg tracking-tight" data-aos="fade-up">
+                    {post.title}
                 </h1>
 
-                {/* Hashtags - Enhanced */}
-                {post.tags && post.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-3 mb-10">
-                    {post.tags.map((tag) => (
-                      <span
-                        key={tag.id}
-                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-bold bg-gradient-to-r from-indigo-100 via-purple-50 to-pink-50 text-indigo-700 border border-indigo-200/50 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer"
-                      >
-                        <Hash size={16} className="text-indigo-500" />
-                        {tag.name}
-                      </span>
-                    ))}
-                  </div>
-                )}
-
-                {/* Author Row - Enhanced */}
-                <div className="flex items-center justify-between pb-10 mb-10 border-b-2 border-slate-100/80">
-                  <div className="flex items-center gap-5">
-                    <div className="relative">
-                      <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-2xl flex items-center justify-center text-white shadow-xl ring-4 ring-white">
-                        <User size={28} />
-                      </div>
-                      <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-gradient-to-r from-emerald-400 to-teal-400 rounded-full flex items-center justify-center ring-2 ring-white">
-                        <CheckCircle2 className="w-4 h-4 text-white" />
-                      </div>
+                <div className="flex items-center justify-center" data-aos="fade-up" data-aos-delay="100">
+                    <div className="flex items-center gap-4 bg-white/5 pr-2 pl-6 py-2.5 rounded-full border border-white/10 backdrop-blur-md hover:bg-white/10 transition-all cursor-default group">
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#b20e1e] to-purple-600 p-[2px] shadow-lg group-hover:scale-105 transition-transform">
+                            <div className="w-full h-full rounded-full bg-[#020617] flex items-center justify-center text-white overflow-hidden">
+                                {post.user?.avatar ? (
+                                    <img src={post.user.avatar.startsWith('http') ? post.user.avatar : `/storage/${post.user.avatar}`} alt="Avatar" className="w-full h-full object-cover" />
+                                ) : (
+                                    <span className="font-black text-lg uppercase">{post.user?.name?.charAt(0) || "M"}</span>
+                                )}
+                            </div>
+                        </div>
+                        <div className="text-right">
+                            <p className="text-white text-sm font-bold leading-none mb-1.5">{post.user?.name}</p>
+                            <p className="text-gray-400 text-[10px] font-bold tracking-wide flex items-center gap-1">
+                                <CheckCircle2 size={10} className="text-blue-400" />
+                                صحفي معتمد
+                            </p>
+                        </div>
                     </div>
-                    <div>
-                      <p className="font-bold text-slate-900 text-xl">
-                        {post.user.name}
-                      </p>
-                      <p className="text-sm text-slate-500 font-medium flex items-center gap-2">
-                        <span>ناشر المحتوى</span>
-                        <span className="w-1 h-1 bg-slate-300 rounded-full" />
-                        <span>موثق</span>
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Status Badge */}
-                  <div
-                    className={`hidden sm:flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-bold border-2 shadow-sm ${
-                      post.status === "published"
-                        ? "bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-700 border-emerald-200"
-                        : "bg-gradient-to-r from-amber-50 to-yellow-50 text-amber-700 border-amber-200"
-                    }`}
-                  >
-                    {post.status === "published" ? (
-                      <CheckCircle2 className="w-4 h-4" />
-                    ) : (
-                      <Clock className="w-4 h-4" />
-                    )}
-                    {post.status === "published" ? "تم النشر" : post.status}
-                  </div>
                 </div>
-
-                {/* Body Content - Enhanced */}
-                <div className="prose prose-lg prose-slate max-w-none mb-12">
-                  <div className="text-slate-700 text-lg leading-loose whitespace-pre-wrap bg-gradient-to-br from-slate-50/50 to-transparent p-6 rounded-2xl border border-slate-100/50">
-                    {post.body}
-                  </div>
-                </div>
-
-                {/* Action Buttons - Enhanced */}
-                <div className="flex flex-col sm:flex-row gap-4 items-center justify-between pt-10 border-t-2 border-slate-100/80">
-                  <button
-                    onClick={handleLike}
-                    disabled={!auth.user}
-                    className={`group relative w-full sm:w-auto flex items-center justify-center gap-3 px-10 py-5 rounded-2xl font-bold text-lg transition-all duration-500 transform active:scale-95 ${
-                      post.is_liked
-                        ? "bg-gradient-to-r from-rose-500 via-pink-500 to-rose-500 bg-size-200 text-white shadow-2xl shadow-rose-500/30 hover:shadow-rose-500/50"
-                        : "bg-gradient-to-r from-slate-100 to-slate-50 text-slate-700 hover:from-rose-50 hover:to-pink-50 hover:text-rose-600 hover:shadow-xl border-2 border-slate-200/50 hover:border-rose-200"
-                    } ${!auth.user ? "opacity-60 cursor-not-allowed" : "hover:-translate-y-1"}`}
-                  >
-                    <Heart
-                      size={26}
-                      className={`transition-all duration-500 ${
-                        post.is_liked ? "fill-current animate-pulse" : "group-hover:scale-125"
-                      }`}
-                    />
-                    <span>
-                      {post.is_liked ? "أعجبك" : "إعجاب"}
-                    </span>
-                    <span className={`px-3 py-1 rounded-xl text-sm ${post.is_liked ? "bg-white/20" : "bg-slate-200/50"}`}>
-                      {post.likes_count || 0}
-                    </span>
-                  </button>
-
-                  <button
-                    onClick={handleShare}
-                    className="group w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-5 rounded-2xl font-bold text-slate-600 bg-gradient-to-r from-slate-100 to-slate-50 hover:from-indigo-50 hover:to-purple-50 hover:text-indigo-600 border-2 border-slate-200/50 hover:border-indigo-200 transition-all hover:-translate-y-1 hover:shadow-xl"
-                  >
-                    {copied ? (
-                      <>
-                        <Check size={22} className="text-emerald-500" />
-                        <span className="text-emerald-600">تم النسخ!</span>
-                      </>
-                    ) : (
-                      <>
-                        <Share2 size={22} className="group-hover:rotate-12 transition-transform" />
-                        <span>مشاركة</span>
-                      </>
-                    )}
-                  </button>
-
-
-                    {/* Report Button - للمستخدمين المسجلين فقط */}
-                    {auth.user && (
-                    <Link
-                        href={route("posts.report.form", post.id)}
-                        className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-4 rounded-2xl font-semibold text-white bg-red-600 hover:bg-red-700 shadow-lg transition-colors"
-                    >
-                        <AlertTriangle size={20} />
-                        <span>تقديم بلاغ</span>
-                    </Link>
-                    )}
-                </div>
-              </div>
             </div>
-
-            {/* Related Posts Suggestion (placeholder) */}
-            <div className="mt-12 text-center">
-              <Link
-                href={route("posts.index")}
-                className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 bg-size-200 bg-pos-0 hover:bg-pos-100 text-white font-bold rounded-2xl shadow-xl shadow-indigo-500/25 transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl hover:shadow-indigo-500/40"
-              >
-                <span>استكشف المزيد من المنشورات</span>
-                <Sparkles className="w-5 h-5" />
-              </Link>
-            </div>
-          </div>
         </div>
-      </div>
-    </AuthenticatedLayout>
+
+        <div className="max-w-5xl mx-auto px-4 -mt-24 md:-mt-36 relative z-20 mb-16" data-aos="zoom-in" data-aos-duration="1000">
+            <div className="rounded-[2.5rem] overflow-hidden shadow-2xl shadow-[#020617]/40 border-[8px] border-white bg-white relative aspect-video group">
+                 {post.image ? (
+                    <img
+                        src={post.image.startsWith('http') ? post.image : `/storage/${post.image}`}
+                        alt={post.title}
+                        className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+                        onError={(e) => { e.target.src = '/assets/images/post.webp'; }}
+                    />
+                 ) : (
+                    <div className="w-full h-full bg-gray-50 flex flex-col items-center justify-center text-gray-300 gap-4">
+                        <FileText size={64} />
+                        <span className="text-sm font-bold opacity-60">لا توجد صورة مرافقة</span>
+                    </div>
+                 )}
+
+                 <div className="absolute top-6 left-6 z-20">
+                     <button
+                        onClick={handleShare}
+                        className={`w-14 h-14 rounded-full backdrop-blur-xl flex items-center justify-center shadow-xl border border-white/30 transition-all duration-300 hover:scale-110
+                        ${copied ? "bg-emerald-500 text-white" : "bg-white/90 text-gray-800 hover:bg-[#b20e1e] hover:text-white"}`}
+                     >
+                        {copied ? <Check size={24} /> : <Share2 size={24} />}
+                     </button>
+                 </div>
+            </div>
+        </div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-12 pb-24">
+
+            <div className="lg:col-span-8">
+
+                <div
+                    className={`relative overflow-hidden rounded-xl border ${verdictStyle.containerClass} ${verdictStyle.accentBorder} shadow-sm mb-12`}
+                    data-aos="fade-up"
+                >
+                    <div className="p-6 md:p-8 flex flex-col md:flex-row gap-6 items-start">
+                        <div className="shrink-0">
+                             <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-100">
+                                {verdictStyle.icon}
+                             </div>
+                        </div>
+
+                        <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-2">
+                                <h3 className="font-bold text-2xl tracking-tight">{verdictStyle.label}</h3>
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-white border border-current opacity-70 uppercase tracking-widest">
+                                    <Sparkles size={10} />
+                                    AI Verified
+                                </span>
+                            </div>
+
+                            <p className="opacity-90 leading-relaxed font-medium text-lg">
+                                {verdictStyle.description}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <article className="prose prose-xl prose-slate max-w-none mb-16 prose-headings:font-black prose-headings:text-[#020617] prose-p:text-gray-700 prose-p:leading-loose prose-strong:text-[#b20e1e]" data-aos="fade-up">
+                     <div className="text-lg md:text-xl font-medium whitespace-pre-wrap">
+                        <span className="float-right text-7xl font-black text-[#b20e1e] ml-6 mt-[-15px] leading-none drop-shadow-sm font-serif">
+                            {post.body?.charAt(0)}
+                        </span>
+                        {post.body?.substring(1)}
+                     </div>
+                </article>
+
+                <div className="border-t-2 border-gray-100 pt-10">
+                     <div className="flex flex-wrap items-center gap-3 mb-10">
+                        {post.category && (
+                             <span className="px-6 py-3 bg-gray-100 text-gray-700 rounded-2xl text-sm font-bold hover:bg-[#020617] hover:text-white transition-all cursor-pointer shadow-sm">
+                                #{post.category.name}
+                             </span>
+                        )}
+                        <span className="px-6 py-3 bg-gray-100 text-gray-700 rounded-2xl text-sm font-bold hover:bg-[#020617] hover:text-white transition-all cursor-pointer shadow-sm">
+                           #أخبار_عاجلة
+                        </span>
+                     </div>
+
+                     <div className="bg-white rounded-[2rem] border border-gray-200 p-8 shadow-xl shadow-gray-200/50 flex flex-col sm:flex-row items-center justify-between gap-6" data-aos="zoom-in">
+                         <div className="text-center sm:text-right">
+                            <h4 className="font-black text-[#020617] text-xl mb-1">شاركنا رأيك</h4>
+                            <p className="text-gray-500 font-medium">تفاعلك يساعدنا في نشر الحقيقة</p>
+                         </div>
+                         <div className="flex gap-4 w-full sm:w-auto">
+                            <button
+                                onClick={handleLike}
+                                disabled={!auth.user}
+                                className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-4 rounded-2xl font-bold transition-all shadow-lg active:scale-95 border-2
+                                ${post.is_liked
+                                    ? "bg-[#b20e1e] border-[#b20e1e] text-white shadow-rose-500/30"
+                                    : "bg-white text-gray-700 border-gray-100 hover:border-[#b20e1e] hover:text-[#b20e1e]"
+                                } ${!auth.user ? "opacity-50 cursor-not-allowed" : ""}`}
+                            >
+                                <Heart className={`w-6 h-6 ${post.is_liked ? "fill-current" : ""}`} />
+                                <span>{post.likes_count}</span>
+                            </button>
+
+                            <button onClick={handleShare} className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-4 rounded-2xl font-bold bg-[#020617] text-white shadow-lg shadow-[#020617]/30 hover:bg-black active:scale-95 transition-all">
+                                {copied ? <Check size={20} /> : <Share2 size={20} />}
+                                <span>{copied ? "تم" : "نشر"}</span>
+                            </button>
+                         </div>
+                     </div>
+                </div>
+            </div>
+
+            <div className="lg:col-span-4 space-y-8">
+                 <div className="bg-white rounded-[2.5rem] p-8 border border-gray-100 shadow-2xl shadow-gray-200/50 sticky top-32" data-aos="fade-left">
+                      <div className="w-16 h-16 bg-[#020617] rounded-3xl flex items-center justify-center mb-6 text-white shadow-xl transform -rotate-6">
+                           <Shield size={32} />
+                      </div>
+                      <h3 className="font-black text-2xl text-[#020617] mb-4">بيئة آمنة</h3>
+                      <p className="text-gray-500 leading-relaxed mb-8 font-medium">
+                        نحن ملتزمون بمحاربة الأخبار المضللة. هذا المحتوى خضع لمعايير صارمة قبل النشر.
+                      </p>
+
+                      <Link href={route("posts.index")} className="group flex items-center justify-between w-full p-5 bg-gray-50 hover:bg-[#020617] rounded-2xl transition-all duration-300 border border-gray-100 hover:border-transparent cursor-pointer mb-4">
+                         <span className="font-bold text-gray-700 group-hover:text-white transition-colors">الأرشيف الكامل</span>
+                         <span className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-[#020617] shadow-sm group-hover:scale-110 transition-transform">
+                            <ChevronLeft size={20} />
+                         </span>
+                      </Link>
+
+                      {auth.user && (
+                        <Link href={route("posts.report.form", post.id)} className="flex items-center justify-center gap-2 w-full py-4 text-rose-500 text-sm font-bold hover:bg-rose-50 rounded-2xl transition-colors">
+                           <AlertTriangle size={18} />
+                           إبلاغ عن محتوى مخالف
+                        </Link>
+                      )}
+                 </div>
+            </div>
+
+        </div>
+      </main>
+
+      <Footer />
+    </div>
   );
 }

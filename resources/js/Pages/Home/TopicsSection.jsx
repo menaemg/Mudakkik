@@ -17,7 +17,16 @@ import 'aos/dist/aos.css';
 const TopicCard = ({ topic }) => (
     <Link href={route('posts.index', { category: topic.slug || topic.name })} className="group cursor-pointer bg-white rounded-xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full overflow-hidden border border-gray-100 block">
         <div className="h-28 overflow-hidden relative">
-            <img src={topic.image} alt={topic.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+            <img
+                src={topic.representative_image ? (topic.representative_image.startsWith('http') ? topic.representative_image : `/storage/${topic.representative_image}`) : '/assets/images/post.webp'}
+                alt={topic.name}
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                onError={(e) => {
+                    if (e.target.src !== '/assets/images/post.webp') {
+                        e.target.src = '/assets/images/post.webp';
+                    }
+                }}
+            />
             <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
         </div>
         <div className="p-4 flex justify-between items-center">

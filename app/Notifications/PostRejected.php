@@ -5,9 +5,8 @@ namespace App\Notifications;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class PostPublished extends Notification
+class PostRejected extends Notification
 {
-
     public $post;
 
     /**
@@ -34,10 +33,13 @@ class PostPublished extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->greeting('مبروك!')
-            ->line("تم نشر مقالك: '{$this->post->title}'")
-            ->action('عرض المقال', url('/posts/' . $this->post->slug))
-            ->line('شكراً لمساهمتك في المنصة!');
+            ->subject('تم رفض نشر مقالك')
+            ->greeting('مرحباً ' . $notifiable->name)
+            ->line("نأسف لإبلاغك أن مقالك: '{$this->post->title}' تم رفض نشره.")
+            ->line('يرجى مراجعة المحتوى والتأكد من الالتزام بسياسة الموقع والشروط والأحكام.')
+            ->action('تعديل المقال', url('/my-posts/' . $this->post->id . '/edit'))
+            ->line('شكراً لتفهمك.')
+            ->salutation('مع خالص التحية، فريق الموقع');
     }
 
     /**
@@ -48,9 +50,9 @@ class PostPublished extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            'message' => "تم نشر مقالك الجديد: " . $this->post->title,
-            'url' => url('/posts/' . $this->post->slug),
-            'id' => $this->post->id
+            'message' => "تم رفض نشر مقالك: " . $this->post->title,
+            'type' => 'warning',
+            'url' => url('/my-posts/' . $this->post->id . '/edit')
         ];
     }
 }
