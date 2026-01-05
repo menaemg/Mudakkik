@@ -10,14 +10,25 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 class TagFactory extends Factory
 {
     /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
+     * Arabic tags for news articles
      */
+    private static array $tags = [
+        'عاجل', 'تحليل', 'رأي', 'تقرير', 'حصري',
+        'السعودية', 'الإمارات', 'مصر', 'الأردن', 'الخليج',
+        'الذكاء_الاصطناعي', 'التحول_الرقمي', 'الاستدامة', 'البلوك_تشين', 'الأمن_السيبراني',
+        'كأس_العالم', 'دوري_أبطال_أوروبا', 'الدوري_السعودي', 'أولمبياد', 'كرة_القدم',
+        'صحة_عامة', 'كورونا', 'اللقاحات', 'التغذية', 'الطب_الحديث',
+        'التعليم_عن_بعد', 'المنح_الدراسية', 'الجامعات', 'البحث_العلمي', 'الابتكار',
+        'البورصة', 'النفط', 'العملات', 'الاستثمار', 'التضخم',
+        'المناخ', 'الطاقة_المتجددة', 'البيئة', 'التنمية_المستدامة', 'المياه',
+    ];
+
     public function definition(): array
     {
-        return [
-        'name' => $this->faker->unique()->word(), 
-    ];
+        if (fake()->boolean(90)) {
+            return ['name' => fake()->randomElement(self::$tags)];
+        }
+        
+        return ['name' => 'وسم_' . fake()->unique()->numberBetween(1, 1000)];
     }
 }

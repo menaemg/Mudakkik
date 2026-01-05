@@ -11,20 +11,42 @@ use Illuminate\Support\Str;
  */
 class UserFactory extends Factory
 {
-    /**
-     * The current password being used by the factory.
-     */
     protected static ?string $password;
 
     /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
+     * Arabic names for demo data
      */
-public function definition(): array
+    private static array $arabicMaleNames = [
+        'أحمد محمد', 'محمد علي', 'خالد عبدالله', 'عمر حسن', 'يوسف إبراهيم',
+        'سعد الدين', 'طارق العمري', 'فهد السعيد', 'ناصر الحربي', 'سلطان القحطاني',
+        'عبدالرحمن الشمري', 'مشعل الدوسري', 'بندر العتيبي', 'تركي المطيري', 'فيصل الغامدي',
+    ];
+
+    private static array $arabicFemaleNames = [
+        'فاطمة أحمد', 'نورة محمد', 'سارة علي', 'مريم خالد', 'لينا عمر',
+        'هند السالم', 'ريم العبدالله', 'دانة الحسن', 'لمى الفهد', 'غادة الناصر',
+        'أسماء الراشد', 'هيفاء العمر', 'منى السعد', 'رنا الخالد', 'ديما الأحمد',
+    ];
+
+    private static array $arabicBios = [
+        'صحفي متخصص في الشؤون السياسية والاقتصادية',
+        'كاتب ومحلل سياسي مهتم بقضايا الشرق الأوسط',
+        'مدونة مهتمة بالتقنية والابتكار',
+        'صحفية استقصائية حاصلة على جوائز دولية',
+        'محرر أخبار في مجال التكنولوجيا والذكاء الاصطناعي',
+        'كاتب رأي ومحلل اقتصادي',
+        'مراسل ميداني متخصص في الأحداث الدولية',
+        'صحفي رياضي ومحلل كروي',
+        'كاتبة في الشؤون الاجتماعية والثقافية',
+        'محررة أخبار محلية وإقليمية',
+    ];
+
+    public function definition(): array
     {
-        $name = fake()->name();
-        $username = Str::slug($name) . fake()->numberBetween(10, 999);
+        $isMale = fake()->boolean();
+        $names = $isMale ? self::$arabicMaleNames : self::$arabicFemaleNames;
+        $name = fake()->randomElement($names);
+        $username = 'user_' . fake()->unique()->numberBetween(100, 9999);
 
         return [
             'name' => $name,
@@ -34,23 +56,36 @@ public function definition(): array
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
-
             'avatar' => 'avatars/default-avatar.png',
             'is_active' => fake()->boolean(90),
-            'credibility_score' => fake()->numberBetween(0, 100),
+            'credibility_score' => fake()->numberBetween(60, 100),
             'is_verified_journalist' => fake()->boolean(20),
-            'bio' => fake()->sentence(10),
+            'bio' => fake()->randomElement(self::$arabicBios),
         ];
     }
-    /**
-     * Indicate that the model's email address should be unverified.
-     */
-public function admin(): static
+
+    public function unverified(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'email_verified_at' => null,
+        ]);
+    }
+
+    public function admin(): static
     {
         return $this->state(fn (array $attributes) => [
             'role' => 'admin',
             'is_verified_journalist' => true,
             'credibility_score' => 100,
+        ]);
+    }
+
+    public function journalist(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'journalist',
+            'is_verified_journalist' => true,
+            'credibility_score' => fake()->numberBetween(80, 100),
         ]);
     }
 }

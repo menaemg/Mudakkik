@@ -25,12 +25,7 @@ class User extends Authenticatable implements MustVerifyEmail
             $freePlan = Plan::where('is_free', true)->first();
 
             if (!$freePlan) {
-                $context = ['user_id' => $user->id, 'email' => $user->email];
-
-                Log::warning(
-                    'Free plan not found during user registration. User created without subscription.',
-                    $context
-                );
+                Log::warning('Free plan not found for user.', ['user_id' => $user->id]);
                 return;
             }
 
@@ -124,7 +119,8 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         if ($filter->filled('search')) {
             $search = $filter->get('search');
-
+            // Escape LIKE wildcards to prevent pattern injection
+            $search = str_replace(['%', '_'], ['\%', '\_'], $search);
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                     ->orWhere('email', 'like', "%{$search}%");
@@ -232,5 +228,10 @@ class User extends Authenticatable implements MustVerifyEmail
         }
 
         return null;
+    }
+
+    public function reports()
+    {
+        return $this->hasMany(PostReport::class);
     }
 }
