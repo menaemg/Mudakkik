@@ -4,7 +4,7 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
 use App\Models\TrustedDomain;
-use Illuminate\Support\Facades\Log;
+
 class FactCheckServices
 {
     private function fetchUrlContent($url)
