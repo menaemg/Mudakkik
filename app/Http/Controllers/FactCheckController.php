@@ -15,25 +15,40 @@ class FactCheckController extends Controller
         $this->service = $service;
     }
 
-    public function verify(Request $request)
+public function verify(Request $request, FactCheckServices $service)
     {
         $request->validate([
-            'content' => 'required|string|min:10',
+            'text' => 'required|string|min:10|max:5000',
         ]);
 
-        try {
-            $input = $request->input('content');
-            $result = $this->service->check($input);
-            return response()->json($result);
-        } catch (\Exception $e) {
-            report($e);
+        $user = $request->user();
 
-            return response()->json([
-                'status' => 'error',
-                'message' => 'عذراً، حدث خطأ فني. يرجى المحاولة مرة أخرى لاحقاً.'
-            ], 500);
+        if ($user) {
+            if (!$user->consumeAiCredit(1)) {
+                return back()->with([
+                    'error' => 'لقد استنفدت رصيد كاشف الحقائق لهذا الشهر. يرجى الترقية للمتابعة.',
+                    'open_plan_modal' => true
+                ]);
+            }
+        } else {
+             return back()->with('error', 'يجب تسجيل الدخول لاستخدام هذه الميزة.');
         }
+
+        $result = $service->check($request->text);
+
+        if (isset($result['status']) && $result['status'] === 'error') {
+            if ($user) {
+                $user->increment('ai_recurring_credits');
+            }
+            return back()->with('error', 'حدث خطأ تقني أثناء التحليل، لم يتم خصم الرصيد.');
+        }
+
+        return back()->with([
+            'result' => $result,
+            'new_credits' => $user ? ($user->ai_recurring_credits + $user->ai_bonus_credits) : 0
+        ]);
     }
+
     public function history()
     {
         $history = FactCheck::latest()->take(10)->get();

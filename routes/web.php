@@ -137,7 +137,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/my-ads', [UserAdController::class, 'index'])->name('ads.index');
     Route::post('/my-ads', [UserAdController::class, 'store'])->name('ads.store');
 
-    Route::post('/upgrade-request', [UpgradeRequestController::class, 'store'])->name('upgrade.store');
+    Route::post('/upgrade-requests', [UpgradeRequestController::class, 'store'])->name('upgrade-requests.store');
 
     Route::post('/posts/{post}/like', [LikeController::class, 'toggle'])->name('posts.like');
 

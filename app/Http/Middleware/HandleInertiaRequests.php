@@ -42,6 +42,13 @@ class HandleInertiaRequests extends Middleware
                     'email' => $request->user()->email,
                     'avatar' => $request->user()->avatar,
                     'role' => $request->user()->role,
+                    'plan_slug' => $request->user()->currentPlan()?->slug ?? 'free',
+                    'is_journalist' => $request->user()->role === 'journalist',
+                    'is_admin' => $request->user()->role === 'admin',
+                    'credits' => [
+                      'total_ai' => $request->user()->ai_recurring_credits + $request->user()->ai_bonus_credits,
+                      'ads_days' => $request->user()->ad_credits,
+                      ],
                     'status' => $request->user()->status ?? 'active',
                     'email_verified_at' => $request->user()->email_verified_at,
                     'notifications' => $request->user()->notifications()->limit(10)->get(),

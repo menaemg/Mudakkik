@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Models\Subscription;
+use App\Models\UpgradeRequest;
 
 class ProfileController extends Controller
 {
@@ -27,11 +29,14 @@ class ProfileController extends Controller
 
         $stats = [
             'role' => $user->role === 'journalist' ? 'صحفي' : ($user->role === 'admin' ? 'مدير' : 'عضو'),
+            'is_journalist' => $user->role === 'journalist',
             'plan' => $user->currentPlan() ? $user->currentPlan()->name : 'Free',
             'followers' => $followersCount,
             'following' => $followingCount,
             'views' => $totalViews,
-            'posts_count' => $postsCount
+            'posts_count' => $postsCount,
+            'ai_credits' => ($user->ai_recurring_credits ?? 0) + ($user->ai_bonus_credits ?? 0),
+            'ad_credits' => $user->ad_credits ?? 0,
         ];
 
         $myArticles = $user->posts()
@@ -52,17 +57,22 @@ class ProfileController extends Controller
             ->latest()
             ->paginate(5, ['*'], 'ads_page');
 
-        $latestUpgradeRequest = \App\Models\UpgradeRequest::where('user_id', $user->id)
+        $latestUpgradeRequest = UpgradeRequest::where('user_id', $user->id)
         ->latest()
         ->first();
 
-        $subscription = \App\Models\Subscription::where('user_id', $user->id)
+        $subscription = Subscription::where('user_id', $user->id)
         ->where('status', 'active')
         ->latest()
         ->with('plan')
         ->first();
 
-if ($subscription && $subscription->plan) {
+      $subscriptionHistory = Subscription::where('user_id', $user->id)
+          ->where('id', '!=', $subscription?->id)
+          ->with('plan')
+          ->latest()
+          ->get();
+        if ($subscription && $subscription->plan) {
             $currentPlan = $subscription->plan;
         } else {
             $currentPlan = (object) [
@@ -76,6 +86,12 @@ if ($subscription && $subscription->plan) {
             ];
         }
 
+        $recentLikes = $user->likedPosts()
+        ->with('user:id,name,avatar,role')
+        ->latest('likes.created_at')
+        ->take(3)
+        ->get();
+
         return Inertia::render('Profile/Edit', [
             'mustVerifyEmail' => $user instanceof MustVerifyEmail,
             'status' => session('status'),
@@ -83,15 +99,17 @@ if ($subscription && $subscription->plan) {
             'stats' => $stats,
 
             'recent_posts' => ['data' => $recentPosts],
+            'recent_likes' => ['data' => $recentLikes],
 
             'articles' => $myArticles,
             'liked_posts' => $likedPosts,
 
             'ad_requests' => $adRequests,
-
+            'upgrade_request' => $latestUpgradeRequest,
             'upgrade_request_status' => $latestUpgradeRequest ? $latestUpgradeRequest->status : null,
             'categories' => \App\Models\Category::select('id', 'name')->get(),
             'subscription' => $subscription,
+            'subscription_history' => $subscriptionHistory,
             'current_plan' => $currentPlan,
         ]);
     }

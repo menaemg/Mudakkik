@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, usePage, router } from '@inertiajs/react';
+import { Head, usePage, Link } from '@inertiajs/react';
 import { FaLock } from 'react-icons/fa';
 import ProfileSidebar from './Partials/ProfileSidebar';
 import OverviewTab from './Partials/Tabs/OverviewTab';
@@ -12,17 +12,21 @@ import CreatePostTab from './Partials/Tabs/CreatePostTab';
 import EditPostTab from './Partials/Tabs/EditPostTab';
 import SubscriptionTab from './Partials/Tabs/SubscriptionTab';
 
-export default function Edit(
-  { mustVerifyEmail,
-    status,
-    stats,
-    recent_posts,
-    articles,
-    liked_posts,
-    ad_requests,
-    categories,
-    subscription,
-    current_plan }) {
+export default function Edit({
+  mustVerifyEmail,
+  status,
+   stats,
+   recent_posts,
+   recent_likes,
+   articles,
+   liked_posts,
+   ad_requests,
+   upgrade_request_status,
+   categories,
+   subscription,
+   current_plan,
+   subscription_history
+  }) {
       const user = usePage().props.auth.user;
 
     const getTabFromUrl = () => {
@@ -67,7 +71,6 @@ export default function Edit(
             url.searchParams.set('tab', activeTab);
         }
 
-        // Update URL without causing a page reload
         window.history.replaceState({}, '', url.toString());
     }, [activeTab]);
 
@@ -80,7 +83,7 @@ export default function Edit(
         posts_count: 0
     };
 
-    const canManageAds = dashboardStats.plan !== 'Free' && dashboardStats.plan !== 'مجاني';
+    const canManageAds = current_plan && !current_plan.is_free && current_plan.slug !== 'free';
 
     const [postToEdit, setPostToEdit] = useState(null);
 
@@ -98,6 +101,7 @@ export default function Edit(
                                 activeTab={activeTab}
                                 setActiveTab={setActiveTab}
                                 canManageAds={canManageAds}
+                                current_plan={current_plan}
                             />
                         </div>
 
@@ -125,11 +129,12 @@ export default function Edit(
                                 )
                             )}
                             {activeTab === 'subscription' && (
-                            <SubscriptionTab
-                                subscription={subscription}
-                                plan={current_plan}
-                            />
-                            )}
+                                    <SubscriptionTab
+                                        subscription={subscription}
+                                        plan={current_plan}
+                                        subscription_history={subscription_history}
+                                    />
+                                )}
                             {activeTab === 'create_post' && (
                             <CreatePostTab categories={categories} setActiveTab={setActiveTab} />
                             )}
@@ -148,6 +153,9 @@ export default function Edit(
                                     recentPosts={recent_posts}
                                     setActiveTab={setActiveTab}
                                     setPostToEdit={setPostToEdit}
+                                    current_plan={current_plan}
+                                    recentLikes={recent_likes}
+                                    upgradeRequestStatus={upgrade_request_status}
                                 />
                             )}
 

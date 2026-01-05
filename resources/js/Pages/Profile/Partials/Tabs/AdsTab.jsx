@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
-import { useForm } from '@inertiajs/react';
+import { useForm, usePage } from '@inertiajs/react';
 import { Button } from "@/components/ui/button";
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import InputError from '@/Components/InputError';
-import { FaBullhorn, FaPlus, FaCalendarAlt, FaClock, FaImage } from 'react-icons/fa';
+import { FaBullhorn, FaPlus, FaCalendarAlt, FaClock, FaImage, FaCoins } from 'react-icons/fa';
 import { Badge } from "@/components/ui/badge";
 
 export default function AdsTab({ adRequests }) {
+    const { auth } = usePage().props;
+    const adCredits = auth.user.credits?.ads || 0;
+
     const [isCreating, setIsCreating] = useState(false);
 
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -15,7 +18,7 @@ export default function AdsTab({ adRequests }) {
         target_url: '',
         image: null,
         start_date: '',
-        duration: 7,
+        duration: 1,
     });
 
     const handleSubmit = (e) => {
@@ -54,14 +57,33 @@ export default function AdsTab({ adRequests }) {
                     </h3>
                     <p className="text-sm text-gray-500 mt-1">تابع حالة إعلاناتك أو قم بإنشاء حملة جديدة.</p>
                 </div>
-                <Button onClick={() => setIsCreating(!isCreating)} className={`${isCreating ? 'bg-gray-200 text-gray-700 hover:bg-gray-300' : 'bg-brand-blue hover:bg-blue-700 text-white'} shadow-lg font-bold transition-all`}>
-                    {isCreating ? 'إلغاء' : <><FaPlus className="ml-2" /> إعلان جديد</>}
-                </Button>
+
+                <div className="flex items-center gap-4">
+                    <div className="bg-green-50 px-4 py-2 rounded-xl border border-green-100 flex items-center gap-2">
+                        <div className="bg-green-500 text-white rounded-full p-1">
+                            <FaCoins size={12} />
+                        </div>
+                        <div className="text-right">
+                            <p className="text-[10px] text-green-600 font-bold">الرصيد المتاح</p>
+                            <p className="text-sm font-black text-green-700">{adCredits} أيام</p>
+                        </div>
+                    </div>
+
+                    <Button onClick={() => setIsCreating(!isCreating)} className={`${isCreating ? 'bg-gray-200 text-gray-700 hover:bg-gray-300' : 'bg-brand-blue hover:bg-blue-700 text-white'} shadow-lg font-bold transition-all`}>
+                        {isCreating ? 'إلغاء' : <><FaPlus className="ml-2" /> إعلان جديد</>}
+                    </Button>
+                </div>
             </div>
 
             {isCreating && (
-                <div className="bg-white rounded-2xl shadow-md border border-brand-blue/20 p-6 animate-in zoom-in-95 duration-300">
-                    <h4 className="font-bold text-gray-900 mb-4 pb-2 border-b border-gray-100">بيانات الإعلان الجديد</h4>
+                <div className="bg-white rounded-2xl shadow-md border border-brand-blue/20 p-6 animate-in zoom-in-95 duration-300 relative overflow-hidden">
+                    {adCredits < 1 && (
+                        <div className="absolute top-0 left-0 right-0 bg-red-500 text-white text-xs font-bold text-center py-1">
+                            تنبيه: رصيدك الحالي 0 أيام. يرجى شحن رصيدك أو ترقية الباقة لتتمكن من النشر.
+                        </div>
+                    )}
+
+                    <h4 className="font-bold text-gray-900 mb-4 pb-2 border-b border-gray-100 mt-2">بيانات الإعلان الجديد</h4>
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
@@ -99,14 +121,20 @@ export default function AdsTab({ adRequests }) {
                             </div>
                             <div>
                                 <InputLabel value="المدة (بالأيام)" />
-                                <TextInput
-                                    type="number"
-                                    value={data.duration}
-                                    onChange={e => setData('duration', e.target.value)}
-                                    className="w-full mt-1"
-                                    min="1" max="30"
-                                />
+                                <div className="relative">
+                                    <TextInput
+                                        type="number"
+                                        value={data.duration}
+                                        onChange={e => setData('duration', e.target.value)}
+                                        className={`w-full mt-1 ${data.duration > adCredits ? 'border-red-500 focus:border-red-500' : ''}`}
+                                        min="1" max="30"
+                                    />
+                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-400">يوم</span>
+                                </div>
                                 <InputError message={errors.duration} />
+                                {data.duration > adCredits && (
+                                    <p className="text-xs text-red-500 mt-1 font-bold">المدة تتجاوز رصيدك المتاح ({adCredits})</p>
+                                )}
                             </div>
                             <div>
                                 <InputLabel value="صورة الإعلان" />
@@ -122,8 +150,11 @@ export default function AdsTab({ adRequests }) {
                         </div>
 
                         <div className="flex justify-end pt-4">
-                            <Button disabled={processing} className="bg-brand-blue w-full md:w-auto">
-                                إرسال للمراجعة
+                            <Button
+                                disabled={processing || adCredits < data.duration}
+                                className="bg-brand-blue w-full md:w-auto"
+                            >
+                                {processing ? 'جاري الإرسال...' : `إرسال للمراجعة (خصم ${data.duration} كريديت)`}
                             </Button>
                         </div>
                     </form>
@@ -152,7 +183,7 @@ export default function AdsTab({ adRequests }) {
                                                 </div>
                                                 <div>
                                                     <p className="font-bold text-gray-900 text-sm line-clamp-1">{ad.title}</p>
-                                                  <a href={ad.target_url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-500 hover:underline truncate block max-w-[150px]">{ad.target_url}</a>
+                                                    <a href={ad.target_url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-500 hover:underline truncate block max-w-[150px]">{ad.target_url}</a>
                                                 </div>
                                             </div>
                                         </td>

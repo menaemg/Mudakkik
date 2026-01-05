@@ -20,7 +20,6 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         parent::boot();
 
-        // Auto-assign free plan when user is created
         static::created(function ($user) {
             $freePlan = Plan::where('is_free', true)->first();
 
@@ -28,6 +27,15 @@ class User extends Authenticatable implements MustVerifyEmail
                 Log::warning('Free plan not found for user.', ['user_id' => $user->id]);
                 return;
             }
+
+            $features = $freePlan->features ?? [];
+            $initialAiCredits = $features['monthly_ai_credits'] ?? 0;
+            $initialAdCredits = $features['monthly_ad_credits'] ?? 0;
+
+            $user->update([
+                'ai_recurring_credits' => $initialAiCredits,
+                'ad_credits' => $initialAdCredits
+            ]);
 
             $user->subscriptions()->create([
                 'plan_id' => $freePlan->id,
@@ -52,7 +60,10 @@ class User extends Authenticatable implements MustVerifyEmail
         'credibility_score',
         'is_verified_journalist',
         'bio',
-        'avatar'
+        'avatar',
+        'ai_recurring_credits',
+        'ai_bonus_credits',
+        'ad_credits',
     ];
 
     /**
@@ -75,8 +86,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_active' => 'boolean',
+            'is_verified_journalist' => 'boolean',
         ];
     }
+
     public function posts()
     {
         return $this->hasMany(Post::class);
@@ -91,6 +105,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(Follow::class, 'following_user_id');
     }
+
     public function likes()
     {
         return $this->belongsToMany(Post::class, 'likes')->withTimestamps();
@@ -110,16 +125,21 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(UpgradeRequest::class);
     }
+
     public function subscriptions()
     {
         return $this->hasMany(Subscription::class);
+    }
+
+    public function reports()
+    {
+        return $this->hasMany(PostReport::class);
     }
 
     public function scopeFilter($query, $filter)
     {
         if ($filter->filled('search')) {
             $search = $filter->get('search');
-            // Escape LIKE wildcards to prevent pattern injection
             $search = str_replace(['%', '_'], ['\%', '\_'], $search);
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
@@ -136,7 +156,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function currentSubscription(): ?Subscription
     {
         return $this->subscriptions()
-            ->active()
+            ->where('status', 'active')
+            ->where(function ($query) {
+                $query->whereNull('ends_at')
+                      ->orWhere('ends_at', '>', now());
+            })
             ->with('plan')
             ->orderByDesc('created_at')
             ->first();
@@ -230,8 +254,36 @@ class User extends Authenticatable implements MustVerifyEmail
         return null;
     }
 
-    public function reports()
+
+    public function consumeAiCredit(int $amount = 1): bool
     {
-        return $this->hasMany(PostReport::class);
+        if ($this->ai_recurring_credits >= $amount) {
+            $this->decrement('ai_recurring_credits', $amount);
+            return true;
+        }
+
+        $totalAvailable = $this->ai_recurring_credits + $this->ai_bonus_credits;
+
+        if ($totalAvailable >= $amount) {
+
+            $neededFromBonus = $amount - $this->ai_recurring_credits;
+
+            $this->update(['ai_recurring_credits' => 0]);
+
+            $this->decrement('ai_bonus_credits', $neededFromBonus);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    public function consumeAdCredit(int $days): bool
+    {
+        if ($this->ad_credits >= $days) {
+            $this->decrement('ad_credits', $days);
+            return true;
+        }
+        return false;
     }
 }

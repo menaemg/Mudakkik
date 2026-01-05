@@ -18,11 +18,12 @@ class UserAdController extends Controller
 
     public function store(Request $request)
     {
-      $user = $request->user();
+        $user = $request->user();
 
-      if ($user->isOnFreePlan()) {
-        return back()->withErrors(['plan' => 'عفواً، يجب ترقية باقتك لتتمكن من إنشاء حملات إعلانية.']);
-    }
+        if ($user->currentPlan()?->slug === 'free' || !$user->currentPlan()) {
+            return back()->withErrors(['plan' => 'عفواً، ميزة الإعلانات متاحة فقط للمشتركين.']);
+        }
+
         $validated = $request->validate([
             'title' => 'required|string|max:100',
             'target_url' => 'required|url',
@@ -31,8 +32,15 @@ class UserAdController extends Controller
             'duration' => 'required|integer|min:1|max:30',
         ]);
 
-        $imagePath = $request->file('image')->store('ads_requests', 'public');
+        $cost = $validated['duration'];
 
+        if (!$user->consumeAdCredit($cost)) {
+            return back()->withErrors([
+                'duration' => "رصيد الإعلانات غير كافي ({$user->ad_credits} أيام متبقية). يرجى تقليل المدة أو ترقية الباقة."
+            ]);
+        }
+
+        $imagePath = $request->file('image')->store('ads_requests', 'public');
         $endDate = \Carbon\Carbon::parse($validated['start_date'])->addDays($validated['duration']);
 
         $request->user()->adRequests()->create([
@@ -44,6 +52,6 @@ class UserAdController extends Controller
             'status' => 'pending'
         ]);
 
-        return back()->with('success', 'تم إرسال طلب الإعلان للمراجعة.');
+        return back()->with('success', "تم إرسال الطلب وخصم {$cost} أيام من رصيدك.");
     }
 }
