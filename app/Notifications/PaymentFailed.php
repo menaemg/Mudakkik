@@ -33,7 +33,7 @@ class PaymentFailed extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $planName = $this->payment->subscription?->plan?->name ?? 'Premium';
+        $planName = $this->payment->subscription?->plan?->name ?? 'الخطة المدفوعة';
 
         return (new MailMessage)
             ->subject('❌ فشل عملية الدفع')

@@ -33,8 +33,8 @@ class SubscriptionExpired extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $expiredPlanName = $this->expiredSubscription->plan?->name ?? 'Premium';
-        $newPlanName = $this->newSubscription->plan?->name ?? 'Free';
+        $expiredPlanName = $this->expiredSubscription->plan?->name ?? 'خطتك السابقة';
+        $newPlanName = $this->newSubscription->plan?->name ?? 'الخطة الحالية';
 
         return (new MailMessage)
             ->subject('⏰ انتهى اشتراكك')

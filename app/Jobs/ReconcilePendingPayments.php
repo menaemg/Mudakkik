@@ -85,16 +85,18 @@ class ReconcilePendingPayments implements ShouldQueue, ShouldBeUnique
             ]);
 
             if ($sessionData->paymentStatus === 'paid') {
-                // Payment succeeded - mark as completed
-                $payment->update(['status' => 'completed']);
+                \Illuminate\Support\Facades\DB::transaction(function () use ($payment) {
+                    // Payment succeeded - mark as completed
+                    $payment->update(['status' => 'completed']);
 
-                // Also activate subscription if exists
-                if ($payment->subscription) {
-                    $payment->subscription->update(['status' => 'active']);
-                    Log::info('Subscription activated via reconciliation', [
-                        'subscription_id' => $payment->subscription->id,
-                    ]);
-                }
+                    // Also activate subscription if exists
+                    if ($payment->subscription) {
+                        $payment->subscription->update(['status' => 'active']);
+                        Log::info('Subscription activated via reconciliation', [
+                            'subscription_id' => $payment->subscription->id,
+                        ]);
+                    }
+                });
 
                 // Notify user of successful payment
                 if ($payment->user) {

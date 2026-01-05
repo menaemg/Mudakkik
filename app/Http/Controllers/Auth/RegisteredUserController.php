@@ -47,7 +47,7 @@ class RegisteredUserController extends Controller
             'username.required' => 'اسم المستخدم مطلوب.',
             'username.min' => 'يجب أن يكون اسم المستخدم 3 أحرف على الأقل.',
             'username.unique' => 'اسم المستخدم هذا مستخدم بالفعل.',
-            'username.regex' => 'اسم المستخدم يمكن أن يحتوي على أحرف إنجليزية وأرقام ونقاط وشرطات فقط.',
+            'username.regex' => 'اسم المستخدم يمكن أن يحتوي على أحرف إنجليزية وأرقام ونقاط وشرطات وشرطات سفلية فقط.',
         ]);
 
         $user = User::create([
