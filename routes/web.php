@@ -40,7 +40,7 @@ Route::get('/plans', [PlanController::class, 'index'])->name('plans.index');
 Route::get('/check', function () {
     return Inertia::render('VerifyNews');
 });
-Route::post('/verify-news', [FactCheckController::class, 'verify']);
+Route::post('/verify-news', [FactCheckController::class, 'verify'])->withoutMiddleware(['web']);
 
 Route::middleware(['auth', 'verified', 'can:admin-access'])
     ->prefix('admin')
