@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { DetailRow, ActionButton, InfoCard } from "./Actions";
 import {
@@ -6,16 +6,16 @@ import {
   Mail,
   Calendar,
   FileText,
-  Link2,
   CalendarPlus,
   CalendarX2,
   Image,
   PenSquareIcon,
   ScanEye,
+  Link2,
   CalendarCheck,
 } from "lucide-react";
 
-export default function AdsViewModal({
+export default function AdsEditeModal({
   isOpen,
   request,
   onClose,
@@ -25,7 +25,12 @@ export default function AdsViewModal({
   onReject,
 }) {
   // console.log(request);
-  const [adminNote, setAdminNote] = useState(request?.admin_notes || "");
+  const [adminNote, setAdminNote] = useState(request?.admin_notes || " ");
+  // const [stata, setStata] = useState(request?.status);
+
+  useEffect(() => {
+    setAdminNote(request?.admin_notes || " ");
+  }, [request]);
 
   return (
     <AnimatePresence>
@@ -77,31 +82,27 @@ export default function AdsViewModal({
                 />
                 <DetailRow
                   label="المدة المطلوبة (بالأيام)"
-                  labelColor="text-red-600"
                   valueColor="text-red-600"
+                  labelColor="text-red-600"
                   value={request.number_of_days}
-                  icon={<CalendarX2 size={14} />}
+                  icon={<CalendarPlus size={14} />}
                 />
                 <DetailRow
                   label="تاريخ بدء الإعلان"
                   labelColor="text-green-600"
                   valueColor="text-green-600"
-                  value={
-                    request.start_date
-                      ? new Date(request.start_date).toLocaleDateString("ar-EG")
-                      : "لم يتم تحديد تاريخ بدء الإعلان"
-                  }
+                  value={new Date(
+                    request.requested_start_date
+                  ).toLocaleDateString("ar-EG")}
                   icon={<CalendarCheck size={14} />}
                 />
                 <DetailRow
                   label="تاريخ نهاية الإعلان"
                   labelColor="text-orange-600"
                   valueColor="text-orange-600"
-                  value={
-                    request.end_date
-                      ? new Date(request.end_date).toLocaleDateString("ar-EG")
-                      : "لم يتم تحديد تاريخ نهاية الإعلان"
-                  }
+                  value={new Date(
+                    request.requested_end_date
+                  ).toLocaleDateString("ar-EG")}
                   icon={<CalendarX2 size={14} />}
                 />
               </InfoCard>
@@ -111,7 +112,11 @@ export default function AdsViewModal({
                 title="صورة الإعلان (الصورة ستظهر في صفحة الإعلان)"
                 icon={<Image size={14} />}
               >
-                <a href={request.image_url} target="_blank">
+                <a
+                  href={request.image_url}
+                  target="_blank"
+                  rel="noreferrer noreferrer"
+                >
                   <img
                     src={request.image_url}
                     alt={request.title}
@@ -173,16 +178,18 @@ export default function AdsViewModal({
               </InfoCard>
 
               {/* admin note */}
-
               <InfoCard title="ملاحظة الإدارة" icon={<FileText size={14} />}>
                 {" "}
-                {request.status === "pending" ? (
-                  <textarea
-                    value={adminNote}
-                    onChange={(e) => setAdminNote(e.target.value)}
-                    placeholder="تكتب ملاحظتك هنا..."
-                    rows={4}
-                    className="
+                <textarea
+                  value={adminNote}
+                  onChange={(e) => setAdminNote(e.target.value)}
+                  placeholder={`${
+                    request.adminNotes
+                      ? request.adminNotes
+                      : "لا يوجد ملاحظات ..."
+                  }`}
+                  rows={4}
+                  className="
                       w-full
                       text-sm font-bold text-[#001246]
                       bg-slate-50
@@ -193,28 +200,24 @@ export default function AdsViewModal({
                       focus:ring-2 focus:ring-[#001246]/20
                       resize-none
                   "
-                  />
-                ) : (
-                  <p className="text-[#001246] font-bold leading-relaxed bg-slate-50 p-5 rounded-[1.5rem] border">
-                    {request.admin_notes
-                      ? request.admin_notes
-                      : "لا توجد ملاحظات من الإدارة."}
-                  </p>
-                )}
+                />
               </InfoCard>
 
               {/* Actions */}
-              {request.status === "pending" && (
+              {request.status === "approved" ? (
+                <div className="flex gap-4 pt-6 border-t">
+                  <ActionButton
+                    color="red"
+                    text="رفض الطلب"
+                    onClick={() => onReject(request, adminNote)}
+                  />
+                </div>
+              ) : (
                 <div className="flex gap-4 pt-6 border-t">
                   <ActionButton
                     color="green"
                     text="قبول الطلب"
                     onClick={() => onApprove(request, adminNote)}
-                  />
-                  <ActionButton
-                    color="red"
-                    text="رفض الطلب"
-                    onClick={() => onReject(request, adminNote)}
                   />
                 </div>
               )}

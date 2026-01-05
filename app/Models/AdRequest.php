@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 
 class AdRequest extends Model
 {
+    protected $table = 'ad_requests';
+
     /** @use HasFactory<\Database\Factories\AdRequestFactory> */
     use HasFactory;
 
@@ -44,7 +46,7 @@ class AdRequest extends Model
                         $uq->where('name', 'like', "%{$search}%")
                             ->orWhere('email', 'like', "%{$search}%");
                     })
-                    ->orWhere('title', 'like', "%{$search}%");
+                        ->orWhere('title', 'like', "%{$search}%");
                 });
             })
             ->when($request->filled('status'), function ($q) use ($request) {

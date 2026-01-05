@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('upgread_requests', function (Blueprint $table) {
-            //
-            $table->text('request_message')->nullable()->after('documents');
-        });
+        // Schema::table('upgread_requests', function (Blueprint $table) {
+        //     //
+        //     $table->text('request_message')->nullable()->after('documents');
+        // });
     }
 
     /**

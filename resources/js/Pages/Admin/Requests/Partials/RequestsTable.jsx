@@ -1,5 +1,5 @@
 import React from "react";
-import { Eye, Check, X, Calendar } from "lucide-react";
+import { Eye, Check, X, Calendar, FileCog } from "lucide-react";
 import { ActionIcon } from "./Actions";
 
 export default function RequestsTable({
@@ -9,6 +9,7 @@ export default function RequestsTable({
   onReject,
   getStatusColor,
   getStatusText,
+  onEdit,
 }) {
   return (
     <div className="overflow-x-auto">
@@ -84,17 +85,26 @@ export default function RequestsTable({
                     onClick={() => onView(request)}
                   />
 
-                  {request.status === "pending" && (
+                  {request.status === "pending" ? (
                     <>
                       <ActionIcon
                         icon={<Check size={18} />}
                         color="green"
+                        // onClick={() => onApprove(request)}
                         onClick={() => onApprove(request)}
                       />
                       <ActionIcon
                         icon={<X size={18} />}
                         color="red"
                         onClick={() => onReject(request)}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <ActionIcon
+                        icon={<FileCog size={18} />}
+                        color="gray"
+                        onClick={() => onEdit(request)}
                       />
                     </>
                   )}
@@ -138,17 +148,26 @@ export default function RequestsTable({
                   color="blue"
                   onClick={() => onView(request)}
                 />
-                {request.status === "pending" && (
+                {request.status === "pending" ? (
                   <>
                     <ActionIcon
-                      icon={<Check size={16} />}
+                      icon={<Check size={18} />}
                       color="green"
+                      // onClick={() => onApprove(request)}
                       onClick={() => onApprove(request)}
                     />
                     <ActionIcon
-                      icon={<X size={16} />}
+                      icon={<X size={18} />}
                       color="red"
                       onClick={() => onReject(request)}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <ActionIcon
+                      icon={<FileCog size={18} />}
+                      color="gray"
+                      onClick={() => onEdit(request)}
                     />
                   </>
                 )}
@@ -160,4 +179,3 @@ export default function RequestsTable({
     </div>
   );
 }
-

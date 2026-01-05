@@ -14,12 +14,15 @@ return new class extends Migration
         Schema::create('advertisments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id');
+            $table->foreignId('subscription_id');
             $table->string('title');
             $table->string('image_url');
             $table->string('target_link');
-            $table->date('start_date');
-            $table->date('end_date');
-            $table->enum('status', ['run', 'stop']);
+            $table->date('start_date')->nullable();
+            $table->date('end_date')->nullable();
+            $table->integer('number_of_days');
+            $table->text('admin_notes')->nullable();
+            $table->string('status', 20)->default('pending');
             $table->timestamps();
         });
     }
