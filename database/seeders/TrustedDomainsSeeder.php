@@ -16,7 +16,6 @@ class TrustedDomainsSeeder extends Seeder
             ['name' => 'العربية نت', 'domain' => 'alarabiya.net'],
             ['name' => 'سكاي نيوز عربية', 'domain' => 'skynewsarabia.com'],
             ['name' => 'الجزيرة نت', 'domain' => 'aljazeera.net'],
-            ['name' => 'بي بي سي عربي', 'domain' => 'bbc.com/arabic'],
             ['name' => 'صحيفة الوطن المصرية', 'domain' => 'elwatannews.com'],
             ['name' => 'جريدة الشروق', 'domain' => 'shorouknews.com'],
 

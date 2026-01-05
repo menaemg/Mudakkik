@@ -35,7 +35,7 @@ class FactCheckServices
             : 'أنت خبير فحص حقائق. استخرج عنوان الخبر والكلمات المفتاحية. إذا كان النص عبارة عن رموز غير مفهومة، اجعل العنوان "INVALID". رد بـ JSON: {"title": "..", "body": "..", "keywords": ".." }';
 
         try {
-            $response = Http::withHeaders(['Authorization' => 'Bearer ' . env('GROQ_API_KEY')])
+            $response = Http::withHeaders(['Authorization' => 'Bearer ' . config('services.groq.api_key')])
                 ->post('https://api.groq.com/openai/v1/chat/completions', [
                     'model' => 'llama-3.1-8b-instant',
                     'messages' => [
@@ -64,7 +64,7 @@ class FactCheckServices
             }
 
             $response = Http::timeout(20)->post('https://api.tavily.com/search', [
-                'api_key' => env('TAVILY_API_KEY'),
+                'api_key' => config('services.tavily.api_key'),
                 'query'   => $data['title'],
                 'search_depth' => 'advanced',
                 'include_domains' => $domains,
@@ -106,7 +106,7 @@ class FactCheckServices
                 'content' => mb_substr($i['content'], 0, 1000)
             ])->toArray();
 
-            $response = Http::withHeaders(['Authorization' => 'Bearer ' . env('GROQ_API_KEY')])
+            $response = Http::withHeaders(['Authorization' => 'Bearer ' .config('services.groq.api_key')])
                 ->timeout(45)
                 ->post('https://api.groq.com/openai/v1/chat/completions', [
                     'model' => 'llama-3.1-8b-instant',
