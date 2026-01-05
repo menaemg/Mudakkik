@@ -1,61 +1,61 @@
-import React from 'react';
-import { Head } from '@inertiajs/react';
-import Header from '@/Components/Header';
-import HeroSection from '@/Pages/Home/HeroSection';
-import FeaturedNews from '@/Pages/Home/FeaturedNews';
-import TopStories from '@/Pages/Home/TopStories';
-import TopicsSection from '@/Pages/Home/TopicsSection';
-import EntertainmentSection from '@/Pages/Home/EntertainmentSection';
-import BusinessSection from '@/Pages/Home/BusinessSection';
-import ContentGridSection from '@/Pages/Home/ContentGridSection';
-import BannerSection from '@/Pages/Home/BannerSection';
-import MoreNewsSection from '@/Pages/Home/MoreNewsSection';
-import Footer from '@/Components/Footer';
+import React from "react";
+import { Head } from "@inertiajs/react";
+import Header from "@/Components/Header";
+import HeroSection from "@/Pages/Home/HeroSection";
+import FeaturedNews from "@/Pages/Home/FeaturedNews";
+import TopStories from "@/Pages/Home/TopStories";
+import TopicsSection from "@/Pages/Home/TopicsSection";
+import EntertainmentSection from "@/Pages/Home/EntertainmentSection";
+import BusinessSection from "@/Pages/Home/BusinessSection";
+import ContentGridSection from "@/Pages/Home/ContentGridSection";
+import BannerSection from "@/Pages/Home/BannerSection";
+import MoreNewsSection from "@/Pages/Home/MoreNewsSection";
+import Footer from "@/Components/Footer";
 
 export default function Welcome({
-    auth,
-    ticker,
-    hero,
-    featured,
-    editorsChoice,
-    topStories,
-    entertainment,
-    topics,
-    business,
-    moreNews,
-    ads
+  auth,
+  ticker,
+  hero,
+  featured,
+  editorsChoice,
+  topStories,
+  entertainment,
+  topics,
+  business,
+  moreNews,
+  ads,
 }) {
-    return (
-        <>
-            <Head title="الرئيسية - مدقق نيوز" />
+  return (
+    <>
+      <Head title="الرئيسية - مدقق نيوز" />
+      <Header auth={auth} ticker={ticker} />
+      <div className="min-h-screen bg-white text-right" dir="rtl">
+        <main>
+          <HeroSection hero={hero} ads={ads} />
 
-            <div className="min-h-screen bg-white text-right" dir="rtl">
+          <FeaturedNews
+            featured={featured}
+            editorsChoice={editorsChoice}
+            ads={ads}
+          />
 
-                <Header auth={auth} ticker={ticker} />
+          <TopStories stories={topStories} ads={ads} />
 
-                <main>
-                    <HeroSection hero={hero} ads={ads} />
+          <EntertainmentSection data={entertainment} />
 
-                    <FeaturedNews featured={featured} editorsChoice={editorsChoice} ads={ads} />
+          <TopicsSection topics={topics} ads={ads} />
 
-                    <TopStories stories={topStories} ads={ads} />
+          <BusinessSection articles={business} ads={ads} />
 
-                    <EntertainmentSection data={entertainment} />
+          <ContentGridSection />
 
-                    <TopicsSection topics={topics} ads={ads} />
+          <BannerSection ads={ads} />
 
-                    <BusinessSection articles={business} ads={ads} />
+          <MoreNewsSection articles={moreNews} ads={ads} />
+        </main>
 
-                    <ContentGridSection />
-
-                    <BannerSection ads={ads} />
-
-                    <MoreNewsSection articles={moreNews} ads={ads} />
-                </main>
-
-                <Footer/>
-
-            </div>
-        </>
-    );
+        <Footer />
+      </div>
+    </>
+  );
 }
