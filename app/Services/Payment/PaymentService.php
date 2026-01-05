@@ -9,6 +9,7 @@ use App\Models\Payment;
 use App\Models\Plan;
 use App\Models\Subscription;
 use App\Models\User;
+use App\Notifications\SubscriptionCreated;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -84,9 +85,9 @@ class PaymentService
                 }
             }
 
-            // Cancel any existing active subscription (except free plan)
+            // Cancel any existing active subscription (including free plan)
             $existingSubscription = $user->currentSubscription();
-            if ($existingSubscription && !$existingSubscription->plan->is_free) {
+            if ($existingSubscription) {
                 $existingSubscription->cancel();
             }
 
@@ -109,6 +110,9 @@ class PaymentService
                 'subscription_id' => $subscription->id,
                 'plan' => $plan->slug,
             ]);
+
+            // Send notification to user (works for any payment provider)
+            $user->notify(new SubscriptionCreated($subscription));
 
             return $subscription;
         });

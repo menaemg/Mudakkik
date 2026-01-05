@@ -80,3 +80,7 @@ ls -dt */ | tail -n +$((KEEP_RELEASES + 1)) | xargs -r rm -rf
 
 echo "✅ Deployment completed successfully!"
 echo "📍 Current release: $RELEASE_NAME"
+echo ""
+echo "📅 Scheduled Jobs (ensure cron is configured):"
+echo "   - ReconcilePendingPayments: */10 * * * *"
+echo "   - HandleExpiredSubscriptions: 0 0 * * *"
