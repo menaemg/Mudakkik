@@ -48,13 +48,6 @@ class AdsRequestController extends Controller
             'admin_notes' => 'nullable|string|max:2000',
         ]);
 
-        // // Prevent changing already-processed requests
-        // if (in_array($AdRequest->status, ['approved', 'rejected'])) {
-        //     return back()->with('error', 'لا يمكن تعديل طلب تمت معالجته بالفعل');
-        // }
-
-        // dd($data, $adRequest);
-
         $adRequest->update([
             'status' => $data['status'],
             'admin_notes' => $data['admin_notes'] ?? null,

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('advertisments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id');
-            $table->foreignId('subscription_id');
+            $table->foreignId('subscription_id')->constrained('subscriptions')->onDelete('cascade');
             $table->string('title');
             $table->string('image_url');
             $table->string('target_link');
