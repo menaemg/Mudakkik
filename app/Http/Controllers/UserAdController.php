@@ -72,26 +72,32 @@ public function store(Request $request)
         }],
     ]);
 
-    DB::transaction(function () use ($request, $user, $validated, $activeSubscription) {
 
-        $user->decrement('ad_credits', $validated['duration']);
+    $imagePath = $request->file('image')->store('ads_requests', 'public');
 
-        $imagePath = $request->file('image')->store('ads_requests', 'public');
+    try {
+        DB::transaction(function () use ($user, $validated, $activeSubscription, $imagePath) {
+            $user->decrement('ad_credits', $validated['duration']);
 
-        Advertisment::create([
-            'user_id' => $user->id,
-            'subscription_id' => $activeSubscription->id,
-            'title' => $validated['title'],
-            'image_url' => $imagePath,
-            'target_link' => $validated['target_url'],
-            'number_of_days' => $validated['duration'],
-            'start_date' => $validated['start_date'],
+            Advertisment::create([
+                'user_id' => $user->id,
+                'subscription_id' => $activeSubscription->id,
+                'title' => $validated['title'],
+                'image_url' => $imagePath,
+                'target_link' => $validated['target_url'],
+                'number_of_days' => $validated['duration'],
+                'start_date' => $validated['start_date'],
 
-            'end_date' => \Carbon\Carbon::parse($validated['start_date'])->addDays((int) $validated['duration']),
+                'end_date' => \Carbon\Carbon::parse($validated['start_date'])->addDays((int) $validated['duration']),
 
-            'status' => 'pending'
-        ]);
-    });
+                'status' => 'pending'
+            ]);
+        });
+    } catch (\Exception $e) {
+        // Clean up uploaded file if transaction fails
+        \Storage::disk('public')->delete($imagePath);
+        throw $e;
+    }
 
     return back()->with('success', "تم إرسال الطلب وخصم {$validated['duration']} يوم من رصيدك.");
 }}

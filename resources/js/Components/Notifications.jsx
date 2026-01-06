@@ -37,34 +37,36 @@ export default function Notifications({ user }) {
                 setUnreadCount(notifs.filter(n => !n.read_at).length);
             })
             .catch(err => {
-              console.error("Error fetching notifications:", err)
+                console.error("Error fetching notifications:", err)
             });
     };
 
     const markAsRead = () => {
         if (unreadCount === 0) return;
         axios.post('/notifications/mark-all-read')
-          .then(() => {
-              setUnreadCount(0);
-              setNotifications(prev => prev.map(n => ({ ...n, read_at: new Date() })));
-          })
-          .catch(err => {
-              console.error("Error marking notifications as read:", err);
-          });
+            .then(() => {
+                setUnreadCount(0);
+                setNotifications(prev => prev.map(n => ({ ...n, read_at: new Date() })));
+            })
+            .catch(err => {
+                console.error("Error marking notifications as read:", err);
+            });
     };
 
     const deleteNotification = (notificationId) => {
         axios.delete(`/notifications/${notificationId}`)
-          .then(() => {
-              setNotifications(prev => prev.filter(n => n.id !== notificationId));
-              const deletedNotif = notifications.find(n => n.id === notificationId);
-              if (deletedNotif && !deletedNotif.read_at) {
-                  setUnreadCount(prev => Math.max(0, prev - 1));
-              }
-          })
-          .catch(err => {
-              console.error("Error deleting notification:", err);
-          });
+            .then(() => {
+                setNotifications(prev => {
+                    const deletedNotif = prev.find(n => n.id === notificationId);
+                    if (deletedNotif && !deletedNotif.read_at) {
+                        setUnreadCount(u => Math.max(0, u - 1));
+                    }
+                    return prev.filter(n => n.id !== notificationId);
+                });
+            })
+            .catch(err => {
+                console.error("Error deleting notification:", err);
+            });
     };
 
     if (!user) return null;

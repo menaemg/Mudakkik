@@ -12,7 +12,7 @@ import Swal from "sweetalert2";
 export default function AdminLayout({ children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState(null);
-  const { auth, admin, flash } = usePage().props;
+  const { auth, admin, flash, url: currentUrl } = usePage().props;
   const pendingReports = admin?.pendingReportsCount || 0;
 
   const menuItems = [
@@ -101,7 +101,7 @@ export default function AdminLayout({ children }) {
                 ) : (
                   <Link
                     href={item.url}
-                    className={`flex items-center justify-between p-3 rounded-xl transition-all group hover:bg-white/5 text-slate-400 hover:text-white ${usePage().url === item.url ? 'bg-white/10 text-white' : ''}`}
+                    className={`flex items-center justify-between p-3 rounded-xl transition-all group hover:bg-white/5 text-slate-400 hover:text-white ${currentUrl === item.url ? 'bg-white/10 text-white' : ''}`}
                   >
                     <div className="flex items-center gap-3">
                       <item.icon size={20} className="group-hover:text-red-500" />

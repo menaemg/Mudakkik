@@ -154,14 +154,13 @@ class ProfileController extends Controller
 
         $user->save();
 
-        $redirectUrl = route('profile.edit');
-        if ($request->has('tab')) {
-            $redirectUrl .= '?tab=' . $request->get('tab');
-        }
-
-        return Redirect::to($redirectUrl)->with('success', 'تم تحديث الملف الشخصي بنجاح');
+    $tab = $request->get('tab');
+    if ($tab) {
+        return Redirect::route('profile.edit', ['tab' => $tab])->with('success', 'تم تحديث الملف الشخصي بنجاح');
     }
 
+    return Redirect::route('profile.edit')->with('success', 'تم تحديث الملف الشخصي بنجاح');
+}
        public function destroy(Request $request): RedirectResponse
     {
         $request->validate([

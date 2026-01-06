@@ -258,33 +258,61 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function consumeAiCredit(int $amount = 1): bool
     {
-        if ($this->ai_recurring_credits >= $amount) {
-            $this->decrement('ai_recurring_credits', $amount);
-            return true;
-        }
+        return \DB::transaction(function () use ($amount) {
+            $user = static::lockForUpdate()->find($this->id);
+            
+            if (!$user) {
+                return false;
+            }
 
-        $totalAvailable = $this->ai_recurring_credits + $this->ai_bonus_credits;
+            // Check recurring credits first
+            if ($user->ai_recurring_credits >= $amount) {
+                $user->decrement('ai_recurring_credits', $amount);
+                // Refresh the current instance to reflect the change
+                $this->refresh();
+                return true;
+            }
 
-        if ($totalAvailable >= $amount) {
+            // Check combined credits
+            $totalAvailable = $user->ai_recurring_credits + $user->ai_bonus_credits;
 
-            $neededFromBonus = $amount - $this->ai_recurring_credits;
+            if ($totalAvailable >= $amount) {
+                $neededFromBonus = $amount - $user->ai_recurring_credits;
 
-            $this->update(['ai_recurring_credits' => 0]);
+                $user->update(['ai_recurring_credits' => 0]);
+                $user->decrement('ai_bonus_credits', $neededFromBonus);
+                
+                // Refresh the current instance to reflect the changes
+                $this->refresh();
+                return true;
+            }
 
-            $this->decrement('ai_bonus_credits', $neededFromBonus);
-
-            return true;
-        }
-
-        return false;
+            return false;
+        });
     }
 
     public function consumeAdCredit(int $days): bool
     {
-        if ($this->ad_credits >= $days) {
-            $this->decrement('ad_credits', $days);
-            return true;
-        }
-        return false;
+        return \DB::transaction(function () use ($days) {
+            $user = static::lockForUpdate()->find($this->id);
+            
+            if (!$user) {
+                return false;
+            }
+
+            if ($user->ad_credits >= $days) {
+                $user->decrement('ad_credits', $days);
+                // Refresh the current instance to reflect the change
+                $this->refresh();
+                return true;
+            }
+            
+            return false;
+        });
+    }
+
+    public function factChecks()
+    {
+        return $this->belongsToMany(FactCheck::class, 'fact_check_user')->withTimestamps();
     }
 }

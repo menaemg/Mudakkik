@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
             LikeSeeder::class,
             FollowSeeder::class,
             EntertainmentPostsSeeder::class,
+            TrustedDomainsSeeder::class,
         ]);
     }
 }

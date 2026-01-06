@@ -62,7 +62,11 @@ it('sends notification when post is deleted', function () {
         'status' => 'published'
     ]);
 
+    $postTitle = $post->title; 
+
     $post->delete();
 
-    Notification::assertSentTo($user, PostDeleted::class);
+    Notification::assertSentTo($user, PostDeleted::class, function ($notification) use ($postTitle) {
+        return $notification->postTitle === $postTitle;
+    });
 });

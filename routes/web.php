@@ -42,6 +42,8 @@ Route::get('/check', function () {
     return Inertia::render('VerifyNews');
 });
 Route::post('/verify-news', [FactCheckController::class, 'verify']);
+Route::get('/api/fact-check/history', [FactCheckController::class, 'history'])->middleware('auth');
+Route::get('/api/fact-check/{factCheck}', [FactCheckController::class, 'show'])->middleware('auth');
 
 Route::middleware(['auth', 'verified', 'can:admin-access'])
     ->prefix('admin')

@@ -219,10 +219,14 @@ class WelcomeController extends Controller
             ->where(function($q) {
                 $q->where('posts.ai_verdict', '!=', 'fake')->orWhereNull('posts.ai_verdict');
             })
-            ->select('categories.*')
+            ->select(
+                'categories.id',
+                'categories.name',
+                'categories.slug'
+            )
             ->selectRaw('COUNT(posts.id) as posts_count')
             ->selectRaw('MAX(posts.image) as representative_image')
-            ->groupBy('categories.id')
+            ->groupBy('categories.id', 'categories.name', 'categories.slug')
             ->havingRaw('COUNT(posts.id) > 0')
             ->orderByDesc('posts_count')
             ->take(8)
