@@ -11,8 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('plans', function (Blueprint $table) {
-            //
+        Schema::create('fact_check_user', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('fact_check_id')->constrained('fact_checks')->cascadeOnDelete();
+            $table->timestamps();
         });
     }
 
@@ -21,8 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('plans', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('fact_check_user');
     }
 };

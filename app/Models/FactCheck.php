@@ -15,10 +15,15 @@ class FactCheck extends Model
         'summary',
         'evidence',
         'sources',
+        'period',
     ];
 
     protected $casts = [
         'sources' => 'array',
     ];
 
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'fact_check_user')->withTimestamps();
+    }
 }

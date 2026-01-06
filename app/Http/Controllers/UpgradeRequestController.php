@@ -12,28 +12,43 @@ class UpgradeRequestController extends Controller
     {
         $request->validate([
             'request_message' => 'required|string|min:10',
-            'documents' => 'required|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120',
+            'documents' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120',
         ]);
 
-        $path = null;
-        if ($request->hasFile('documents')) {
-            $path = $request->file('documents')->store('upgrade_requests', 'public');
+        try {
+            \DB::transaction(function () use ($request) {
+                $existingRequest = UpgradeRequest::where('user_id', Auth::id())
+                    ->where('status', 'pending')
+                    ->lockForUpdate()
+                    ->first();
+
+                if ($existingRequest) {
+                    throw new \Exception('pending_request_exists');
+                }
+
+                $path = null;
+                if ($request->hasFile('documents')) {
+                    $path = $request->file('documents')->store('upgrade_requests', 'public');
+                }
+
+                UpgradeRequest::create([
+                    'user_id' => Auth::id(),
+                    'request_message' => $request->request_message,
+                    'documents' => $path,
+                    'status' => 'pending',
+                ]);
+            });
+        } catch (\Illuminate\Database\QueryException $e) {
+            if ($e->getCode() === '23000') {
+                return back()->with('error', 'لديك طلب قيد المراجعة بالفعل.');
+            }
+            throw $e;
+        } catch (\Exception $e) {
+            if ($e->getMessage() === 'pending_request_exists') {
+                return back()->with('error', 'لديك طلب قيد المراجعة بالفعل.');
+            }
+            throw $e;
         }
-
-        $existingRequest = UpgradeRequest::where('user_id', Auth::id())
-            ->where('status', 'pending')
-            ->first();
-
-        if ($existingRequest) {
-             return back()->with('error', 'لديك طلب قيد المراجعة بالفعل.');
-        }
-
-        UpgradeRequest::create([
-            'user_id' => Auth::id(),
-            'request_message' => $request->request_message,
-            'documents' => $path,
-            'status' => 'pending',
-        ]);
 
         return back()->with('success', 'تم إرسال طلب الانضمام بنجاح.');
     }

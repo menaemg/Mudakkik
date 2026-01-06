@@ -11,12 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('plans', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->decimal('price', 8, 2);
-            $table->json('features')->nullable();
-            $table->timestamps();
+        Schema::table('fact_checks', function (Blueprint $table) {
+            $table->integer('period')->nullable()->after('input_text')->comment('Search period in days');
         });
     }
 
@@ -25,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('plans');
+        Schema::table('fact_checks', function (Blueprint $table) {
+            $table->dropColumn('period');
+        });
     }
 };
