@@ -16,7 +16,7 @@ export default function VerifyNews({ auth, ticker }) {
     const { flash } = usePage().props;
     const { data, setData, post, processing, errors, reset } = useForm({
         text: '',
-        period: 3 // Default text
+        period: "3" // Default period
     });
     const [analysisStep, setAnalysisStep] = useState(0);
     const [error, setError] = useState(null);
@@ -336,7 +336,7 @@ export default function VerifyNews({ auth, ticker }) {
                                                                 </span>
                                                             )}
                                                             <button
-                                                                onClick={() => setDisplayResult(null)}
+                                                                onClick={() => setLocalResult(null)}
                                                                 className="p-2 bg-white rounded-full text-gray-400 hover:text-gray-900 hover:bg-gray-100 transition-all shadow-sm opacity-0 group-hover:opacity-100"
                                                                 title="فحص جديد"
                                                             >
@@ -355,7 +355,7 @@ export default function VerifyNews({ auth, ticker }) {
                                                         <div className="text-center md:text-left">
                                                             <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest block mb-2">نسبة الثقة</span>
                                                             <div className="flex items-baseline justify-center md:justify-end">
-                                                                <span className="text-7xl font-black text-gray-900 leading-none tracking-tighter">{displayResult.verdict?.confidence || displayResult.confidence_score}</span>
+                                                                <span className="text-7xl font-black text-gray-900 leading-none tracking-tighter">{(displayResult.verdict?.confidence || displayResult.confidence_score)?.toString().replace('%', '')}</span>
                                                                 <span className="text-2xl font-black text-gray-300">%</span>
                                                             </div>
                                                         </div>
@@ -411,7 +411,13 @@ export default function VerifyNews({ auth, ticker }) {
                                                                             </h4>
                                                                             <div className="flex items-center gap-2 text-xs text-gray-500">
                                                                                 <Globe size={12} />
-                                                                                <span dir="ltr">{new URL(source.url).hostname.replace('www.', '')}</span>
+                                                                                <span dir="ltr">{(() => {
+                                                                                    try {
+                                                                                        return new URL(source.url).hostname.replace('www.', '');
+                                                                                    } catch (e) {
+                                                                                        return "مصدر غير معروف";
+                                                                                    }
+                                                                                })()}</span>
                                                                                 {source.date && (
                                                                                     <>
                                                                                         <span className="w-1 h-1 rounded-full bg-gray-400"></span>
@@ -460,18 +466,38 @@ export default function VerifyNews({ auth, ticker }) {
 function HistoryList({ onSelect }) {
     const [history, setHistory] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    useEffect(() => {
+    const loadHistory = () => {
+        setLoading(true);
+        setError(null);
         axios.get('/api/fact-check/history')
             .then(res => setHistory(res.data))
-            .catch(err => console.error(err))
+            .catch(err => {
+                console.error(err);
+                setError('فشل في تحميل السجل. يرجى المحاولة مرة أخرى.');
+            })
             .finally(() => setLoading(false));
+    };
+
+    useEffect(() => {
+        loadHistory();
     }, []);
 
     if (loading) return (
         <div className="flex flex-col items-center justify-center py-20 text-white/50 space-y-4">
             <RefreshCcw className="animate-spin text-blue-500" size={32} />
             <span>جاري تحميل السجل...</span>
+        </div>
+    );
+
+    if (error) return (
+        <div className="text-center py-20 text-red-400 border-2 border-dashed border-white/5 rounded-3xl">
+            <ShieldAlert size={64} className="mx-auto mb-4 opacity-50" />
+            <p className="text-lg mb-4">{error}</p>
+            <button onClick={loadHistory} className="px-6 py-2 bg-white/10 hover:bg-white/20 rounded-xl transition-colors text-white font-bold text-sm">
+                إعادة المحاولة
+            </button>
         </div>
     );
 

@@ -6,7 +6,11 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 uses(RefreshDatabase::class);
 
 it('denies verification when user has insufficient credits', function () {
-    $user = User::factory()->create([
+    $this->seed(\Database\Seeders\PlanSeeder::class);
+    $user = User::factory()->create();
+    
+    // Explicitly set credits to 0 after creation (as boot logic sets them to free plan default)
+    $user->update([
         'ai_recurring_credits' => 0,
         'ai_bonus_credits' => 0,
     ]);

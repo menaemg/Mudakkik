@@ -6,16 +6,16 @@ use Illuminate\Support\Facades\DB;
 
 uses(RefreshDatabase::class);
 
-it('prevents concurrent AI credit consumption', function () {
+it('correctly decrements AI credits until exhausted', function () {
     $user = User::factory()->create([
         'ai_recurring_credits' => 5,
         'ai_bonus_credits' => 0,
     ]);
 
-    // Simulate concurrent requests trying to consume credits
+    // Simulate multiple requests trying to consume credits
     $results = [];
     
-    // Use database transactions to simulate concurrency
+    // Run sequentially
     for ($i = 0; $i < 10; $i++) {
         $results[] = $user->fresh()->consumeAiCredit(1);
     }
@@ -29,7 +29,7 @@ it('prevents concurrent AI credit consumption', function () {
     expect($user->fresh()->ai_bonus_credits)->toBe(0);
 });
 
-it('prevents concurrent AI credit over-consumption with mixed credit types', function () {
+it('correctly decrements mixed AI credits until exhausted', function () {
     $user = User::factory()->create([
         'ai_recurring_credits' => 3,
         'ai_bonus_credits' => 2,
@@ -51,14 +51,14 @@ it('prevents concurrent AI credit over-consumption with mixed credit types', fun
     expect($freshUser->ai_recurring_credits + $freshUser->ai_bonus_credits)->toBe(0);
 });
 
-it('prevents concurrent ad credit consumption', function () {
+it('correctly decrements ad credits until exhausted', function () {
     $user = User::factory()->create([
         'ad_credits' => 10,
     ]);
 
     $results = [];
     
-    // Simulate concurrent requests
+    // Simulate multiple requests
     for ($i = 0; $i < 15; $i++) {
         $results[] = $user->fresh()->consumeAdCredit(1);
     }
@@ -71,13 +71,13 @@ it('prevents concurrent ad credit consumption', function () {
     expect($user->fresh()->ad_credits)->toBe(0);
 });
 
-it('handles concurrent credit consumption with varying amounts', function () {
+it('handles sequential credit consumption with varying amounts', function () {
     $user = User::factory()->create([
         'ai_recurring_credits' => 10,
         'ai_bonus_credits' => 5,
     ]);
 
-    // Try to consume different amounts concurrently
+    // Try to consume different amounts
     $results = [
         $user->fresh()->consumeAiCredit(5),  // Should succeed
         $user->fresh()->consumeAiCredit(6),   // Should succeed
@@ -93,7 +93,7 @@ it('handles concurrent credit consumption with varying amounts', function () {
     expect($freshUser->ai_recurring_credits + $freshUser->ai_bonus_credits)->toBe(4);
 });
 
-it('maintains data integrity during concurrent operations', function () {
+it('maintains data integrity during multiple operations', function () {
     $user = User::factory()->create([
         'ai_recurring_credits' => 100,
         'ai_bonus_credits' => 0,

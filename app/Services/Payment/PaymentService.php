@@ -218,18 +218,29 @@ class PaymentService
             return;
         }
 
-        $this->refreshCredits($user, $plan);
+        try {
+            DB::transaction(function () use ($user, $plan, $subscription, $invoiceData, $subscriptionId) {
+                // Refresh credits
+                $this->refreshCredits($user, $plan);
 
-        // Record payment
-        $this->recordPayment($user, $subscription, [
-            'amount_total' => ($invoiceData['amount_paid'] ?? 0) / 100,
-            'currency' => $invoiceData['currency'] ?? 'usd',
-            'session_id' => $invoiceData['payment_intent'] ?? null,
-            'subscription_id' => $subscriptionId,
-            'metadata' => ['type' => 'renewal'],
-        ]);
+                // Record payment
+                $this->recordPayment($user, $subscription, [
+                    'amount_total' => ($invoiceData['amount_paid'] ?? 0) / 100,
+                    'currency' => $invoiceData['currency'] ?? 'usd',
+                    'session_id' => $invoiceData['payment_intent'] ?? null,
+                    'subscription_id' => $subscriptionId,
+                    'metadata' => ['type' => 'renewal'],
+                ]);
+            });
 
-        Log::info('Credits refreshed for renewal', ['user_id' => $user->id, 'plan' => $plan->slug]);
+            Log::info('Credits refreshed for renewal', ['user_id' => $user->id, 'plan' => $plan->slug]);
+        } catch (\Exception $e) {
+             Log::error('Failed to process renewal payment', [
+                 'subscription_id' => $subscriptionId,
+                 'error' => $e->getMessage()
+             ]);
+             throw $e;
+        }
     }
 
     /**

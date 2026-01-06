@@ -15,13 +15,8 @@ class UpgradeRequestController extends Controller
             'documents' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120',
         ]);
 
-        $path = null;
-        if ($request->hasFile('documents')) {
-            $path = $request->file('documents')->store('upgrade_requests', 'public');
-        }
-
         try {
-            \DB::transaction(function () use ($request, $path) {
+            \DB::transaction(function () use ($request) {
                 $existingRequest = UpgradeRequest::where('user_id', Auth::id())
                     ->where('status', 'pending')
                     ->lockForUpdate()
@@ -29,6 +24,11 @@ class UpgradeRequestController extends Controller
 
                 if ($existingRequest) {
                     throw new \Exception('pending_request_exists');
+                }
+
+                $path = null;
+                if ($request->hasFile('documents')) {
+                    $path = $request->file('documents')->store('upgrade_requests', 'public');
                 }
 
                 UpgradeRequest::create([
