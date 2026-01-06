@@ -3,55 +3,90 @@ import { Link } from '@inertiajs/react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-    FaCrown, FaCheckCircle, FaCalendarAlt, FaCreditCard,
-    FaStar, FaHistory, FaHeadset, FaRobot, FaAd, FaMedal, FaTimesCircle, FaCalendarCheck
+    FaCrown, FaCalendarAlt, FaCreditCard,
+    FaHistory, FaHeadset, FaRobot, FaAd, FaMedal, FaTimesCircle, FaCalendarCheck
 } from 'react-icons/fa';
 
 export default function SubscriptionTab({ subscription, plan, subscription_history }) {
 
     const isFree = !subscription || plan?.slug === 'free' || plan?.is_free;
 
-    const getPlanFeatures = (slug) => {
-        switch (slug) {
-            case 'free':
-                return [
-                    { text: 'دعم فني قياسي', icon: FaHeadset, color: 'text-gray-500', bg: 'bg-gray-50' },
-                    { text: 'بدون شارة توثيق', icon: FaMedal, color: 'text-gray-400', bg: 'bg-gray-50' },
-                    { text: '30 عملية كشف حقائق (AI)', icon: FaRobot, color: 'text-indigo-500', bg: 'bg-indigo-50' },
-                    { text: 'لا يوجد رصيد إعلاني', icon: FaTimesCircle, color: 'text-red-400', bg: 'bg-red-50' },
-                ];
-            case 'basic':
-                return [
-                    { text: 'دعم فني قياسي', icon: FaHeadset, color: 'text-blue-600', bg: 'bg-blue-50' },
-                    { text: 'شارة توثيق برونزية', icon: FaMedal, color: 'text-amber-700', bg: 'bg-amber-50' },
-                    { text: '100 عملية كشف حقائق (AI)', icon: FaRobot, color: 'text-indigo-600', bg: 'bg-indigo-50' },
-                    { text: '7 أيام إعلانات ممولة', icon: FaAd, color: 'text-green-600', bg: 'bg-green-50' },
-                ];
-            case 'professional':
-                return [
-                    { text: 'دعم فني مباشر VIP', icon: FaHeadset, color: 'text-purple-600', bg: 'bg-purple-50' },
-                    { text: 'شارة توثيق ذهبية (Gold)', icon: FaMedal, color: 'text-yellow-500', bg: 'bg-yellow-50' },
-                    { text: '1000 عملية كشف حقائق (AI)', icon: FaRobot, color: 'text-indigo-700', bg: 'bg-indigo-50' },
-                    { text: '30 يوم إعلانات ممولة', icon: FaAd, color: 'text-green-700', bg: 'bg-green-50' },
-                ];
-            case 'professional-annual':
-                return [
-                    { text: 'دعم فني مباشر VIP', icon: FaHeadset, color: 'text-purple-600', bg: 'bg-purple-50' },
-                    { text: 'شارة توثيق بلاتينية (VIP)', icon: FaMedal, color: 'text-slate-500', bg: 'bg-slate-100' },
-                    { text: '12000 عملية كشف حقائق (AI)', icon: FaRobot, color: 'text-indigo-800', bg: 'bg-indigo-50' },
-                    { text: '365 يوم إعلانات ممولة', icon: FaAd, color: 'text-green-800', bg: 'bg-green-50' },
-                ];
+    const getFeatureDisplay = (key, value) => {
+        switch (key) {
+            case 'monthly_ai_credits':
+                return {
+                    text: `${value} عملية كشف حقائق (AI) شهرياً`,
+                    icon: FaRobot,
+                    color: 'text-indigo-600',
+                    bg: 'bg-indigo-50'
+                };
+            case 'monthly_ad_credits':
+                return value > 0 ? {
+                    text: `${value} أيام رصيد إعلاني شهرياً`,
+                    icon: FaAd,
+                    color: 'text-green-600',
+                    bg: 'bg-green-50'
+                } : {
+                    text: 'لا يوجد رصيد إعلاني',
+                    icon: FaTimesCircle,
+                    color: 'text-red-400',
+                    bg: 'bg-red-50'
+                };
+            case 'verification_badge':
+                if (!value) return {
+                    text: 'بدون شارة توثيق',
+                    icon: FaMedal,
+                    color: 'text-gray-400',
+                    bg: 'bg-gray-50'
+                };
+                const badges = { bronze: 'برونزية', gold: 'ذهبية', platinum: 'بلاتينية' };
+                return {
+                    text: `شارة توثيق ${badges[value] || value}`,
+                    icon: FaMedal,
+                    color: value === 'gold' ? 'text-yellow-600' : (value === 'platinum' ? 'text-slate-600' : 'text-amber-700'),
+                    bg: value === 'gold' ? 'bg-yellow-50' : (value === 'platinum' ? 'bg-slate-100' : 'bg-amber-50')
+                };
+            case 'priority_support':
+                return value ? {
+                    text: 'دعم فني مباشر (VIP)',
+                    icon: FaHeadset,
+                    color: 'text-purple-600',
+                    bg: 'bg-purple-50'
+                } : {
+                    text: 'دعم فني قياسي',
+                    icon: FaHeadset,
+                    color: 'text-gray-500',
+                    bg: 'bg-gray-50'
+                };
             default:
-                try {
-                    const dbFeatures = typeof plan?.features === 'string' ? JSON.parse(plan.features) : (plan?.features || []);
-                    return dbFeatures.map(f => ({ text: f, icon: FaCheckCircle, color: 'text-green-500', bg: 'bg-green-50' }));
-                } catch (e) {
-                    return [];
-                }
+                return null;
         }
     };
 
-    const currentFeatures = getPlanFeatures(plan?.slug || 'free');
+    const prepareFeaturesList = () => {
+        if (!plan?.features) return [];
+
+        let features = plan.features;
+        if (typeof features === 'string') {
+            try {
+                features = JSON.parse(features);
+            } catch (e) {
+                console.error("Error parsing features JSON", e);
+                return [];
+            }
+        }
+
+        const order = ['verification_badge', 'monthly_ai_credits', 'monthly_ad_credits', 'priority_support'];
+
+        return order.map(key => {
+            if (features && features.hasOwnProperty(key)) {
+                return getFeatureDisplay(key, features[key]);
+            }
+            return null;
+        }).filter(Boolean);
+    };
+
+    const currentFeatures = prepareFeaturesList();
 
     const formatDate = (dateString) => {
         if (!dateString) return '-';
@@ -59,6 +94,7 @@ export default function SubscriptionTab({ subscription, plan, subscription_histo
     };
 
     return (
+
         <div className="space-y-6 animate-in fade-in duration-500 slide-in-from-bottom-2">
 
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -80,14 +116,14 @@ export default function SubscriptionTab({ subscription, plan, subscription_histo
                     <div className="flex flex-col md:flex-row gap-8 items-center">
                         <div className={`w-24 h-24 rounded-full flex items-center justify-center text-4xl shadow-lg transition-transform hover:scale-105 duration-300
                             ${isFree ? 'bg-gray-100 text-gray-400' :
-                              plan?.slug?.includes('annual') ? 'bg-gradient-to-br from-slate-800 to-black text-yellow-400 border-4 border-yellow-400' :
-                              'bg-gradient-to-br from-purple-600 to-indigo-600 text-white'}`}>
+                            plan?.slug?.includes('annual') ? 'bg-gradient-to-br from-slate-800 to-black text-yellow-400 border-4 border-yellow-400' :
+                            'bg-gradient-to-br from-purple-600 to-indigo-600 text-white'}`}>
                             <FaCrown />
                         </div>
 
                         <div className="flex-1 text-center md:text-right space-y-2">
                             <h2 className="text-3xl font-black text-gray-900">
-                                {plan?.name || 'الباقة المجانية'}
+                                {plan?.name || 'جاري التحميل...'}
                             </h2>
                             <p className="text-gray-500 font-medium text-lg">
                                 {isFree
@@ -97,22 +133,25 @@ export default function SubscriptionTab({ subscription, plan, subscription_histo
                                         : 'اشتراك شهري يمنحك مميزات احترافية.'}
                             </p>
 
-                            {!isFree && subscription && (
+                            {subscription && (
                                 <div className="flex flex-wrap gap-4 mt-6 justify-center md:justify-start">
                                     <div className="flex items-center gap-2 text-sm font-bold text-gray-700 bg-gray-50 px-4 py-2 rounded-xl border border-gray-200">
                                         <FaCalendarAlt className="text-brand-blue" />
                                         <span>البدء: <span dir="ltr" className="font-mono">{formatDate(subscription.start_at || subscription.created_at)}</span></span>
                                     </div>
-                                    <div className={`flex items-center gap-2 text-sm font-bold px-4 py-2 rounded-xl border ${subscription.status
-                                       === 'active' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-700 border-red-200'}`}>
-                                        <FaCalendarCheck />
-                                        <span>
-                                            {subscription.status === 'active'
-                                                ? `يتجدد: ${formatDate(subscription.ends_at) || 'تلقائي'}`
-                                                : `انتهى: ${formatDate(subscription.ends_at)}`
-                                            }
-                                        </span>
-                                    </div>
+
+                                    {subscription.ends_at && (
+                                        <div className={`flex items-center gap-2 text-sm font-bold px-4 py-2 rounded-xl border ${subscription.status
+                                           === 'active' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-700 border-red-200'}`}>
+                                            <FaCalendarCheck />
+                                            <span>
+                                                {subscription.status === 'active'
+                                                    ? `يتجدد: ${formatDate(subscription.ends_at)}`
+                                                    : `انتهى: ${formatDate(subscription.ends_at)}`
+                                                }
+                                            </span>
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </div>
@@ -122,13 +161,13 @@ export default function SubscriptionTab({ subscription, plan, subscription_histo
                                 <Link href={route('plans.index')} className="w-full">
                                     <Button className="bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-600
                                     hover:to-orange-700 text-white font-black w-full shadow-xl border-0 h-12 text-lg transform transition hover:-translate-y-1">
-                                        <FaCrown className="ml-2" /> ترقية الباقة الآن
+                                            <FaCrown className="ml-2" /> ترقية الباقة الآن
                                     </Button>
                                 </Link>
                             ) : (
                                 <Link href={route('plans.index')} className="w-full">
                                     <Button variant="outline" className="w-full border-2 border-purple-200 text-purple-700 hover:bg-purple-50 h-11 font-bold">
-                                        تغيير الخطة
+                                            تغيير الخطة
                                     </Button>
                                 </Link>
                             )}
@@ -140,7 +179,7 @@ export default function SubscriptionTab({ subscription, plan, subscription_histo
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-2xl border border-blue-100 shadow-sm">
                     <h4 className="font-black text-blue-900 mb-6 flex items-center gap-2 text-xl">
-                        <FaStar className="text-yellow-500" /> مميزات باقتك الحالية
+                        <FaCrown className="text-yellow-500" /> مميزات باقتك الحالية
                     </h4>
                     {currentFeatures.length > 0 ? (
                         <div className="grid gap-3">
@@ -155,7 +194,9 @@ export default function SubscriptionTab({ subscription, plan, subscription_histo
                             ))}
                         </div>
                     ) : (
-                        <p className="text-sm text-blue-800/60 text-center py-4">جاري تحميل المميزات...</p>
+                        <p className="text-sm text-blue-800/60 text-center py-4">
+                           {plan ? 'لا توجد مميزات إضافية للعرض' : 'جاري تحميل المميزات...'}
+                        </p>
                     )}
                 </div>
 
@@ -175,7 +216,7 @@ export default function SubscriptionTab({ subscription, plan, subscription_histo
                                         <p className="text-xs text-gray-500 mt-1 font-medium flex items-center gap-1">
                                             <FaCalendarAlt size={10} />
                                             {formatDate(sub.start_at || sub.created_at)}
-                                            <span className="mx-1">-></span>
+                                            <span className="mx-1">-</span>
                                             {formatDate(sub.ends_at)}
                                         </p>
                                     </div>

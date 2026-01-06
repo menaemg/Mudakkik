@@ -36,8 +36,11 @@ export default function ProfileSidebar({ stats, activeTab, setActiveTab, current
 
     const canAccessArticles = user.role === 'journalist' || user.role === 'admin';
     const isFreePlan = current_plan?.is_free || current_plan?.slug === 'free';
-
+      // console.log('Current Plan:', current_plan);
+      // console.log('Stats Plan:', stats?.plan);
+      // console.log('Is Free Plan Logic:', isFreePlan);
     return (
+
         <div className="flex flex-col gap-6">
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center relative overflow-hidden group">
                 <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-r from-[#000a2e] to-blue-900 transition-all duration-500 group-hover:h-28"></div>
@@ -63,7 +66,7 @@ export default function ProfileSidebar({ stats, activeTab, setActiveTab, current
                         {user.role === 'journalist' ? 'صحفي' : user.role === 'admin' ? 'مدير' : 'عضو'}
                     </Badge>
                     <Badge variant="outline" className={`text-xs border-gray-200 px-3 py-1 ${isFreePlan ? 'text-gray-500' : 'text-amber-600 bg-amber-50 border-amber-200'}`}>
-                        {current_plan?.name || stats.plan}
+                        {isFreePlan ? 'باقة مجانية' : (current_plan?.name || stats.plan)}
                     </Badge>
                 </div>
 

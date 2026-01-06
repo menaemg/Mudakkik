@@ -37,6 +37,8 @@ const Header = ({ auth, ticker }) => {
         { name: 'رياضة', link: route('posts.index', { category: 'sports' }), slug: 'sports' },
         { name: 'صحة', link: route('posts.index', { category: 'health' }), slug: 'health' },
         { name: 'ثقافة', link: route('posts.index', { category: 'culture' }), slug: 'culture' },
+        { name: 'فنون', link: route('posts.index', { category: 'arts' }), slug: 'arts' },
+        { name: 'ترفية', link: route('posts.index', { category: 'entertainment' }), slug: 'entertainment' },
         { name: 'علوم', link: route('posts.index', { category: 'science' }), slug: 'science' },
     ];
 

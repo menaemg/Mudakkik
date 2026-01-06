@@ -75,7 +75,6 @@ export default function Report({ auth, post }) {
                                 )}
                             </div>
 
-                            {/* Text Info */}
                             <div className="text-center sm:text-right flex-1">
                                 <div className="inline-flex items-center gap-2 mb-2 bg-white px-3 py-1 rounded-full border border-gray-200 shadow-sm">
                                     <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>

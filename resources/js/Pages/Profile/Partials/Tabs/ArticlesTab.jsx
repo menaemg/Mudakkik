@@ -38,7 +38,6 @@ export default function ArticlesTab({ articles, setActiveTab, setPostToEdit }) {
                                     setPostToEdit={setPostToEdit}
                                 />
                             ))}
-                            {/* Add invisible spacer to maintain consistent height when there are fewer articles */}
                             {articles.data.length < 6 && (
                                 <div className="h-16 invisible" style={{ height: `${(6 - articles.data.length) * 64}px` }}></div>
                             )}

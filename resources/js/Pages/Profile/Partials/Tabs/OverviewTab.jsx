@@ -11,7 +11,7 @@ export default function OverviewTab({ stats, recentPosts, recentLikes, setActive
 
     const activityData = stats.is_journalist ? recentPosts?.data : recentLikes?.data;
     const isJournalist = stats.is_journalist;
-    const isAdmin = stats.role === 'مدير' || stats.role === 'admin'; // التحقق مما إذا كان المستخدم أدمن
+    const isAdmin = stats.role === 'مدير' || stats.role === 'admin';
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     return (
@@ -33,14 +33,12 @@ export default function OverviewTab({ stats, recentPosts, recentLikes, setActive
                         <FaPenNib /> كتابة مقال جديد
                     </Button>
                 ) : isAdmin ? (
-                    // إذا كان أدمن، لا نظهر زر الانضمام، بل زر التوجه للوحة التحكم مثلاً أو لا شيء
                     <Link href={route('admin.dashboard')}>
                          <Button className="bg-[#000a2e] text-white hover:bg-blue-900 shadow-md">
                             لوحة الإدارة
                          </Button>
                     </Link>
                 ) : (
-                    // المستخدم العادي فقط هو من يرى زر الانضمام وحالة الطلب
                     <div className="flex items-center gap-2">
                         {upgradeRequestStatus === 'pending' ? (
                             <div className="bg-yellow-50 text-yellow-700 border border-yellow-200 px-4 py-2 rounded-xl flex items-center gap-2 font-bold shadow-sm">
@@ -62,7 +60,6 @@ export default function OverviewTab({ stats, recentPosts, recentLikes, setActive
                 )}
             </div>
 
-            {/* ... بقية الكود (الإحصائيات، القائمة، البانر) كما هو ... */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <StatCard icon={FaEye} label="تفاعل الجمهور" value={stats.views} trend="+0% هذا الأسبوع" />
                 <StatCard icon={FaPenNib} label="المقالات المنشورة" value={stats.posts_count} colorClass="bg-purple-50 text-purple-600" />

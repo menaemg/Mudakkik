@@ -2,56 +2,96 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Advertisment;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class UserAdController extends Controller
 {
     public function index()
     {
-        $requests = auth()->user()->adRequests()->latest()->get();
+        $user = Auth::user();
+
+        $remainingDays = $user->ad_credits;
+
+        $hasActiveSubscription = $user->subscriptions()
+                                      ->where('status', 'active')
+                                      ->where('end_date', '>', now())
+                                      ->exists();
+
+        $requests = Advertisment::where('user_id', $user->id)
+            ->latest()
+            ->paginate(10)
+            ->through(function ($ad) {
+                return [
+                    'id' => $ad->id,
+                    'title' => $ad->title,
+                    'image_path' => $ad->image_url,
+                    'target_url' => $ad->target_link,
+                    'requested_start_date' => $ad->start_date,
+                    'requested_end_date' => $ad->end_date,
+                    'duration' => $ad->number_of_days,
+                    'status' => $ad->status,
+                ];
+            });
 
         return Inertia::render('Profile/Ads/Index', [
-            'requests' => $requests
+            'adRequests' => $requests,
+            'remainingDays' => $remainingDays,
+            'hasActiveSubscription' => $hasActiveSubscription
         ]);
     }
 
-    public function store(Request $request)
-    {
-        $user = $request->user();
+public function store(Request $request)
+{
+    $user = $request->user();
 
-        if ($user->currentPlan()?->slug === 'free' || !$user->currentPlan()) {
-            return back()->withErrors(['plan' => 'عفواً، ميزة الإعلانات متاحة فقط للمشتركين.']);
-        }
+    $activeSubscription = $user->subscriptions()
+        ->where('status', 'active')
+        ->where('end_date', '>', now())
+        ->latest()
+        ->first();
 
-        $validated = $request->validate([
-            'title' => 'required|string|max:100',
-            'target_url' => 'required|url',
-            'image' => 'required|image|max:2048',
-            'start_date' => 'required|date|after:today',
-            'duration' => 'required|integer|min:1|max:30',
-        ]);
+    if (!$activeSubscription) {
+        return back()->withErrors(['general' => 'عفواً، يجب أن يكون لديك اشتراك فعال لإنشاء إعلان.']);
+    }
 
-        $cost = $validated['duration'];
+    $currentCredits = $user->ad_credits;
 
-        if (!$user->consumeAdCredit($cost)) {
-            return back()->withErrors([
-                'duration' => "رصيد الإعلانات غير كافي ({$user->ad_credits} أيام متبقية). يرجى تقليل المدة أو ترقية الباقة."
-            ]);
-        }
+    $validated = $request->validate([
+        'title' => 'required|string|max:100',
+        'target_url' => 'required|url',
+        'image' => 'required|image|max:2048',
+        'start_date' => 'required|date|after_or_equal:today',
+        'duration' => ['required', 'integer', 'min:1', function ($attribute, $value, $fail) use ($currentCredits) {
+            if ($value > $currentCredits) {
+                $fail("عفواً، رصيدك الحالي ($currentCredits يوم) لا يكفي لهذه المدة.");
+            }
+        }],
+    ]);
+
+    DB::transaction(function () use ($request, $user, $validated, $activeSubscription) {
+
+        $user->decrement('ad_credits', $validated['duration']);
 
         $imagePath = $request->file('image')->store('ads_requests', 'public');
-        $endDate = \Carbon\Carbon::parse($validated['start_date'])->addDays($validated['duration']);
 
-        $request->user()->adRequests()->create([
+        Advertisment::create([
+            'user_id' => $user->id,
+            'subscription_id' => $activeSubscription->id,
             'title' => $validated['title'],
-            'target_url' => $validated['target_url'],
-            'image_path' => $imagePath,
-            'requested_start_date' => $validated['start_date'],
-            'requested_end_date' => $endDate,
+            'image_url' => $imagePath,
+            'target_link' => $validated['target_url'],
+            'number_of_days' => $validated['duration'],
+            'start_date' => $validated['start_date'],
+
+            'end_date' => \Carbon\Carbon::parse($validated['start_date'])->addDays((int) $validated['duration']),
+
             'status' => 'pending'
         ]);
+    });
 
-        return back()->with('success', "تم إرسال الطلب وخصم {$cost} أيام من رصيدك.");
-    }
-}
+    return back()->with('success', "تم إرسال الطلب وخصم {$validated['duration']} يوم من رصيدك.");
+}}

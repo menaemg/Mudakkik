@@ -7,10 +7,9 @@ import InputError from '@/Components/InputError';
 import { FaBullhorn, FaPlus, FaCalendarAlt, FaClock, FaImage, FaCoins } from 'react-icons/fa';
 import { Badge } from "@/components/ui/badge";
 
-export default function AdsTab({ adRequests }) {
-    const { auth } = usePage().props;
-    const adCredits = auth.user.credits?.ads || 0;
-
+export default function AdsTab({ adRequests, remainingDays }) {
+      const { auth } = usePage().props;
+const adCredits = remainingDays ?? auth.user.ad_credits ?? 0;
     const [isCreating, setIsCreating] = useState(false);
 
     const { data, setData, post, processing, errors, reset } = useForm({

@@ -175,22 +175,21 @@ class WelcomeController extends Controller
             }
         }
 
-        $entertainmentCategories =Category::whereIn('slug', ['entertainment', 'arts'])
-            ->pluck('id');
+      $entertainmentCategories = Category::whereIn('slug', ['entertainment', 'arts'])->pluck('id');
 
-        $entertainmentPosts = collect();
+      $entertainmentPosts = collect();
 
-        if ($entertainmentPosts->isNotEmpty()) {
-        $entertainmentPosts = Post::tap($safeQuery)
-                ->whereIn('category_id', $entertainmentCategories)
-                ->whereNotIn('id', $excludeIds)
-                ->with(['user:id,name,avatar', 'category:id,name,slug'])
-                ->latest()
-                ->take(6)
-                ->get();
-            $excludeIds = array_merge($excludeIds, $entertainmentPosts->pluck('id')->toArray());
-        }
+      if ($entertainmentCategories->isNotEmpty()) {
+          $entertainmentPosts = Post::tap($safeQuery)
+              ->whereIn('category_id', $entertainmentCategories)
+              ->whereNotIn('id', $excludeIds)
+              ->with(['user:id,name,avatar', 'category:id,name,slug'])
+              ->latest()
+              ->take(6)
+              ->get();
 
+          $excludeIds = array_merge($excludeIds, $entertainmentPosts->pluck('id')->toArray());
+      }
         $businessCategories = Category::whereIn('slug', ['business', 'economy', 'finance'])
             ->pluck('id');
 
@@ -229,6 +228,40 @@ class WelcomeController extends Controller
             ->take(8)
             ->get();
 
+      $editorAlertsSlots = HomeSlot::where('section', 'editor_alerts')
+          ->with(['post' => function ($query) use ($safeQuery) {
+              $query->tap($safeQuery)->with(['user', 'category']);
+          }])
+          ->orderBy('slot_name')
+          ->take(2)
+          ->get()
+          ->pluck('post')
+          ->filter();
+
+        $dontMissPosts = Post::tap($safeQuery)
+          ->whereNotIn('id', $excludeIds)
+          ->with(['user:id,name,avatar', 'category:id,name,slug'])
+          ->latest()
+          ->take(4)
+          ->get();
+
+      $excludeIds = array_merge($excludeIds, $dontMissPosts->pluck('id')->toArray());
+
+      $breakingPost = Post::tap($safeQuery)
+          ->where('is_breaking', true)
+          ->whereNotIn('id', $excludeIds)
+          ->latest()
+          ->first();
+      if ($breakingPost) $excludeIds[] = $breakingPost->id;
+
+      $forYouPosts = Post::tap($safeQuery)
+          ->whereNotIn('id', $excludeIds)
+          ->with('category:id,name,slug')
+          ->inRandomOrder()
+          ->take(4)
+          ->get();
+      $excludeIds = array_merge($excludeIds, $forYouPosts->pluck('id')->toArray());
+
         return Inertia::render('Welcome', [
             'canLogin' => Route::has('login'),
             'canRegister' => Route::has('register'),
@@ -250,7 +283,13 @@ class WelcomeController extends Controller
             'topStories' => $topStories,
             'entertainment' => $entertainmentPosts,
             'business' => $businessPosts,
-            'moreNews' => $moreNewsPosts
+            'moreNews' => $moreNewsPosts,
+            'gridSection' => [
+            'dontMiss' => $dontMissPosts,
+            'breaking' => $breakingPost,
+            'forYou'   => $forYouPosts,
+            ],
+              'editorAlerts' => $editorAlertsSlots,
         ]);
     }
 }
