@@ -75,7 +75,7 @@ class PostFactory extends Factory
     {
         $title = fake()->randomElement(self::$newsTitles);
         $body = implode("\n\n", fake()->randomElements(self::$paragraphs, 3));
-        $category = Category::inRandomOrder()->first();
+
 
         return [
             'title' => $title,
@@ -83,7 +83,7 @@ class PostFactory extends Factory
             'body' => $body,
             'image' => null,
             'user_id' => User::factory(),
-            'category_id' => $category?->id ?? 1,
+            'category_id' => Category::inRandomOrder()->first()?->id ?? Category::factory(),
             'status' => fake()->randomElement(['published', 'published', 'published', 'pending']),
             'type' => fake()->randomElement(['news', 'news', 'article']),
             'ai_verdict' => fake()->randomElement(['trusted', 'trusted', 'trusted', 'checking']),

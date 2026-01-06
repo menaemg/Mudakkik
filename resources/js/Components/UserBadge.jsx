@@ -1,25 +1,25 @@
 import React from 'react';
 import { FaCrown, FaPenNib, FaStar, FaShieldAlt } from 'react-icons/fa';
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/Components/ui/tooltip";
 
 const BadgeIcon = ({ icon: Icon, colorClass, bgClass, tooltip }) => (
-  <TooltipProvider>
-    <Tooltip delayDuration={200}>
-      <TooltipTrigger asChild>
-        <div className={`flex items-center justify-center w-6 h-6 rounded-full border shadow-sm transition-transform hover:scale-110 cursor-help ${bgClass} border-white/20`}>
-          <Icon className={`w-3 h-3 ${colorClass}`} />
-        </div>
-      </TooltipTrigger>
-      <TooltipContent className="bg-[#020617] text-white border border-gray-700 text-xs font-bold">
-        <p>{tooltip}</p>
-      </TooltipContent>
-    </Tooltip>
-  </TooltipProvider>
+    <TooltipProvider>
+        <Tooltip delayDuration={200}>
+            <TooltipTrigger asChild>
+                <div className={`flex items-center justify-center w-6 h-6 rounded-full border shadow-sm transition-transform hover:scale-110 cursor-help ${bgClass} border-white/20`}>
+                    <Icon className={`w-3 h-3 ${colorClass}`} />
+                </div>
+            </TooltipTrigger>
+            <TooltipContent className="bg-[#020617] text-white border border-gray-700 text-xs font-bold">
+                <p>{tooltip}</p>
+            </TooltipContent>
+        </Tooltip>
+    </TooltipProvider>
 );
 
 export default function UserBadge({ user, planSlug, className = "" }) {

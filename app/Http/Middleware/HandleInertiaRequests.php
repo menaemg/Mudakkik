@@ -100,6 +100,8 @@ class HandleInertiaRequests extends Middleware
                 'success' => fn() => $request->session()->pull('success'),
                 'error'   => fn() => $request->session()->pull('error'),
                 'warning' => fn() => $request->session()->pull('warning'),
+                'result'  => fn() => $request->session()->get('result'),
+                'open_plan_modal' => fn() => $request->session()->get('open_plan_modal'),
             ],
         ];
     }

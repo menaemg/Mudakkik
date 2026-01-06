@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Head } from "@inertiajs/react";
+import { Head, useForm, usePage } from "@inertiajs/react";
 import Header from "@/Components/Header";
 import Footer from "@/Components/Footer";
 import { motion, AnimatePresence } from "framer-motion";
@@ -13,10 +13,13 @@ import {
 } from "lucide-react";
 
 export default function VerifyNews({ auth, ticker }) {
-    const [news, setNews] = useState("");
-    const [loading, setLoading] = useState(false);
-    const [result, setResult] = useState(null);
+    const { flash } = usePage().props;
+    const { data, setData, post, processing, errors } = useForm({ text: '' });
     const [analysisStep, setAnalysisStep] = useState(0);
+
+    const result = flash?.result;
+    const error = flash?.error || errors.text;
+    const loading = processing;
 
     useEffect(() => {
         AOS.init({ duration: 1000, once: true });
@@ -30,25 +33,22 @@ export default function VerifyNews({ auth, ticker }) {
         return () => clearInterval(interval);
     }, [loading]);
 
-    const handleVerify = async () => {
-        if (!news || news.length < 10) return;
-        setLoading(true);
-        setResult(null);
-        try {
-            const response = await axios.post("/verify-news", { content: news });
-            const score = parseInt(response.data.verdict?.confidence || 0);
-            const finalVerdict = score < 50 ? "غير صحيح" : score < 70 ? "غير مؤكد" : score <= 90 ? "صحيح" : "رسمي";
-            setResult({ verdict: finalVerdict, confidence_score: score, ...response.data.verdict, sources: response.data.sources || [] });
-        } catch (error) { console.error(error); }
-        finally { setLoading(false); }
+    const handleVerify = () => {
+        if (!data.text || data.text.length < 10) return;
+        post('/verify-news', {
+            preserveScroll: true,
+            onSuccess: () => { },
+        });
     };
 
-    const config = result ? {
+    // Helper logic for verdict labels
+    const verdictLabel = result?.verdict?.label || result?.verdict || "غير مؤكد";
+    const config = result ? ({
         "رسمي": { color: "from-blue-600 to-cyan-500", icon: <Award size={40} />, shadow: "shadow-blue-500/40", text: "text-blue-600" },
         "صحيح": { color: "from-emerald-600 to-teal-400", icon: <CheckCircle size={40} />, shadow: "shadow-emerald-500/40", text: "text-emerald-600" },
         "غير مؤكد": { color: "from-amber-500 to-orange-400", icon: <HelpCircle size={40} />, shadow: "shadow-amber-500/40", text: "text-amber-600" },
         "غير صحيح": { color: "from-[#b20e1e] to-rose-500", icon: <XCircle size={40} />, shadow: "shadow-red-500/40", text: "text-[#b20e1e]" },
-    }[result.verdict] : {};
+    }[verdictLabel] || { color: "from-gray-500 to-gray-400", icon: <HelpCircle size={40} />, shadow: "shadow-gray-500/40", text: "text-gray-600" }) : {};
 
     return (
         <div className="min-h-screen bg-[#020617] font-sans text-right overflow-x-hidden" dir="rtl">
@@ -97,13 +97,17 @@ export default function VerifyNews({ auth, ticker }) {
                                 </div>
                                 <div className="p-8 flex-grow">
                                     <textarea
-                                        value={news}
-                                        onChange={(e) => setNews(e.target.value)}
+                                        value={data.text}
+                                        onChange={(e) => setData('text', e.target.value)}
                                         className="w-full h-full min-h-[400px] bg-transparent text-white text-xl md:text-2xl font-medium outline-none resize-none placeholder:text-gray-700 leading-relaxed"
                                         placeholder=">>> انقر هنا وألصق الخبر أو الادعاء المطلوب فحصه..."
                                     />
                                 </div>
-                                <div className="p-8 bg-[#b20e1e] flex items-center justify-between group cursor-pointer overflow-hidden relative" onClick={handleVerify}>
+                                <button
+                                    onClick={handleVerify}
+                                    disabled={loading}
+                                    className="w-full p-8 bg-[#b20e1e] flex items-center justify-between group cursor-pointer overflow-hidden relative text-right transition-colors hover:bg-[#900b18] disabled:opacity-75 disabled:cursor-not-allowed"
+                                >
                                     <motion.div whileHover={{ scale: 1.5 }} className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity"></motion.div>
                                     <div className="relative z-10">
                                         <span className="text-white text-2xl font-black">{loading ? "جاري المعالجة..." : "تشغيل الفحص"}</span>
@@ -111,7 +115,7 @@ export default function VerifyNews({ auth, ticker }) {
                                     <div className="relative z-10 w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-2xl group-hover:rotate-12 transition-transform">
                                         {loading ? <RefreshCcw className="animate-spin text-[#b20e1e]" size={32} /> : <Zap className="text-[#b20e1e] fill-[#b20e1e]" size={32} />}
                                     </div>
-                                </div>
+                                </button>
                             </div>
                         </motion.div>
 
@@ -120,10 +124,14 @@ export default function VerifyNews({ auth, ticker }) {
                                 {!result && !loading && (
                                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-full min-h-[600px] rounded-[3.5rem] border-2 border-dashed border-white/5 bg-white/[0.02] flex flex-col items-center justify-center text-center p-12">
                                         <div className="w-32 h-32 bg-white/5 rounded-full flex items-center justify-center mb-8 border border-white/10 animate-bounce">
-                                            <ShieldCheck size={60} className="text-gray-800" />
+                                            {error ? <ShieldAlert size={60} className="text-red-500" /> : <ShieldCheck size={60} className="text-gray-800" />}
                                         </div>
-                                        <h3 className="text-3xl font-black text-gray-600 mb-4 tracking-tighter">بانتظار الأوامر...</h3>
-                                        <p className="text-gray-700 max-w-sm mx-auto font-bold uppercase text-xs tracking-[2px]">System Idle - Awaiting User Input For Neural Mapping</p>
+                                        <h3 className={`text-3xl font-black mb-4 tracking-tighter ${error ? 'text-red-500' : 'text-gray-600'}`}>
+                                            {error ? "حدث خطأ" : "بانتظار الأوامر..."}
+                                        </h3>
+                                        <p className="text-gray-700 max-w-sm mx-auto font-bold uppercase text-xs tracking-[2px]">
+                                            {error ? error : "System Idle - Awaiting User Input For Neural Mapping"}
+                                        </p>
                                     </motion.div>
                                 )}
 
@@ -134,7 +142,7 @@ export default function VerifyNews({ auth, ticker }) {
                                         </div>
                                         <div className="text-center space-y-10 relative z-10">
                                             <div className="flex justify-center gap-3">
-                                                {[1,2,3].map(i => <motion.div key={i} animate={{ y: [0, -20, 0] }} transition={{ duration: 1, delay: i*0.2, repeat: Infinity }} className="w-4 h-4 bg-blue-500 rounded-full shadow-[0_0_15px_#3b82f6]"></motion.div>)}
+                                                {[1, 2, 3].map(i => <motion.div key={i} animate={{ y: [0, -20, 0] }} transition={{ duration: 1, delay: i * 0.2, repeat: Infinity }} className="w-4 h-4 bg-blue-500 rounded-full shadow-[0_0_15px_#3b82f6]"></motion.div>)}
                                             </div>
                                             <h3 className="text-5xl font-black text-white tracking-tighter">جاري فك الشفرة</h3>
                                             <div className="space-y-3">
@@ -161,13 +169,13 @@ export default function VerifyNews({ auth, ticker }) {
                                                     </div>
                                                     <div>
                                                         <span className="text-[10px] font-black text-gray-400 uppercase tracking-[5px] block mb-2">Verdict Status</span>
-                                                        <h3 className={`text-7xl md:text-8xl font-black ${config.text} tracking-tighter`}>{result.verdict}</h3>
+                                                        <h3 className={`text-7xl md:text-8xl font-black ${config.text} tracking-tighter`}>{verdictLabel}</h3>
                                                     </div>
                                                 </div>
                                                 <div className="text-center md:text-left">
                                                     <span className="text-[10px] font-black text-gray-400 uppercase tracking-[5px] block mb-4">Confidence Score</span>
                                                     <div className="flex items-baseline justify-center md:justify-end">
-                                                        <span className="text-9xl font-black text-gray-900 leading-none tracking-tighter">{result.confidence_score}</span>
+                                                        <span className="text-9xl font-black text-gray-900 leading-none tracking-tighter">{result.verdict?.confidence || result.confidence_score}</span>
                                                         <span className="text-3xl font-black text-gray-300">%</span>
                                                     </div>
                                                 </div>
@@ -180,15 +188,15 @@ export default function VerifyNews({ auth, ticker }) {
                                                         <h4 className="text-3xl font-black text-[#020617] tracking-tighter">التقرير التحليلي</h4>
                                                     </div>
                                                     <div className="text-2xl md:text-3xl leading-[1.8] text-gray-700 font-medium">
-                                                        {result.summary}
+                                                        {result.verdict?.summary || result.summary}
                                                     </div>
                                                 </div>
 
-                                                {result.evidence && (
+                                                {(result.verdict?.evidence || result.evidence) && (
                                                     <div className="p-10 bg-red-50 rounded-[3rem] border-r-[12px] border-[#b20e1e] relative overflow-hidden">
                                                         <ShieldAlert size={120} className="absolute -left-10 -top-10 text-red-600/5 rotate-12" />
                                                         <h5 className="text-[#b20e1e] font-black text-xs uppercase tracking-widest mb-4">الدليل القاطع</h5>
-                                                        <p className="text-gray-800 text-xl md:text-2xl font-bold leading-relaxed relative z-10">{result.evidence}</p>
+                                                        <p className="text-gray-800 text-xl md:text-2xl font-bold leading-relaxed relative z-10">{result.verdict?.evidence || result.evidence}</p>
                                                     </div>
                                                 )}
                                             </div>
@@ -200,13 +208,13 @@ export default function VerifyNews({ auth, ticker }) {
                                                         <h4 className="text-3xl font-black text-[#020617] tracking-tighter">المصادر الرقمية</h4>
                                                     </div>
                                                     <div className="h-px flex-grow mx-8 bg-gray-100 hidden md:block"></div>
-                                                    <span className="px-6 py-2 bg-blue-50 text-blue-700 rounded-full font-black text-[10px] uppercase tracking-widest">{result.sources.length} Sources Found</span>
+                                                    <span className="px-6 py-2 bg-blue-50 text-blue-700 rounded-full font-black text-[10px] uppercase tracking-widest">{result.sources?.length || 0} Sources Found</span>
                                                 </div>
 
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                    {result.sources.map((source, idx) => (
+                                                    {(result.sources || []).map((source, idx) => (
                                                         <motion.a
-                                                            key={idx} href={source.url} target="_blank"
+                                                            key={idx} href={source.url} target="_blank" rel="noopener noreferrer"
                                                             whileHover={{ y: -10 }}
                                                             className="flex items-center justify-between p-8 bg-gray-50 rounded-[2.5rem] border border-transparent hover:border-blue-500/20 hover:bg-white hover:shadow-2xl transition-all duration-500 group"
                                                         >
