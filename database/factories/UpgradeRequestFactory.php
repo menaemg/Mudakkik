@@ -21,7 +21,7 @@ class UpgradeRequestFactory extends Factory
 
         return [
             'user_id' => User::inRandomOrder()->first()?->id ?? User::factory(),
-            'documents' => 'documents/sample_id.pdf',
+            'documents' => fake()->optional()->filePath(),
             'admin_notes' => fake()->optional()->sentence(),
             'request_message' => fake()->optional()->sentence(),
             'status' => fake()->randomElement(['pending', 'accepted', 'rejected']),

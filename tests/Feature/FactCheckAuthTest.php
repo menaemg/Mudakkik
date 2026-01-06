@@ -28,5 +28,5 @@ it('requires authentication for fact verification', function () {
         'text' => 'This is a test news item that needs verification and is long enough to pass validation checks.',
     ]);
 
-    $response->assertSessionHas('error', 'يجب تسجيل الدخول لاستخدام هذه الميزة.');
+    $response->assertRedirect(route('login'));
 });
