@@ -5,38 +5,36 @@ namespace App\Http\Controllers;
 use App\Models\UpgradeRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Validation\ValidationException;
 
 class UpgradeRequestController extends Controller
 {
     public function store(Request $request)
     {
-        $key = 'upgrade_request:' . auth()->id();
+        $request->validate([
+            'request_message' => 'required|string|min:10',
+            'documents' => 'required|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120',
+        ]);
 
-        if (RateLimiter::tooManyAttempts($key, 3)) {
-            $seconds = RateLimiter::availableIn($key);
-            throw ValidationException::withMessages([
-                'message' => "عفواً، لقد تجاوزت حد المحاولات. يرجى الانتظار {$seconds} ثانية.",
-            ]);
+        $path = null;
+        if ($request->hasFile('documents')) {
+            $path = $request->file('documents')->store('upgrade_requests', 'public');
         }
 
-        RateLimiter::hit($key, 60);
+        $existingRequest = UpgradeRequest::where('user_id', Auth::id())
+            ->where('status', 'pending')
+            ->first();
 
-        $request->validate([
-            'document' => 'required|file|mimes:pdf,doc,docx|max:2048',
-            'message' => 'nullable|string|max:1000',
-        ]);
-
-        $path = $request->file('document')->store('upgrade_requests', 'public');
+        if ($existingRequest) {
+             return back()->with('error', 'لديك طلب قيد المراجعة بالفعل.');
+        }
 
         UpgradeRequest::create([
-            'user_id' => auth()->id(),
-            'status' => 'pending',
+            'user_id' => Auth::id(),
+            'request_message' => $request->request_message,
             'documents' => $path,
-            'request_message' => $request->message,
+            'status' => 'pending',
         ]);
 
-        return back()->with('success', 'تم استلام طلبك والمستندات بنجاح.');
+        return back()->with('success', 'تم إرسال طلب الانضمام بنجاح.');
     }
 }

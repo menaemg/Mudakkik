@@ -11,12 +11,13 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Models\Subscription;
+use App\Models\UpgradeRequest;
+use App\Models\Advertisment;
 
 class ProfileController extends Controller
 {
-    /**
-     * Display the user's profile form.
-     */
+
     public function edit(Request $request): Response
     {
         /** @var \App\Models\User $user */
@@ -29,11 +30,14 @@ class ProfileController extends Controller
 
         $stats = [
             'role' => $user->role === 'journalist' ? 'صحفي' : ($user->role === 'admin' ? 'مدير' : 'عضو'),
+            'is_journalist' => $user->role === 'journalist',
             'plan' => $user->currentPlan() ? $user->currentPlan()->name : 'Free',
             'followers' => $followersCount,
             'following' => $followingCount,
             'views' => $totalViews,
-            'posts_count' => $postsCount
+            'posts_count' => $postsCount,
+            'ai_credits' => ($user->ai_recurring_credits ?? 0) + ($user->ai_bonus_credits ?? 0),
+            'ad_credits' => $user->ad_credits ?? 0,
         ];
 
         $myArticles = $user->posts()
@@ -54,17 +58,22 @@ class ProfileController extends Controller
             ->latest()
             ->paginate(5, ['*'], 'ads_page');
 
-        $latestUpgradeRequest = \App\Models\UpgradeRequest::where('user_id', $user->id)
+        $latestUpgradeRequest = UpgradeRequest::where('user_id', $user->id)
         ->latest()
         ->first();
 
-        $subscription = \App\Models\Subscription::where('user_id', $user->id)
+        $subscription = Subscription::where('user_id', $user->id)
         ->where('status', 'active')
         ->latest()
         ->with('plan')
         ->first();
 
-if ($subscription && $subscription->plan) {
+      $subscriptionHistory = Subscription::where('user_id', $user->id)
+          ->where('id', '!=', $subscription?->id)
+          ->with('plan')
+          ->latest()
+          ->get();
+        if ($subscription && $subscription->plan) {
             $currentPlan = $subscription->plan;
         } else {
             $currentPlan = (object) [
@@ -78,6 +87,28 @@ if ($subscription && $subscription->plan) {
             ];
         }
 
+        $recentLikes = $user->likedPosts()
+        ->with('user:id,name,avatar,role')
+        ->latest('likes.created_at')
+        ->take(3)
+        ->get();
+
+        $adRequests = Advertisment::where('user_id', $user->id)
+        ->latest()
+        ->paginate(10, ['*'], 'ads_page')
+        ->through(function ($ad) {
+            return [
+                'id' => $ad->id,
+                'title' => $ad->title,
+                'image_path' => $ad->image_url,
+                'target_url' => $ad->target_link,
+                'requested_start_date' => $ad->start_date,
+                'requested_end_date' => $ad->end_date,
+                'duration' => $ad->number_of_days,
+                'status' => $ad->status,
+            ];
+        });
+
         return Inertia::render('Profile/Edit', [
             'mustVerifyEmail' => $user instanceof MustVerifyEmail,
             'status' => session('status'),
@@ -85,21 +116,21 @@ if ($subscription && $subscription->plan) {
             'stats' => $stats,
 
             'recent_posts' => ['data' => $recentPosts],
+            'recent_likes' => ['data' => $recentLikes],
 
             'articles' => $myArticles,
             'liked_posts' => $likedPosts,
 
             'ad_requests' => $adRequests,
-
+            'upgrade_request' => $latestUpgradeRequest,
             'upgrade_request_status' => $latestUpgradeRequest ? $latestUpgradeRequest->status : null,
             'categories' => \App\Models\Category::select('id', 'name')->get(),
             'subscription' => $subscription,
+            'subscription_history' => $subscriptionHistory,
             'current_plan' => $currentPlan,
         ]);
     }
-    /**
-     * Update the user's profile information.
-     */
+
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
         $user = $request->user();
@@ -109,9 +140,11 @@ if ($subscription && $subscription->plan) {
             if ($user->avatar) {
                 Storage::disk('public')->delete($user->avatar);
             }
-        $path = $request->file('avatar')->store('avatars', 'public');
-        $user->avatar = $path;
+            $path = $request->file('avatar')->store('avatars', 'public');
+            $user->avatar = $path;
         }
+
+        unset($data['avatar']);
 
         $user->fill($data);
 
@@ -121,13 +154,15 @@ if ($subscription && $subscription->plan) {
 
         $user->save();
 
-        return Redirect::route('profile.edit')->with('success', 'تم تحديث الملف الشخصي بنجاح');
+        $redirectUrl = route('profile.edit');
+        if ($request->has('tab')) {
+            $redirectUrl .= '?tab=' . $request->get('tab');
+        }
+
+        return Redirect::to($redirectUrl)->with('success', 'تم تحديث الملف الشخصي بنجاح');
     }
 
-    /**
-     * Delete the user's account.
-     */
-    public function destroy(Request $request): RedirectResponse
+       public function destroy(Request $request): RedirectResponse
     {
         $request->validate([
             'password' => ['required', 'current_password'],

@@ -16,13 +16,11 @@ class PostReport extends Model
         'status',
     ];
 
-    // report تابع لبوست واحد
     public function post()
     {
         return $this->belongsTo(Post::class);
     }
 
-    // report تابع ليوزر واحد
     public function user()
     {
         return $this->belongsTo(User::class);

@@ -8,7 +8,8 @@ import { Link } from '@inertiajs/react';
 const NewsCard = ({ news, delay }) => (
     <Link
         href={route('posts.show', news.slug)}
-        className="group cursor-pointer flex flex-col h-full bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-300 border border-gray-100 block"
+        className="group cursor-pointer flex flex-col h-full bg-white rounded-xl
+        overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-300 border border-gray-100 block"
         data-aos="fade-up"
         data-aos-delay={delay}
     >
@@ -18,7 +19,11 @@ const NewsCard = ({ news, delay }) => (
                 alt={news.title}
                 crossOrigin="anonymous" referrerPolicy="no-referrer"
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                onError={(e) => e.target.src = '/assets/images/placeholder.webp'}
+                onError={(e) => {
+                    if (e.target.src !== '/assets/images/post.webp') {
+                        e.target.src = '/assets/images/post.webp';
+                    }
+                }}
             />
             <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
             <Badge className={`absolute bottom-3 right-3 bg-brand-red text-white border-0 px-3 py-1 rounded-md shadow-md text-[10px]`}>

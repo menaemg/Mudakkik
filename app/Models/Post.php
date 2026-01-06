@@ -102,4 +102,12 @@ class Post extends Model
     {
         return $query->where('status', 'published');
     }
+
+    protected $appends = ['image_url'];
+
+    public function getImageUrlAttribute()
+    {
+        if (!$this->image) return 'https://via.placeholder.com/800x600';
+        return str_starts_with($this->image, 'http') ? $this->image : asset('storage/' . $this->image);
+    }
 }

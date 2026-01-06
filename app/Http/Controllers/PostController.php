@@ -13,7 +13,7 @@ class PostController extends Controller
 {
   public function index(Request $request)
   {
-    $query = Post::with(['user', 'category', 'tags'])
+    $query = Post::with(['user.subscriptions.plan', 'category', 'tags'])
       ->published()
       ->withCount('likes')
       ->latest();
@@ -71,7 +71,7 @@ class PostController extends Controller
 
   public function show(Post $post)
   {
-    $post->load(['user', 'category', 'tags']);
+    $post->load(['user.subscriptions.plan', 'category', 'tags']);
     $post->loadCount('likes');
 
     $post->is_liked = Auth::check()
@@ -79,7 +79,7 @@ class PostController extends Controller
       : false;
 
     return Inertia::render('Posts/Show', [
-      'post' => $post
-    ]);
+            'post' => $post
+        ]);
   }
 }

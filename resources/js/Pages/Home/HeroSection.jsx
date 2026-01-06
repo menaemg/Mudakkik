@@ -7,14 +7,14 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Link } from '@inertiajs/react';
 
 const getImagePath = (path) => {
-    if (!path) return '/assets/images/placeholder.webp';
+    if (!path) return '/assets/images/post.webp';
     if (path.startsWith('http')) return path;
     return `/storage/${path}`;
 };
 
 const handleImageError = (e) => {
     e.currentTarget.onerror = null;
-    e.currentTarget.src = '/assets/images/placeholder.webp';
+    e.currentTarget.src = '/assets/images/post.webp';
 };
 const SkeletonCard = () => {
     return <div className="w-full h-full bg-gray-100 rounded-xl animate-pulse border border-gray-200 min-h-[80px]"></div>;
@@ -27,8 +27,10 @@ const LatestNewsCard = ({ category, date, title, image, delay, slug }) => (
         data-aos="fade-up"
         data-aos-delay={delay}
     >
-        <div className="w-20 h-20 shrink-0 overflow-hidden rounded-lg relative shadow-sm border border-slate-100">
-            <img src={getImagePath(image)} alt={title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" onError={handleImageError} />
+        <div className="w-20 h-20 shrink-0 overflow-hidden
+        rounded-lg relative shadow-sm border border-slate-100">
+            <img src={getImagePath(image)} alt={title} className="w-full h-full object-cover transition-transform
+            duration-500 group-hover:scale-110" onError={handleImageError} />
         </div>
 
         <div className="flex flex-col justify-center flex-1 min-w-0 py-1">
@@ -50,7 +52,8 @@ const MainFeatureCard = ({ story }) => (
         className="relative h-[400px] lg:h-full w-full rounded-[2rem] overflow-hidden group block shadow-xl border border-slate-100"
         data-aos="zoom-in"
     >
-        <img src={getImagePath(story?.image)} alt={story?.title} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" onError={handleImageError} />
+        <img src={getImagePath(story?.image)} alt={story?.title} className="w-full h-full object-cover transition-transform
+        duration-1000 group-hover:scale-105" onError={handleImageError} />
 
         <div className="absolute inset-0 bg-gradient-to-t from-[#001246] via-transparent to-transparent opacity-90"></div>
 
@@ -79,14 +82,16 @@ const MainFeatureCard = ({ story }) => (
 const TrendingCard = ({ category, title, image, index, delay, slug, views }) => (
     <Link
         href={route('posts.show', slug || '#')}
-        className="flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-all group border border-transparent hover:border-slate-100 flex-1 min-h-0"
+        className="flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-all
+        group border border-transparent hover:border-slate-100 flex-1 min-h-0"
         data-aos="fade-left"
         data-aos-delay={delay}
     >
         <div className="flex items-center gap-4 flex-1 min-w-0">
             <span className="text-2xl font-black text-slate-200 group-hover:text-[#D00000] italic w-6 text-center shrink-0">{index}</span>
               <div className="w-20 h-20 shrink-0 overflow-hidden rounded-lg relative shadow-sm border border-slate-100">
-            <img src={getImagePath(image)} alt={title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" onError={handleImageError} />
+            <img src={getImagePath(image)} alt={title} className="w-full h-full object-cover
+            transition-transform duration-500 group-hover:scale-110" onError={handleImageError} />
         </div>
             <div className="flex flex-col min-w-0">
                 <span className="text-[10px] text-brand-blue font-bold mb-0.5 truncate">{category}</span>

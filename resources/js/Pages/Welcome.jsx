@@ -23,7 +23,9 @@ export default function Welcome({
     topics,
     business,
     moreNews,
-    ads
+    ads,
+    gridSection,
+    editorAlerts
 }) {
     return (
         <>
@@ -42,11 +44,15 @@ export default function Welcome({
 
                     <EntertainmentSection data={entertainment} />
 
-                    <TopicsSection topics={topics} ads={ads} />
+                    <TopicsSection topics={topics} editorAlerts={editorAlerts} ads={ads} />
 
                     <BusinessSection articles={business} ads={ads} />
 
-                    <ContentGridSection />
+                    <ContentGridSection
+                      dontMissPosts={gridSection.dontMiss}
+                      breakingPost={gridSection.breaking}
+                      forYouPosts={gridSection.forYou}
+                  />
 
                     <BannerSection ads={ads} />
 
