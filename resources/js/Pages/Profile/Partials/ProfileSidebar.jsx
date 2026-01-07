@@ -74,7 +74,7 @@ export default function ProfileSidebar({ stats, activeTab, setActiveTab, current
 
                     <div>
                         <div className="flex justify-between text-xs font-bold text-gray-500 mb-1.5">
-                            <span className="flex items-center gap-1"><FaRobot className="text-indigo-500" /> كاشف الحقائق</span>
+                            <span className="flex items-center gap-1"><FaRobot className="text-indigo-500" /> مختبر الحقيقة</span>
                             <span className="text-indigo-600">{aiCredits} نقطة</span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
