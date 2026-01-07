@@ -25,7 +25,8 @@ class FactCheckController extends Controller
         $user = $request->user();
 
         if ($user) {
-            if (!$user->consumeAiCredit(1)) {
+            $creditType = $user->consumeAiCredit(1);
+            if (!$creditType) {
                 return back()->with([
                     'error' => 'لقد استنفدت رصيد كاشف الحقائق لهذا الشهر. يرجى الترقية للمتابعة.',
                     'open_plan_modal' => true
@@ -39,10 +40,11 @@ class FactCheckController extends Controller
 
         if (isset($result['status']) && $result['status'] === 'error') {
             if ($user) {
-                $user->increment('ai_recurring_credits');
-                $user->refresh();
+                $user->refundAiCredit(1, $creditType);
             }
-            return back()->with('error', 'حدث خطأ تقني أثناء التحليل، لم يتم خصم الرصيد.');
+            
+            $errorMessage = $result['message'] ?? 'حدث خطأ تقني أثناء التحليل، لم يتم خصم الرصيد.';
+            return back()->with('error', $errorMessage);
         }
 
         if ($user) {
@@ -52,6 +54,48 @@ class FactCheckController extends Controller
         return back()->with([
             'result' => $result,
             'new_credits' => $user ? ($user->ai_recurring_credits + $user->ai_bonus_credits) : 0
+        ]);
+    }
+
+    /**
+     * API endpoint that returns JSON response.
+     */
+    public function verifyApi(Request $request, FactCheckServices $service)
+    {
+        $request->validate([
+            'text' => 'required|string|min:10|max:5000',
+            'period' => 'nullable|integer|in:1,3,7,30,365',
+        ]);
+
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json(['error' => 'يجب تسجيل الدخول لاستخدام هذه الميزة.'], 401);
+        }
+
+        $creditType = $user->consumeAiCredit(1);
+        if (!$creditType) {
+            return response()->json([
+                'error' => 'لقد استنفدت رصيد كاشف الحقائق لهذا الشهر. يرجى الترقية للمتابعة.',
+                'open_plan_modal' => true
+            ], 402);
+        }
+
+        $result = $service->check($request->text, $request->period, $user->id);
+
+        if (isset($result['status']) && $result['status'] === 'error') {
+            $user->refundAiCredit(1, $creditType);
+            
+            $errorMessage = $result['message'] ?? 'حدث خطأ تقني أثناء التحليل، لم يتم خصم الرصيد.';
+            return response()->json(['error' => $errorMessage], 400);
+        }
+
+        $user->refresh();
+
+        return response()->json([
+            'success' => true,
+            'result' => $result,
+            'new_credits' => $user->ai_recurring_credits + $user->ai_bonus_credits
         ]);
     }
 
