@@ -73,6 +73,12 @@ mkdir -p /var/www/mudakkik/shared/storage/logs
 sudo chown -R ubuntu:www-data /var/www/mudakkik/shared/storage
 sudo chmod -R 775 /var/www/mudakkik/shared/storage
 
+# Setup Laravel Scheduler cron job
+echo "⏰ Setting up Laravel Scheduler cron..."
+CRON_JOB="* * * * * cd /var/www/mudakkik/current && php artisan schedule:run >> /dev/null 2>&1"
+(crontab -l 2>/dev/null | grep -v "schedule:run"; echo "$CRON_JOB") | crontab -
+echo "✅ Scheduler cron job added"
+
 echo ""
 echo "✅ EC2 setup complete!"
 echo ""
@@ -83,4 +89,8 @@ echo "   3. Remove default: sudo rm /etc/nginx/sites-enabled/default"
 echo "   4. Copy scripts/supervisor.conf to /etc/supervisor/conf.d/mudakkik.conf"
 echo "   5. Create /var/www/mudakkik/shared/.env with production values"
 echo "   6. Reload services: sudo systemctl reload nginx && sudo supervisorctl reread && sudo supervisorctl update"
+echo ""
+echo "📅 Scheduled Jobs (handled by cron):"
+echo "   - ReconcilePendingPayments: Every 10 minutes"
+echo "   - HandleExpiredSubscriptions: Daily at midnight"
 echo ""
