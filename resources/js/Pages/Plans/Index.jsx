@@ -49,11 +49,13 @@ export default function PlansIndex({ auth, plans, currentSubscription, upgradeRe
     const getFeatureDisplay = (features) => {
         const list = [];
 
+
         if (features.priority_support) {
             list.push({ text: "دعم فني مباشر (Priority)", available: true, icon: <Headphones size={14} className="text-current" /> });
         } else {
             list.push({ text: "دعم فني قياسي", available: true });
         }
+
 
         if (features.verification_badge === 'platinum') {
             list.push({
@@ -85,11 +87,7 @@ export default function PlansIndex({ auth, plans, currentSubscription, upgradeRe
             list.push({ text: "لا يوجد رصيد إعلاني", available: false });
         }
 
-        if (features.priority_support) {
-            list.push({ text: "دعم فني مباشر VIP", available: true });
-        } else {
-            list.push({ text: "دعم فني قياسي", available: true });
-        }
+
 
         return list;
     };
@@ -222,8 +220,8 @@ export default function PlansIndex({ auth, plans, currentSubscription, upgradeRe
                                                     onClick={() => isGuest && router.visit(route('register'))}
                                                     disabled={!isGuest}
                                                     className={`w-full py-4 rounded-2xl font-bold text-sm transition-colors ${isCurrent
-                                                            ? 'bg-emerald-100 text-emerald-700 flex items-center justify-center gap-2'
-                                                            : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                                        ? 'bg-emerald-100 text-emerald-700 flex items-center justify-center gap-2'
+                                                        : 'bg-gray-100 text-gray-400 cursor-not-allowed'
                                                         }`}
                                                 >
                                                     {isGuest ? 'ابدا مجاناً' : isCurrent ? (<><Check size={16} /> الباقة الحالية</>) : 'غير متاح'}

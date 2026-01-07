@@ -25,7 +25,8 @@ class FactCheckController extends Controller
         $user = $request->user();
 
         if ($user) {
-            if (!$user->consumeAiCredit(1)) {
+            $creditType = $user->consumeAiCredit(1);
+            if (!$creditType) {
                 return back()->with([
                     'error' => 'لقد استنفدت رصيد كاشف الحقائق لهذا الشهر. يرجى الترقية للمتابعة.',
                     'open_plan_modal' => true
@@ -39,10 +40,11 @@ class FactCheckController extends Controller
 
         if (isset($result['status']) && $result['status'] === 'error') {
             if ($user) {
-                $user->increment('ai_recurring_credits');
-                $user->refresh();
+                $user->refundAiCredit(1, $creditType);
             }
-            return back()->with('error', 'حدث خطأ تقني أثناء التحليل، لم يتم خصم الرصيد.');
+            
+            $errorMessage = $result['message'] ?? 'حدث خطأ تقني أثناء التحليل، لم يتم خصم الرصيد.';
+            return back()->with('error', $errorMessage);
         }
 
         if ($user) {
@@ -71,7 +73,8 @@ class FactCheckController extends Controller
             return response()->json(['error' => 'يجب تسجيل الدخول لاستخدام هذه الميزة.'], 401);
         }
 
-        if (!$user->consumeAiCredit(1)) {
+        $creditType = $user->consumeAiCredit(1);
+        if (!$creditType) {
             return response()->json([
                 'error' => 'لقد استنفدت رصيد كاشف الحقائق لهذا الشهر. يرجى الترقية للمتابعة.',
                 'open_plan_modal' => true
@@ -81,9 +84,10 @@ class FactCheckController extends Controller
         $result = $service->check($request->text, $request->period, $user->id);
 
         if (isset($result['status']) && $result['status'] === 'error') {
-            $user->increment('ai_recurring_credits');
-            $user->refresh();
-            return response()->json(['error' => 'حدث خطأ تقني أثناء التحليل، لم يتم خصم الرصيد.'], 500);
+            $user->refundAiCredit(1, $creditType);
+            
+            $errorMessage = $result['message'] ?? 'حدث خطأ تقني أثناء التحليل، لم يتم خصم الرصيد.';
+            return response()->json(['error' => $errorMessage], 400);
         }
 
         $user->refresh();

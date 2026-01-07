@@ -55,7 +55,6 @@ class PaymentService
         }
 
         // Create new pending payment and checkout session
-        $separator = str_contains($successUrl, '?') ? '&' : '?';
         
         // Create checkout session first
         $checkout = $this->provider->createCheckoutSession($plan, $user, $successUrl, $cancelUrl);

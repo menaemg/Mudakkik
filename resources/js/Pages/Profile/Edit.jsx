@@ -97,11 +97,19 @@ export default function Edit({
 
       {/* Toast Notification */}
       {showToast && toastMessage && (
-        <div className="fixed top-24 left-1/2 transform -translate-x-1/2 z-50 animate-fade-in">
+        <div
+          className="fixed top-24 left-1/2 transform -translate-x-1/2 z-50 animate-in fade-in slide-in-from-top-5 duration-300"
+          role="status"
+          aria-live="polite"
+        >
           <div className="bg-emerald-500 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 min-w-[300px]">
             <CheckCircle className="w-6 h-6 flex-shrink-0" />
             <span className="font-bold text-sm flex-1">{toastMessage}</span>
-            <button onClick={() => setShowToast(false)} className="hover:bg-white/20 rounded-full p-1 transition-colors">
+            <button
+              onClick={() => setShowToast(false)}
+              className="hover:bg-white/20 rounded-full p-1 transition-colors"
+              aria-label="Close notification"
+            >
               <X className="w-5 h-5" />
             </button>
           </div>
