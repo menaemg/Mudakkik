@@ -31,6 +31,8 @@ use App\Http\Controllers\UserPostController;
 use App\Http\Controllers\Webhooks\StripeWebhookController;
 use App\Http\Controllers\WelcomeController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\AdminDashboardController;
+
 use Inertia\Inertia;
 
 Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
@@ -49,9 +51,7 @@ Route::middleware(['auth', 'verified', 'can:admin-access'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
-        Route::get('/dashboard', function () {
-            return Inertia::render('Admin/Dashboard');
-        })->name('dashboard');
+        Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
         Route::resource('users', UserController::class);
         Route::resource('categories', CategoryController::class);
@@ -106,10 +106,10 @@ Route::middleware(['auth', 'verified', 'can:admin-access'])
                 Route::post('/top-stories/update', 'update')->name('top-stories.update');
             });
 
-              Route::controller(TopicsSectionController::class)->group(function () {
-                  Route::get('/top-topics', [TopicsSectionController::class, 'index'])->name('topics.index');
-                  Route::post('/top-topics/update', [TopicsSectionController::class, 'update'])->name('topics.update');
-              });
+            Route::controller(TopicsSectionController::class)->group(function () {
+                Route::get('/top-topics', [TopicsSectionController::class, 'index'])->name('topics.index');
+                Route::post('/top-topics/update', [TopicsSectionController::class, 'update'])->name('topics.update');
+            });
         });
 
         /* Reports */
@@ -124,7 +124,7 @@ Route::middleware(['auth', 'verified', 'can:admin-access'])
     });
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/dashboard', fn () => redirect()->route('profile.edit'))->name('dashboard');
+    Route::get('/dashboard', fn() => redirect()->route('profile.edit'))->name('dashboard');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -174,4 +174,4 @@ Route::post('/webhooks/stripe', [StripeWebhookController::class, 'handle'])
     ->withoutMiddleware(['web'])
     ->name('webhooks.stripe');
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
