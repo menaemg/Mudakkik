@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import PostView from "@/Pages/Admin/Components/Posts/Partials/PostView";
 
 const getImageUrl = (path) => {
-    if (!path) return '/assets/images/placeholder.webp';
+    if (!path) return '/assets/images/post.webp';
     if (path.startsWith('http')) return path;
     return `/storage/${path}`;
 };

@@ -111,8 +111,9 @@ class PaymentService
                 'plan' => $plan->slug,
             ]);
 
-            // Send notification to user (works for any payment provider)
             $user->notify(new SubscriptionCreated($subscription));
+
+            $this->refreshCredits($user, $plan);
 
             return $subscription;
         });
@@ -190,6 +191,72 @@ class PaymentService
                 'plan_id' => $plan->id,
                 'plan_slug' => $plan->slug,
             ],
+        ]);
+    }
+
+    /**
+     * Process a renewal payment (invoice.payment_succeeded).
+     */
+    public function processRenewalPayment(array $invoiceData): void
+    {
+        $subscriptionId = $invoiceData['subscription'] ?? null;
+        if (!$subscriptionId) {
+            return;
+        }
+
+        $subscription = Subscription::where('provider_subscription_id', $subscriptionId)->first();
+        if (!$subscription) {
+            Log::warning('Subscription not found for renewal', ['subscription_id' => $subscriptionId]);
+            return;
+        }
+
+        $user = $subscription->user;
+        $plan = $subscription->plan;
+
+        if (!$user || !$plan) {
+            Log::warning('User or plan not found for renewal', ['subscription_id' => $subscription->id]);
+            return;
+        }
+
+        try {
+            DB::transaction(function () use ($user, $plan, $subscription, $invoiceData, $subscriptionId) {
+                // Refresh credits
+                $this->refreshCredits($user, $plan);
+
+                // Record payment
+                $this->recordPayment($user, $subscription, [
+                    'amount_total' => ($invoiceData['amount_paid'] ?? 0) / 100,
+                    'currency' => $invoiceData['currency'] ?? 'usd',
+                    'session_id' => $invoiceData['payment_intent'] ?? null,
+                    'subscription_id' => $subscriptionId,
+                    'metadata' => ['type' => 'renewal'],
+                ]);
+            });
+
+            Log::info('Credits refreshed for renewal', ['user_id' => $user->id, 'plan' => $plan->slug]);
+        } catch (\Exception $e) {
+             Log::error('Failed to process renewal payment', [
+                 'subscription_id' => $subscriptionId,
+                 'error' => $e->getMessage()
+             ]);
+             throw $e;
+        }
+    }
+
+    /**
+     * Refresh user credits based on plan features.
+     */
+    public function refreshCredits(User $user, Plan $plan): void
+    {
+        $features = $plan->features ?? [];
+        $aiCredits = $features['monthly_ai_credits'] ?? 0;
+        $adCredits = $features['monthly_ad_credits'] ?? 0;
+
+
+        
+        $user->update([
+            'ai_recurring_credits' => $aiCredits,
+            'ad_credits' => $adCredits,
         ]);
     }
 

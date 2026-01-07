@@ -7,11 +7,12 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasApiTokens;
 
     /**
      * Bootstrap the model.
@@ -20,7 +21,6 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         parent::boot();
 
-        // Auto-assign free plan when user is created
         static::created(function ($user) {
             $freePlan = Plan::where('is_free', true)->first();
 
@@ -28,6 +28,15 @@ class User extends Authenticatable implements MustVerifyEmail
                 Log::warning('Free plan not found for user.', ['user_id' => $user->id]);
                 return;
             }
+
+            $features = $freePlan->features ?? [];
+            $initialAiCredits = $features['monthly_ai_credits'] ?? 0;
+            $initialAdCredits = $features['monthly_ad_credits'] ?? 0;
+
+            $user->update([
+                'ai_recurring_credits' => $initialAiCredits,
+                'ad_credits' => $initialAdCredits
+            ]);
 
             $user->subscriptions()->create([
                 'plan_id' => $freePlan->id,
@@ -52,7 +61,10 @@ class User extends Authenticatable implements MustVerifyEmail
         'credibility_score',
         'is_verified_journalist',
         'bio',
-        'avatar'
+        'avatar',
+        'ai_recurring_credits',
+        'ai_bonus_credits',
+        'ad_credits',
     ];
 
     /**
@@ -75,8 +87,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_active' => 'boolean',
+            'is_verified_journalist' => 'boolean',
         ];
     }
+
     public function posts()
     {
         return $this->hasMany(Post::class);
@@ -91,6 +106,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(Follow::class, 'following_user_id');
     }
+
     public function likes()
     {
         return $this->belongsToMany(Post::class, 'likes')->withTimestamps();
@@ -110,16 +126,21 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(UpgradeRequest::class);
     }
+
     public function subscriptions()
     {
         return $this->hasMany(Subscription::class);
+    }
+
+    public function reports()
+    {
+        return $this->hasMany(PostReport::class);
     }
 
     public function scopeFilter($query, $filter)
     {
         if ($filter->filled('search')) {
             $search = $filter->get('search');
-            // Escape LIKE wildcards to prevent pattern injection
             $search = str_replace(['%', '_'], ['\%', '\_'], $search);
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
@@ -136,7 +157,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function currentSubscription(): ?Subscription
     {
         return $this->subscriptions()
-            ->active()
+            ->where('status', 'active')
+            ->where(function ($query) {
+                $query->whereNull('ends_at')
+                      ->orWhere('ends_at', '>', now());
+            })
             ->with('plan')
             ->orderByDesc('created_at')
             ->first();
@@ -230,8 +255,64 @@ class User extends Authenticatable implements MustVerifyEmail
         return null;
     }
 
-    public function reports()
+
+    public function consumeAiCredit(int $amount = 1): bool
     {
-        return $this->hasMany(PostReport::class);
+        return \DB::transaction(function () use ($amount) {
+            $user = static::lockForUpdate()->find($this->id);
+            
+            if (!$user) {
+                return false;
+            }
+
+            // Check recurring credits first
+            if ($user->ai_recurring_credits >= $amount) {
+                $user->decrement('ai_recurring_credits', $amount);
+                // Refresh the current instance to reflect the change
+                $this->refresh();
+                return true;
+            }
+
+            // Check combined credits
+            $totalAvailable = $user->ai_recurring_credits + $user->ai_bonus_credits;
+
+            if ($totalAvailable >= $amount) {
+                $neededFromBonus = $amount - $user->ai_recurring_credits;
+
+                $user->update(['ai_recurring_credits' => 0]);
+                $user->decrement('ai_bonus_credits', $neededFromBonus);
+                
+                // Refresh the current instance to reflect the changes
+                $this->refresh();
+                return true;
+            }
+
+            return false;
+        });
+    }
+
+    public function consumeAdCredit(int $days): bool
+    {
+        return \DB::transaction(function () use ($days) {
+            $user = static::lockForUpdate()->find($this->id);
+            
+            if (!$user) {
+                return false;
+            }
+
+            if ($user->ad_credits >= $days) {
+                $user->decrement('ad_credits', $days);
+                // Refresh the current instance to reflect the change
+                $this->refresh();
+                return true;
+            }
+            
+            return false;
+        });
+    }
+
+    public function factChecks()
+    {
+        return $this->belongsToMany(FactCheck::class, 'fact_check_user')->withTimestamps();
     }
 }

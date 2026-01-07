@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 
 const decodeLabel = (label) => {
     const entities = {
@@ -15,7 +15,28 @@ const decodeLabel = (label) => {
 };
 
 export default function Pagination({ links }) {
+    const { url } = usePage();
+
     if (!links || links.length <= 3) return null;
+
+    const addQueryParams = (paginationUrl) => {
+        if (!paginationUrl) return paginationUrl;
+
+        try {
+            const currentUrl = new URL(url, window.location.origin);
+            const paginationUrlObj = new URL(paginationUrl, window.location.origin);
+
+            currentUrl.searchParams.forEach((value, key) => {
+                if (!paginationUrlObj.searchParams.has(key)) {
+                    paginationUrlObj.searchParams.set(key, value);
+                }
+            });
+
+            return paginationUrlObj.toString();
+        } catch (error) {
+            return paginationUrl;
+        }
+    };
 
     return (
         <nav role="navigation" aria-label="Pagination Navigation" className="flex justify-center items-center gap-1 mt-6 flex-wrap">
@@ -33,7 +54,7 @@ export default function Pagination({ links }) {
                 ) : (
                     <Link
                         key={key}
-                        href={link.url}
+                        href={addQueryParams(link.url)}
                         preserveScroll
                         className={`px-3 py-1 text-sm border rounded-md transition-all duration-300 ${
                             isCurrent

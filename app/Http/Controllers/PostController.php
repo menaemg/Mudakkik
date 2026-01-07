@@ -79,7 +79,7 @@ class PostController extends Controller
       : false;
 
     return Inertia::render('Posts/Show', [
-      'post' => $post
-    ]);
+            'post' => $post
+        ]);
   }
 }

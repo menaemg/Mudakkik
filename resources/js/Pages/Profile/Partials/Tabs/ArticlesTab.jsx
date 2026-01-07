@@ -7,7 +7,7 @@ import { FaPenNib, FaPlus } from 'react-icons/fa';
 export default function ArticlesTab({ articles, setActiveTab, setPostToEdit }) {
     return (
         <div className="space-y-6 animate-in fade-in duration-500 slide-in-from-bottom-2">
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden min-h-[400px] flex flex-col">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden min-h-[600px] flex flex-col">
 
                 <div className="flex items-center justify-between p-6 border-b border-gray-100">
                     <div className="flex items-center gap-2">
@@ -27,9 +27,9 @@ export default function ArticlesTab({ articles, setActiveTab, setPostToEdit }) {
                     </Button>
                 </div>
 
-                <div className="flex-1">
+                <div className="flex-1 min-w-full w-full">
                     {articles?.data?.length > 0 ? (
-                        <>
+                        <div className="divide-y divide-gray-50 w-full">
                             {articles.data.map((post) => (
                                 <ArticleListItem
                                     key={post.id}
@@ -38,7 +38,10 @@ export default function ArticlesTab({ articles, setActiveTab, setPostToEdit }) {
                                     setPostToEdit={setPostToEdit}
                                 />
                             ))}
-                        </>
+                            {articles.data.length < 6 && (
+                                <div className="h-16 invisible" style={{ height: `${(6 - articles.data.length) * 64}px` }}></div>
+                            )}
+                        </div>
                     ) : (
                         <div className="flex flex-col items-center justify-center h-64 text-center text-gray-400">
                             <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-4">

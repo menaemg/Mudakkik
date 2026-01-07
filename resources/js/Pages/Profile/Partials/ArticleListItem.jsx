@@ -3,6 +3,7 @@ import { Link, router } from '@inertiajs/react';
 import { Button } from "@/components/ui/button";
 import { FaUser, FaCalendarAlt, FaEye, FaEdit, FaTrash } from 'react-icons/fa';
 import Swal from 'sweetalert2';
+import UserBadge from '@/Components/UserBadge';
 
 export default function ArticleListItem({ post, isLikedView = false, minimal = false, setActiveTab, setPostToEdit }) {
 
@@ -14,6 +15,9 @@ export default function ArticleListItem({ post, isLikedView = false, minimal = f
     const statusKey = post.status || 'pending';
     const currentStatus = statusStyles[statusKey] || { bg: 'bg-gray-100', text: 'text-gray-600', label: statusKey };
     const postLink = post.status === 'published' ? route('posts.show', post.slug) : '#';
+
+    const activeSubscription = post.user?.subscriptions?.find(sub => sub.status === 'active');
+    const authorPlanSlug = activeSubscription?.plan?.slug || 'free';
 
     const handleEditClick = () => {
         if (setPostToEdit && setActiveTab) {
@@ -49,10 +53,10 @@ export default function ArticleListItem({ post, isLikedView = false, minimal = f
         });
     };
 
-    return (
+return (
         <div className={`flex items-center justify-between border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors group ${minimal ? 'p-3' : 'p-4'}`}>
             <div className="flex flex-col gap-1 flex-1">
-                {post.status === 'published' ? (
+                 {post.status === 'published' ? (
                     <Link
                         href={postLink}
                         className={`font-bold text-gray-900 line-clamp-1 hover:text-brand-blue transition-colors w-fit ${minimal ? 'text-sm' : 'text-base'}`}
@@ -65,15 +69,20 @@ export default function ArticleListItem({ post, isLikedView = false, minimal = f
                     </span>
                 )}
 
+
                 <div className="flex items-center gap-3 text-xs text-gray-400">
+
                     {isLikedView && post.user && (
-                        <span className="flex items-center gap-1 text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
-                            <FaUser size={8} /> {post.user.name}
-                        </span>
+                        <div className="flex items-center gap-1 text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+                            <FaUser size={8} />
+                            <span>{post.user.name}</span>
+                            <UserBadge user={post.user} planSlug={authorPlanSlug} />
+                        </div>
                     )}
 
                     {!isLikedView && (
-                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${currentStatus.bg} ${currentStatus.text}`}>
+                         <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold
+                          ${currentStatus.bg} ${currentStatus.text}`}>
                             {currentStatus.label}
                         </span>
                     )}
@@ -84,7 +93,7 @@ export default function ArticleListItem({ post, isLikedView = false, minimal = f
                 </div>
             </div>
 
-            <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+             <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                 {post.status === 'published' && (
                     <Link href={postLink} title="عرض">
                         <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-gray-400 hover:text-brand-blue hover:bg-blue-50">

@@ -7,6 +7,7 @@ import {
 import { Link, usePage } from '@inertiajs/react';
 import Search from './Search';
 import Notifications from './Notifications';
+import UserBadge from '@/Components/UserBadge';
 
 const Header = ({ auth, ticker }) => {
     const { url, props } = usePage();
@@ -36,6 +37,8 @@ const Header = ({ auth, ticker }) => {
         { name: 'رياضة', link: route('posts.index', { category: 'sports' }), slug: 'sports' },
         { name: 'صحة', link: route('posts.index', { category: 'health' }), slug: 'health' },
         { name: 'ثقافة', link: route('posts.index', { category: 'culture' }), slug: 'culture' },
+        { name: 'فنون', link: route('posts.index', { category: 'arts' }), slug: 'arts' },
+        { name: 'ترفية', link: route('posts.index', { category: 'entertainment' }), slug: 'entertainment' },
         { name: 'علوم', link: route('posts.index', { category: 'science' }), slug: 'science' },
     ];
 
@@ -122,7 +125,6 @@ const Header = ({ auth, ticker }) => {
 
                         {!isSearchActive && (
                             <div className="hidden lg:flex items-center">
-                                {/* تم تحديث الرابط هنا إلى /check */}
                                 <Link href="/check" className="flex items-center gap-2 text-white bg-white/5 hover:bg-green-600/20 hover:border-green-500/50 px-3 py-1.5 rounded-full border border-white/10 transition-all duration-300 group shadow-sm">
                                     <FaCheckDouble className="text-green-400 group-hover:text-green-300 transition-colors text-xs" />
                                     <span className="font-bold text-xs group-hover:text-green-100">كاشف الحقائق</span>
@@ -143,7 +145,8 @@ const Header = ({ auth, ticker }) => {
                                     {canWrite && (
                                         <Link
                                             href={safeRoute('profile.edit', { tab: 'create_post' })}
-                                            className="bg-brand-red hover:bg-red-700 text-white rounded-full w-9 h-9 flex items-center justify-center shadow-lg transition-all hover:-translate-y-0.5"
+                                            className="bg-brand-red hover:bg-red-700 text-white
+                                            rounded-full w-9 h-9 flex items-center justify-center shadow-lg transition-all hover:-translate-y-0.5"
                                         >
                                             <FaPenNib className="text-sm" />
                                         </Link>
@@ -155,6 +158,7 @@ const Header = ({ auth, ticker }) => {
                                                 {user.name.charAt(0)}
                                             </div>
                                             <span className="text-xs font-bold max-w-[80px] truncate">{user.name}</span>
+                                            <UserBadge user={user} planSlug={user.plan_slug} />
                                             <FaChevronDown className="text-[10px] group-hover:rotate-180 transition-transform" />
                                         </div>
 

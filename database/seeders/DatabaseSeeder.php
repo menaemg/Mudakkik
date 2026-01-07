@@ -24,8 +24,8 @@ class DatabaseSeeder extends Seeder
             PaymentSeeder::class,
             LikeSeeder::class,
             FollowSeeder::class,
-            EntertainmentCategorySeeder::class,
             EntertainmentPostsSeeder::class,
+            TrustedDomainsSeeder::class,
         ]);
     }
 }

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { FaArrowLeft, FaBell, FaBolt } from 'react-icons/fa';
+import { FaArrowLeft, FaBell, FaBolt, FaClock } from 'react-icons/fa';
 import Autoplay from "embla-carousel-autoplay"
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -14,13 +14,23 @@ import { Link } from '@inertiajs/react';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 
+const getImagePath = (path) => {
+    if (!path) return '/assets/images/post.webp';
+    if (path.startsWith('http')) return path;
+    return `/storage/${path}`;
+};
+
 const TopicCard = ({ topic }) => (
-    <Link href={route('posts.index', { category: topic.slug || topic.name })} className="group cursor-pointer bg-white rounded-xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full overflow-hidden border border-gray-100 block">
+    <Link href={route('posts.index', { category: topic.slug })} className="group cursor-pointer bg-white rounded-xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full overflow-hidden border border-gray-100 block">
         <div className="h-28 overflow-hidden relative">
-            <img src={topic.image} alt={topic.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+            <img
+                src={getImagePath(topic.representative_image)}
+                alt={topic.name}
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+            />
             <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
         </div>
-        <div className="p-4 flex justify-between items-center">
+        <div className="p-4 flex justify-between items-center text-right">
             <div>
                 <h3 className="font-bold text-gray-900 text-base group-hover:text-brand-blue transition-colors">{topic.name}</h3>
                 <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{topic.posts_count || 0} مقال</span>
@@ -32,41 +42,43 @@ const TopicCard = ({ topic }) => (
     </Link>
 );
 
-const AlertCard = ({ image, category, title, author, date, delay, slug }) => (
-    <Link href={route('posts.show', slug || '#')} className="flex flex-col md:flex-row bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg border border-gray-100 hover:border-brand-red/30 transition-all duration-300 h-full group block" data-aos="fade-up" data-aos-delay={delay}>
-        <div className="w-full md:w-40 h-48 md:h-auto shrink-0 relative overflow-hidden">
-             <img src={image} alt={title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-             <div className="absolute top-2 right-2 md:hidden">
-                <Badge className="bg-red-600 hover:bg-red-700">{category}</Badge>
-             </div>
-        </div>
-        <div className="p-5 flex flex-col justify-center flex-1">
-             <div className="flex items-center justify-between mb-2">
-                <Badge variant="outline" className="hidden md:flex text-[#b20e1e] border-[#b20e1e]/20 bg-red-50 hover:bg-red-100 text-[10px] font-bold">
-                    {category}
-                </Badge>
-                <span className="flex items-center gap-1 text-[10px] text-gray-400 font-bold">
-                    <FaBolt size={10} className="text-yellow-500" /> عاجل
-                </span>
-             </div>
-            <h3 className="text-lg font-bold leading-snug text-gray-900 mb-3 group-hover:text-[#b20e1e] transition-colors line-clamp-2">
-                {title}
-            </h3>
-             <div className="flex items-center gap-2 text-xs text-gray-500 mt-auto">
-                <Avatar className="w-6 h-6 border border-gray-200">
-                    <AvatarImage src={author.img} />
-                    <AvatarFallback>AU</AvatarFallback>
-                </Avatar>
-                <span className="font-medium text-gray-700">{author.name}</span>
-                <span className="text-gray-300">|</span>
-                <span>{date}</span>
+const AlertCard = ({ post, delay }) => {
+    if (!post) return null;
+    return (
+        <Link href={route('posts.show', post.slug)} className="flex flex-col md:flex-row bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg border border-gray-100 hover:border-brand-red/30 transition-all duration-300 h-full group block text-right" data-aos="fade-up" data-aos-delay={delay}>
+            <div className="w-full md:w-48 h-48 md:h-auto shrink-0 relative overflow-hidden">
+                 <img src={getImagePath(post.image)} alt={post.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                 <div className="absolute top-2 right-2 md:hidden">
+                    <Badge className="bg-red-600">{post.category?.name}</Badge>
+                 </div>
             </div>
-        </div>
-    </Link>
-);
+            <div className="p-5 flex flex-col justify-center flex-1">
+                 <div className="flex items-center justify-between mb-2">
+                    <Badge variant="outline" className="hidden md:flex text-[#b20e1e] border-[#b20e1e]/20 bg-red-50 hover:bg-red-100 text-[10px] font-bold">
+                        {post.category?.name}
+                    </Badge>
+                    <span className="flex items-center gap-1 text-[10px] text-gray-400 font-bold">
+                        <FaBolt size={10} className="text-yellow-500" /> تنبيه المحرر
+                    </span>
+                 </div>
+                <h3 className="text-lg font-bold leading-snug text-gray-900 mb-3 group-hover:text-[#b20e1e] transition-colors line-clamp-2">
+                    {post.title}
+                </h3>
+                 <div className="flex items-center gap-2 text-xs text-gray-500 mt-auto justify-end">
+                    <span>{new Date(post.created_at).toLocaleDateString('ar-EG')}</span>
+                    <span className="text-gray-300">|</span>
+                    <span className="font-medium text-gray-700">{post.user?.name}</span>
+                    <Avatar className="w-6 h-6 border border-gray-200">
+                        <AvatarImage src={getImagePath(post.user?.avatar)} />
+                        <AvatarFallback>AU</AvatarFallback>
+                    </Avatar>
+                </div>
+            </div>
+        </Link>
+    );
+};
 
-export default function TopicsSection({ topics = [], ads }) {
-
+export default function TopicsSection({ topics = [], editorAlerts = [], ads }) {
     useEffect(() => {
         AOS.init({ duration: 800, once: true });
     }, []);
@@ -74,10 +86,9 @@ export default function TopicsSection({ topics = [], ads }) {
     const sectionAd = ads?.['home_topics_bottom']?.[0];
 
     return (
-        <section className="container mx-auto px-4 py-16 bg-gray-50/30">
-
+        <section className="container mx-auto px-4 py-16 bg-gray-50/30" dir="rtl">
             <div className="flex items-end justify-between mb-8 border-b border-gray-200 pb-4">
-                <div className="flex flex-col">
+                <div className="flex flex-col text-right">
                     <span className="text-[#b20e1e] font-bold text-xs tracking-widest uppercase mb-1">اكتشف</span>
                     <h2 className="text-3xl font-black text-gray-900">تصفح حسب الموضوع</h2>
                 </div>
@@ -85,18 +96,8 @@ export default function TopicsSection({ topics = [], ads }) {
 
             <div className="mb-16 px-8 relative" data-aos="fade-up">
                 <Carousel
-                    opts={{
-                        align: "start",
-                        loop: true,
-                        direction: 'rtl',
-                    }}
-                    plugins={[
-                        Autoplay({
-                          delay: 3000,
-                          stopOnInteraction: false,
-                          stopOnMouseEnter: true,
-                        }),
-                    ]}
+                    opts={{ align: "start", loop: true, direction: 'rtl' }}
+                    plugins={[Autoplay({ delay: 3000, stopOnInteraction: false })]}
                     className="w-full"
                 >
                     <CarouselContent className="-ms-4 py-4">
@@ -106,15 +107,14 @@ export default function TopicsSection({ topics = [], ads }) {
                             </CarouselItem>
                         ))}
                     </CarouselContent>
-
                     <div className="hidden md:block">
-                        <CarouselPrevious className="bg-white hover:bg-[#b20e1e] hover:text-white border-gray-200 shadow-sm" />
-                        <CarouselNext className="bg-white hover:bg-[#b20e1e] hover:text-white border-gray-200 shadow-sm" />
+                        <CarouselPrevious className="right-[-40px] left-auto bg-white hover:bg-[#b20e1e] hover:text-white border-gray-200 shadow-sm transition-all" />
+                        <CarouselNext className="left-[-40px] right-auto bg-white hover:bg-[#b20e1e] hover:text-white border-gray-200 shadow-sm transition-all" />
                     </div>
                 </Carousel>
             </div>
 
-            <div className="flex items-center gap-3 mb-6" data-aos="fade-right">
+            <div className="flex items-center gap-3 mb-6 justify-start" data-aos="fade-right">
                 <div className="p-2 bg-red-100 text-[#b20e1e] rounded-full">
                     <FaBell />
                 </div>
@@ -122,35 +122,34 @@ export default function TopicsSection({ topics = [], ads }) {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <AlertCard
-                    delay="100" category="صحة عامة"
-                    title="خطط الانتشار الربيعي تتعطل بسبب عودة ظهور الفيروس المفاجئ"
-                    date="25 يوليو, 2025"
-                    author={{name: "أندرو أوجيلفي", img: "https://randomuser.me/api/portraits/men/44.jpg"}}
-                    image="https://images.unsplash.com/photo-1542259681-dadcd759486b?w=600&fit=crop"
-                />
-                <AlertCard
-                    delay="200" category="كوارث طبيعية"
-                    title="إعصار إليرا يضرب ساحل الخليج، آلاف مطالبون بالإخلاء فوراً"
-                    date="25 يوليو, 2025"
-                    author={{name: "جويل ميسنر", img: "https://randomuser.me/api/portraits/men/52.jpg"}}
-                    image="https://images.unsplash.com/photo-1527482797697-8795b05a13fe?w=600&fit=crop"
-                />
-            </div>
-
-            <div className="mt-12 h-28 bg-white border-2 border-dashed border-gray-200 flex flex-col items-center justify-center text-gray-400 text-sm rounded-xl cursor-pointer hover:border-[#b20e1e]/30 hover:bg-red-50 transition-all duration-300" data-aos="fade-up">
-                {sectionAd ? (
-                    <a href={sectionAd.target_link} target="_blank" rel="noopener noreferrer" className="w-full h-full block">
-                        <img src={`/storage/${sectionAd.image}`} alt={sectionAd.title} className="w-full h-full object-cover rounded-xl" />
-                    </a>
+                {editorAlerts && editorAlerts.length > 0 ? (
+                    editorAlerts.map((post, index) => (
+                        <AlertCard key={post.id} post={post} delay={(index + 1) * 100} />
+                    ))
                 ) : (
-                    <>
-                        <span className="font-bold text-gray-500">مساحة إعلانية</span>
-                        <span className="text-xs">تواصل معنا</span>
-                    </>
+                    <div className="col-span-2 py-10 text-center text-gray-400 bg-white rounded-xl border border-dashed">
+                        لا توجد تنبيهات محررة متاحة حالياً.
+                    </div>
                 )}
             </div>
 
+            <div className="mt-12 h-28 bg-white border-2 border-dashed border-gray-200 flex flex-col items-center justify-center text-gray-400 text-sm rounded-xl cursor-pointer hover:border-[#b20e1e]/30 hover:bg-red-50 transition-all duration-300 overflow-hidden" data-aos="fade-up">
+                {sectionAd ? (
+                    <a href={sectionAd.target_link} target="_blank" rel="noopener noreferrer" className="w-full h-full block">
+                        <img
+                            src={`/storage/${sectionAd.image}`}
+                            alt={sectionAd.title}
+                            className="w-full h-full object-cover rounded-xl shadow-inner"
+                            onError={(e) => e.target.style.display = 'none'}
+                        />
+                    </a>
+                ) : (
+                    <div className="text-center">
+                         <span className="font-bold text-gray-500 block">مساحة إعلانية متوفرة</span>
+                         <span className="text-[10px]">تواصل مع الإدارة للإعلان هنا</span>
+                    </div>
+                )}
+            </div>
         </section>
     );
 }

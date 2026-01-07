@@ -77,7 +77,7 @@ fi
 # Cleanup old releases
 echo "🧹 Cleaning up old releases..."
 cd "$RELEASES_DIR"
-ls -dt */ | tail -n +$((KEEP_RELEASES + 1)) | xargs -r rm -rf
+ls -dt */ | tail -n +$((KEEP_RELEASES + 1)) | xargs -r sudo rm -rf
 
 echo "✅ Deployment completed successfully!"
 echo "📍 Current release: $RELEASE_NAME"

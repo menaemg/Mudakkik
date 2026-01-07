@@ -52,10 +52,30 @@ class ProcessStripeWebhook implements ShouldQueue, ShouldBeUnique
         match ($this->eventType) {
             'checkout.session.completed' => $this->handleCheckoutCompleted($paymentService),
             'customer.subscription.updated' => $this->handleSubscriptionUpdated($paymentService),
+            'invoice.payment_succeeded' => $this->handlePaymentSucceeded($paymentService),
             'customer.subscription.deleted' => $this->handleSubscriptionDeleted($paymentService),
             'invoice.payment_failed' => $this->handlePaymentFailed($paymentService),
             default => Log::info('Unhandled webhook event type', ['type' => $this->eventType]),
         };
+    }
+
+    /**
+     * Handle payment succeeded event (renewal).
+     */
+    private function handlePaymentSucceeded(PaymentService $paymentService): void
+    {
+        $invoice = $this->eventData;
+        $subscriptionId = $invoice['subscription'] ?? null;
+        $billingReason = $invoice['billing_reason'] ?? null;
+
+        if (!$subscriptionId) {
+            return;
+        }
+        
+        if ($billingReason === 'subscription_cycle' || $billingReason === 'subscription_update') {
+             Log::info('Processing subscription renewal payment', ['subscription_id' => $subscriptionId]);
+             $paymentService->processRenewalPayment($invoice);
+        }
     }
 
     /**

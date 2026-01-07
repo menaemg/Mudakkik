@@ -1,9 +1,16 @@
-import React, { useState } from "react";
-import { Head, useForm, router } from "@inertiajs/react";
-import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import { Check, Star, Zap, Crown } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Head, useForm, router, Link } from "@inertiajs/react";
+import Header from "@/Components/Header";
+import Footer from "@/Components/Footer";
+import { Check, X, ShieldCheck, Gem, Crown, Zap, Star,Diamond,Headphones   } from "lucide-react";
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 
 export default function PlansIndex({ auth, plans, currentSubscription }) {
+  useEffect(() => {
+    AOS.init({ duration: 800, once: true });
+  }, []);
+
   const { post, processing } = useForm();
   const [processingPlan, setProcessingPlan] = useState(null);
   const isGuest = !auth?.user;
@@ -19,213 +26,244 @@ export default function PlansIndex({ auth, plans, currentSubscription }) {
     });
   };
 
-  const isCurrentPlan = (plan) => {
-    return currentSubscription?.plan?.id === plan.id;
-  };
+  const isCurrentPlan = (plan) => currentSubscription?.plan?.id === plan.id;
 
   const getBillingText = (interval) => {
-    const texts = {
-      monthly: "شهرياً",
-      yearly: "سنوياً",
-      one_time: "دفعة واحدة",
-    };
+    const texts = { monthly: "شهرياً", yearly: "سنوياً", one_time: "دفعة واحدة" };
     return texts[interval] || interval;
   };
 
   const getPlanIcon = (slug) => {
-    if (slug === "free") return <Star className="text-yellow-500" size={32} />;
-    if (slug === "basic") return <Zap className="text-blue-500" size={32} />;
-    if (slug.includes("pro"))
-      return <Crown className="text-purple-500" size={32} />;
-    return <Star className="text-gray-500" size={32} />;
-  };
+      if (slug === "free") return <Star className="text-gray-400 w-8 h-8" />;
+      if (slug === "basic") return <Zap className="text-orange-500 w-8 h-8" />;
+      if (slug === "pro") return <Gem className="text-amber-500 w-10 h-10 drop-shadow-md" />;
+      if (slug === "pro-yearly") return <Diamond className="text-cyan-500 w-10 h-10 drop-shadow-md" />;
+      return <Star className="text-gray-500 w-8 h-8" />;
+    };
 
-  const getFeatureDisplay = (features) => {
-    return [
-      features.posts_limit === null
-        ? "منشورات غير محدودة"
-        : `${features.posts_limit} منشور`,
-      features.ads_limit === null
-        ? "إعلانات غير محدودة"
-        : features.ads_limit === 0
-          ? "بدون إعلانات"
-          : `${features.ads_limit} إعلان`,
-      features.priority_support ? "دعم فني ذو أولوية" : "دعم فني أساسي",
-    ];
+ const getFeatureDisplay = (features) => {
+    const list = [];
+
+    if (features.priority_support) {
+        list.push({ text: "دعم فني مباشر (Priority)", available: true, icon: <Headphones size={14} className="text-current" /> });
+    } else {
+        list.push({ text: "دعم فني قياسي", available: true });
+    }
+
+    if (features.verification_badge === 'platinum') {
+        list.push({
+            text: "شارة توثيق بلاتينية (VIP)",
+            available: true,
+            highlight: true,
+            icon: <Diamond size={14} className="text-cyan-500 fill-cyan-500/20" />
+        });
+    } else if (features.verification_badge === 'gold') {
+        list.push({
+            text: "شارة توثيق ذهبية (Gold)",
+            available: true,
+            highlight: true,
+            icon: <Gem size={14} className="text-amber-500 fill-amber-500/20" />
+        });
+    } else if (features.verification_badge === 'bronze') {
+        list.push({ text: "شارة توثيق برونزية", available: true, icon: <ShieldCheck size={14} className="text-orange-500" /> });
+    } else {
+        list.push({ text: "بدون شارة توثيق", available: false });
+    }
+
+    if (features.monthly_ai_credits > 0) {
+        list.push({ text: `${features.monthly_ai_credits} عملية كشف حقائق (AI)`, available: true });
+    }
+
+    if (features.monthly_ad_credits > 0) {
+        list.push({ text: `${features.monthly_ad_credits} أيام إعلانات ممولة`, available: true });
+    } else {
+        list.push({ text: "لا يوجد رصيد إعلاني", available: false });
+    }
+
+    if (features.priority_support) {
+        list.push({ text: "دعم فني مباشر VIP", available: true });
+    } else {
+        list.push({ text: "دعم فني قياسي", available: true });
+    }
+
+    return list;
   };
 
   return (
-    <AuthenticatedLayout user={auth.user}>
-      <Head title="الباقات" />
+    <div className="flex flex-col min-h-screen bg-[#f8fafc] font-sans text-right" dir="rtl">
+      <Head title="خطط الاشتراك" />
+      <Header auth={auth} />
 
-      <div className="py-16 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 min-h-screen">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Current Subscription Badge */}
-          {currentSubscription && (
-            <div className="mb-8 rounded-lg bg-indigo-50 p-4 border border-indigo-100">
-              <p className="text-center text-sm text-indigo-700">
-                أنت مشترك حالياً في خطة{' '}
-                <span className="font-bold">
-                  {currentSubscription.plan?.name}
-                </span>
-                {currentSubscription.ends_at && (
-                  <span>
-                    {' '}حتى{' '}
-                    {new Date(currentSubscription.ends_at).toLocaleDateString('ar-EG')}
-                  </span>
-                )}
-              </p>
-            </div>
-          )}
+      <main className="flex-grow">
 
-          {/* Header */}
-          <div className="text-center mb-16">
-            <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-4">
-              اختر الباقة المناسبة لك
-            </h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              انضم إلى منصة مدقق واختر الباقة التي تناسب احتياجاتك
-            </p>
-          </div>
+        <div className="relative pt-40 pb-36 md:pb-48 overflow-hidden bg-[#020617]">
+             <div className="absolute inset-0 w-full h-full pointer-events-none">
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:32px_32px]"></div>
+                <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-amber-500/10 rounded-full blur-[120px] animate-pulse"></div>
+                <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[#b20e1e]/10 rounded-full blur-[120px] animate-pulse delay-1000"></div>
+             </div>
 
-          {/* Plans Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {plans.map((plan, index) => {
-              const isPopular = plan.slug === "pro";
-              const isCurrent = isCurrentPlan(plan);
-              const features = getFeatureDisplay(plan.features);
-
-              return (
-                <div
-                  key={plan.id}
-                  className={`relative bg-white rounded-3xl shadow-xl overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-2xl ${isPopular ? "ring-4 ring-purple-500 lg:scale-105" : ""
-                    } ${isCurrent ? "ring-4 ring-green-500" : ""}`}
-                  style={{
-                    animationDelay: `${index * 0.1}s`,
-                  }}
-                >
-                  {/* Current Plan Badge */}
-                  {isCurrent && (
-                    <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-center py-2 text-sm font-bold">
-                      ✓ خطتك الحالية
-                    </div>
-                  )}
-
-                  {/* Popular Badge */}
-                  {isPopular && !isCurrent && (
-                    <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-center py-2 text-sm font-bold">
-                      ⭐ الأكثر شعبية
-                    </div>
-                  )}
-
-                  <div className={`p-8 ${(isPopular || isCurrent) ? "pt-14" : ""}`}>
-                    {/* Icon */}
-                    <div className="mb-6 flex justify-center">
-                      {getPlanIcon(plan.slug)}
-                    </div>
-
-                    {/* Plan Name */}
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2 text-center">
-                      {plan.name}
-                    </h3>
-
-                    {/* Price */}
-                    <div className="text-center mb-6">
-                      <div className="flex items-baseline justify-center gap-2">
-                        {plan.is_free ? (
-                          <span className="text-5xl font-bold text-green-600">
-                            مجاني
-                          </span>
-                        ) : (
-                          <>
-                            <span className="text-5xl font-bold text-gray-900">
-                              {plan.price}
-                            </span>
-                            <span className="text-gray-600">جنيه</span>
-                          </>
-                        )}
-                      </div>
-                      <p className="text-sm text-gray-500 mt-2">
-                        {getBillingText(plan.billing_interval)}
-                      </p>
-                      {plan.duration_days && (
-                        <p className="text-xs text-gray-400 mt-1">
-                          ({plan.duration_days} يوم)
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Features */}
-                    <ul className="space-y-4 mb-8">
-                      {features.map((feature, idx) => (
-                        <li key={idx} className="flex items-start gap-3">
-                          <Check
-                            className="text-green-500 flex-shrink-0 mt-1"
-                            size={20}
-                          />
-                          <span className="text-gray-700 text-sm">
-                            {feature}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-
-                    {/* CTA Button */}
-                    {isCurrent ? (
-                      <button
-                        disabled
-                        className="w-full py-4 rounded-xl font-bold text-lg bg-gray-300 text-gray-500 cursor-not-allowed"
-                      >
-                        خطتك الحالية
-                      </button>
-                    ) : plan.is_free ? (
-                      isGuest ? (
-                        <button
-                          onClick={() => router.visit(route('register'))}
-                          className="w-full py-4 rounded-xl font-bold text-lg bg-green-500 text-white hover:bg-green-600 transition-all transform hover:scale-105"
-                        >
-                          ابدأ الآن
-                        </button>
-                      ) : (
-                        <button
-                          disabled
-                          className="w-full py-4 rounded-xl font-bold text-lg bg-gray-200 text-gray-600 cursor-not-allowed"
-                        >
-                          مجاني للأبد
-                        </button>
-                      )
-                    ) : (
-                      <button
-                        onClick={() => handleSubscribe(plan.slug)}
-                        disabled={processingPlan !== null}
-                        className={`w-full py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed ${isPopular
-                          ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 shadow-lg"
-                          : "bg-blue-500 text-white hover:bg-blue-600"
-                          }`}
-                      >
-                        {processingPlan === plan.slug ? "جاري المعالجة..." : "اشترك الآن"}
-                      </button>
-                    )}
-                  </div>
+            <div className="max-w-7xl mx-auto px-4 relative z-10 text-center">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-amber-300 text-sm font-bold mb-6 backdrop-blur-md shadow-lg" data-aos="fade-down">
+                    <Crown className="w-4 h-4 animate-bounce" />
+                    <span>عضويات النخبة</span>
                 </div>
-              );
-            })}
-          </div>
 
-          {/* FAQ or Additional Info */}
-          <div className="mt-16 text-center">
-            <p className="text-gray-600">
-              هل لديك أسئلة؟{" "}
-              <a
-                href="#"
-                className="text-blue-600 hover:text-blue-800 font-semibold"
-              >
-                تواصل معنا
-              </a>
-            </p>
-          </div>
+                <h1 className="text-4xl md:text-6xl font-black text-white leading-tight mb-6 drop-shadow-2xl" data-aos="fade-up">
+                    استثمر في <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-amber-600">مصداقيتك</span>
+                </h1>
+
+                <p className="text-lg text-gray-400 max-w-2xl mx-auto leading-relaxed font-medium" data-aos="fade-up" data-aos-delay="100">
+                    سواء كنت قارئاً يبحث عن الحقيقة أو صحفياً يريد التميز، باقاتنا تمنحك الأدوات والشارات التي تستحقها.
+                </p>
+            </div>
         </div>
-      </div>
-    </AuthenticatedLayout>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
+
+            {currentSubscription && (
+                <div className="-mt-24 relative z-20 bg-white/90 backdrop-blur-xl p-6 rounded-[2rem] shadow-2xl shadow-[#020617]/10 border border-white mb-12 flex flex-col md:flex-row items-center justify-between gap-4" data-aos="fade-up">
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center">
+                            <Crown size={24} />
+                        </div>
+                        <div>
+                            <p className="text-gray-500 text-xs font-bold uppercase tracking-wider">باقتك الحالية</p>
+                            <h3 className="text-xl font-black text-[#020617]">{currentSubscription.plan?.name}</h3>
+                        </div>
+                    </div>
+                    {currentSubscription.ends_at && (
+                        <div className="px-4 py-2 bg-indigo-50 text-indigo-700 rounded-xl text-sm font-bold border border-indigo-100">
+                            تتجدد في {new Date(currentSubscription.ends_at).toLocaleDateString('ar-EG')}
+                        </div>
+                    )}
+                </div>
+            )}
+
+<div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 ${currentSubscription ? '' : '-mt-20 relative z-20'}`}>
+                {plans.map((plan, index) => {
+                    const isPro = plan.slug === 'pro';
+                    const isPlatinum = plan.slug === 'pro-yearly';
+                    const isCurrent = isCurrentPlan(plan);
+                    const featuresList = getFeatureDisplay(plan.features);
+
+                    let borderClass = 'border-gray-100';
+                    let shadowClass = 'shadow-xl shadow-gray-200/50';
+                    let bgIconClass = 'bg-gray-50 text-gray-500';
+                    let buttonClass = 'bg-[#020617] hover:bg-black';
+                    let ribbon = null;
+
+                    if (isPro) {
+                        borderClass = 'border-amber-400 scale-105 z-10';
+                        shadowClass = 'shadow-2xl shadow-amber-500/20';
+                        bgIconClass = 'bg-amber-50 text-amber-600';
+                        buttonClass = 'bg-gradient-to-r from-amber-500 to-amber-700 hover:shadow-amber-500/30';
+                        ribbon = <div className="bg-gradient-to-r from-amber-500 to-amber-600 text-white text-center py-2 text-xs font-black uppercase tracking-widest">الأكثر طلباً 🔥</div>;
+                    } else if (isPlatinum) {
+                        borderClass = 'border-cyan-400 scale-105 z-10';
+                        shadowClass = 'shadow-2xl shadow-cyan-500/20';
+                        bgIconClass = 'bg-cyan-50 text-cyan-600';
+                        buttonClass = 'bg-gradient-to-r from-cyan-500 to-blue-700 hover:shadow-cyan-500/30';
+                        ribbon = <div className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-center py-2 text-xs font-black uppercase tracking-widest">أفضل توفير 💎</div>;
+                    }
+
+                    if (isCurrent) borderClass = 'ring-4 ring-emerald-500/20 !border-emerald-500';
+
+                    return (
+                        <div
+                            key={plan.id}
+                            className={`group relative bg-white rounded-[2.5rem] overflow-hidden transition-all duration-500 flex flex-col border-2 ${borderClass} ${shadowClass}`}
+                            data-aos="fade-up"
+                            data-aos-delay={index * 100}
+                        >
+                            {ribbon}
+
+                            <div className="p-8 flex flex-col h-full">
+                                <div className="text-center mb-6">
+                                    <div className={`w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110 shadow-sm ${bgIconClass}`}>
+                                        {getPlanIcon(plan.slug)}
+                                    </div>
+                                    <h3 className="text-2xl font-black text-[#020617]">{plan.name}</h3>
+                                </div>
+
+                                <div className="text-center mb-8 pb-8 border-b border-gray-100">
+                                    <div className="flex items-baseline justify-center gap-1 dir-ltr">
+                                        {plan.is_free ? (
+                                            <span className="text-4xl font-black text-[#020617]">مجاني</span>
+                                        ) : (
+                                            <>
+                                                <span className="text-5xl font-black text-[#020617]">{Math.floor(plan.price)}</span>
+                                                <span className="text-sm font-bold text-gray-400">ج.م <br/> {getBillingText(plan.billing_interval)}</span>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <ul className="space-y-4 mb-8 flex-grow">
+                                    {featuresList.map((feature, idx) => (
+                                        <li key={idx} className={`flex items-start gap-3 text-sm font-bold ${feature.available ? 'text-gray-700' : 'text-gray-300'}`}>
+                                            <div className={`mt-0.5 w-5 h-5 rounded-full flex items-center justify-center shrink-0
+                                                ${feature.available ? (feature.highlight ? (isPlatinum ? 'bg-cyan-100 text-cyan-600' : 'bg-amber-100 text-amber-600') : 'bg-emerald-100 text-emerald-600') : 'bg-gray-100 text-gray-300'}`}>
+                                                {feature.available ? (feature.icon || <Check size={12} strokeWidth={3} />) : <X size={12} strokeWidth={3} />}
+                                            </div>
+                                            <span className={feature.highlight ? "text-[#020617]" : ""}>{feature.text}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+
+                                <div className="mt-auto">
+                                    {isCurrent ? (
+                                        <button disabled className="w-full py-4 rounded-2xl font-bold text-sm bg-emerald-100 text-emerald-700 cursor-default flex items-center justify-center gap-2">
+                                            <Check size={16} /> مشترك حالياً
+                                        </button>
+                                    ) : plan.is_free ? (
+                                        <button
+                                            onClick={() => isGuest && router.visit(route('register'))}
+                                            disabled={!isGuest}
+                                            className="w-full py-4 rounded-2xl font-bold text-sm bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
+                                        >
+                                            {isGuest ? 'ابدا مجاناً' : 'مفعل افتراضياً'}
+                                        </button>
+                                    ) : (
+                                        <button
+                                            onClick={() => handleSubscribe(plan.slug)}
+                                            disabled={processingPlan !== null}
+                                            className={`w-full py-4 rounded-2xl font-bold text-sm text-white shadow-xl transition-all transform active:scale-95 flex items-center justify-center gap-2 ${buttonClass}
+                                                ${processingPlan !== null ? 'opacity-70 cursor-wait' : ''}
+                                            `}
+                                        >
+                                            {processingPlan === plan.slug ? "جاري التحويل..." : "اشترك الآن"}
+                                        </button>
+                                    )}
+                                </div>
+
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+
+            <div className="mt-24 text-center bg-white rounded-[2.5rem] p-12 border border-gray-100 shadow-xl relative overflow-hidden" data-aos="zoom-in">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-blue-50 rounded-full blur-3xl -z-10 opacity-50"></div>
+
+                <h2 className="text-3xl font-black text-[#020617] mb-4">هل أنت صحفي محترف؟</h2>
+                <p className="text-gray-500 max-w-xl mx-auto mb-8 font-medium text-lg">
+                    انضم إلى فريق مدقق واحصل على صلاحيات النشر، شارة الصحفي المعتمد، وأولوية الظهور في نتائج البحث.
+                </p>
+                <Link
+                    href="/requests/join"
+                    className="inline-flex items-center gap-2 px-8 py-4 bg-[#b20e1e] text-white font-bold rounded-2xl shadow-lg shadow-red-900/20 hover:bg-red-800 transition-all hover:-translate-y-1"
+                >
+                    <FaPenNib className="text-sm" />
+                    قدم طلب انضمام كصحفي
+                </Link>
+            </div>
+
+        </div>
+      </main>
+      <Footer />
+    </div>
   );
 }
+
+import { FaPenNib } from "react-icons/fa";

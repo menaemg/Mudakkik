@@ -16,4 +16,12 @@ class NotificationController extends Controller
         auth()->user()->unreadNotifications->markAsRead();
         return response()->json(['message' => 'All notifications marked as read']);
     }
+
+    public function destroy($notificationId)
+    {
+        $notification = auth()->user()->notifications()->findOrFail($notificationId);
+        $notification->delete();
+
+        return response()->json(['message' => 'Notification deleted successfully']);
+    }
 }

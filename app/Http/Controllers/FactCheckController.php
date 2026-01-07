@@ -15,28 +15,79 @@ class FactCheckController extends Controller
         $this->service = $service;
     }
 
-    public function verify(Request $request)
+    public function verify(Request $request, FactCheckServices $service)
     {
         $request->validate([
-            'content' => 'required|string|min:10',
+            'text' => 'required|string|min:10|max:5000',
+            'period' => 'nullable|integer|in:1,3,7,30,365',
         ]);
 
-        try {
-            $input = $request->input('content');
-            $result = $this->service->check($input);
-            return response()->json($result);
-        } catch (\Exception $e) {
-            report($e);
+        $user = $request->user();
 
-            return response()->json([
-                'status' => 'error',
-                'message' => 'عذراً، حدث خطأ فني. يرجى المحاولة مرة أخرى لاحقاً.'
-            ], 500);
+        if ($user) {
+            if (!$user->consumeAiCredit(1)) {
+                return back()->with([
+                    'error' => 'لقد استنفدت رصيد كاشف الحقائق لهذا الشهر. يرجى الترقية للمتابعة.',
+                    'open_plan_modal' => true
+                ]);
+            }
+        } else {
+             return back()->with('error', 'يجب تسجيل الدخول لاستخدام هذه الميزة.');
         }
+
+        $result = $service->check($request->text, $request->period, $user?->id);
+
+        if (isset($result['status']) && $result['status'] === 'error') {
+            if ($user) {
+                $user->increment('ai_recurring_credits');
+                $user->refresh();
+            }
+            return back()->with('error', 'حدث خطأ تقني أثناء التحليل، لم يتم خصم الرصيد.');
+        }
+
+        if ($user) {
+            $user->refresh();
+        }
+
+        return back()->with([
+            'result' => $result,
+            'new_credits' => $user ? ($user->ai_recurring_credits + $user->ai_bonus_credits) : 0
+        ]);
     }
+
     public function history()
     {
-        $history = FactCheck::latest()->take(10)->get();
+        if (!auth()->check()) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        $history = auth()->user()->factChecks()->latest('fact_check_user.created_at')->take(10)->get();
         return response()->json($history);
+    }
+
+    public function show(FactCheck $factCheck)
+    {
+        if (!auth()->check()) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        // Verify the user is associated with this fact check
+        $exists = auth()->user()->factChecks()->where('fact_checks.id', $factCheck->id)->exists();
+
+        if (!$exists) {
+            return response()->json(['error' => 'Forbidden'], 403);
+        }
+
+        return response()->json([
+            'verdict' => [
+                'label' => $factCheck->label,
+                'confidence' => $factCheck->confidence,
+                'summary' => $factCheck->summary,
+                'evidence' => $factCheck->evidence,
+            ],
+            'sources' => $factCheck->sources,
+            'input_text' => $factCheck->input_text,
+            'period' => $factCheck->period,
+        ]);
     }
 }

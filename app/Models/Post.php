@@ -23,6 +23,7 @@ class Post extends Model
         'user_id',
         'category_id',
         'is_featured',
+        'is_breaking',
         'views',
 
     ];
@@ -101,5 +102,18 @@ class Post extends Model
     public function scopePublished($query)
     {
         return $query->where('status', 'published');
+    }
+
+    protected $appends = ['image_url'];
+
+    public function getImageUrlAttribute()
+    {
+        $rawImage = $this->getOriginal('image');
+        
+        if (!$rawImage) {
+            return 'https://via.placeholder.com/800x600';
+        }
+        
+        return str_starts_with($rawImage, 'http') ? $rawImage : asset('storage/' . $rawImage);
     }
 }

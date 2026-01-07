@@ -1,9 +1,10 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import React, { useEffect } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
+import Header from '@/Components/Header';
+import Footer from '@/Components/Footer';
 import { CheckCircle, Loader2 } from 'lucide-react';
-import { useEffect } from 'react';
 
-export default function Success({ subscription, processing, message }) {
+export default function Success({ auth, subscription, processing, message }) {
     // If processing, poll every 2 seconds to check for subscription
     useEffect(() => {
         if (processing && !subscription) {
@@ -23,106 +24,86 @@ export default function Success({ subscription, processing, message }) {
         }
     }, [processing, subscription]);
 
-    // Processing state
-    if (processing && !subscription) {
-        return (
-            <AuthenticatedLayout
-                header={
-                    <h2 className="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
-                        Processing Payment
-                    </h2>
-                }
-            >
-                <Head title="Processing Payment" />
-
-                <div className="py-12">
-                    <div className="mx-auto max-w-2xl sm:px-6 lg:px-8">
-                        <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800">
-                            <div className="p-8 text-center">
-                                <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900">
-                                    <Loader2 className="h-10 w-10 text-indigo-600 dark:text-indigo-400 animate-spin" />
-                                </div>
-
-                                <h3 className="mb-2 text-2xl font-bold text-gray-900 dark:text-white">
-                                    جاري معالجة الدفع...
-                                </h3>
-
-                                <p className="mb-6 text-gray-600 dark:text-gray-400">
-                                    {message || 'يرجى الانتظار بينما نقوم بتفعيل اشتراكك.'}
-                                </p>
-
-                                <p className="text-sm text-gray-500">
-                                    سيتم التحديث تلقائياً
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </AuthenticatedLayout>
-        );
-    }
-
-    // Success state
     return (
-        <AuthenticatedLayout
-            header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
-                    Payment Successful
-                </h2>
-            }
-        >
-            <Head title="Payment Successful" />
+        <div className="min-h-screen bg-[#f8fafc] flex flex-col font-sans" dir="rtl">
+            <Head title={processing ? "جاري المعالجة" : "تم الدفع بنجاح"} />
+            <Header auth={auth} />
 
-            <div className="py-12">
-                <div className="mx-auto max-w-2xl sm:px-6 lg:px-8">
-                    <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800">
-                        <div className="p-8 text-center">
-                            <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
-                                <CheckCircle className="h-10 w-10 text-green-600 dark:text-green-400" />
+            <main className="flex-grow flex flex-col justify-center py-20">
+                <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+                    {/* Processing State */}
+                    {processing && !subscription ? (
+                        <div className="bg-white rounded-[2.5rem] shadow-xl border border-gray-100 p-12 text-center relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50 rounded-full blur-3xl -z-10 opacity-50"></div>
+
+                            <div className="mx-auto mb-8 flex h-20 w-20 items-center justify-center rounded-full bg-indigo-50 text-indigo-600">
+                                <Loader2 className="h-10 w-10 animate-spin" />
                             </div>
 
-                            <h3 className="mb-2 text-2xl font-bold text-gray-900 dark:text-white">
+                            <h3 className="mb-4 text-3xl font-black text-[#020617]">
+                                جاري معالجة الدفع...
+                            </h3>
+
+                            <p className="mb-8 text-gray-500 font-medium text-lg leading-relaxed">
+                                {message || 'يرجى الانتظار بينما نقوم بتفعيل اشتراكك.'}
+                            </p>
+
+                            <p className="text-sm text-gray-400 font-bold">
+                                لا تغلق الصفحة، سيتم التحديث تلقائياً...
+                            </p>
+                        </div>
+                    ) : (
+                        /* Success State */
+                        <div className="bg-white rounded-[2.5rem] shadow-xl border border-gray-100 p-12 text-center relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-green-50 rounded-full blur-3xl -z-10 opacity-50"></div>
+
+                            <div className="mx-auto mb-8 flex h-20 w-20 items-center justify-center rounded-full bg-green-50 text-green-600 shadow-sm">
+                                <CheckCircle className="h-10 w-10" />
+                            </div>
+
+                            <h3 className="mb-4 text-3xl font-black text-[#020617]">
                                 تم الدفع بنجاح!
                             </h3>
 
-                            <p className="mb-6 text-gray-600 dark:text-gray-400">
-                                شكراً لاشتراكك. تم معالجة الدفع بنجاح.
+                            <p className="mb-8 text-gray-500 font-medium text-lg">
+                                شكراً لاشتراكك. تم معالجة الدفع بنجاح وتفعيل حسابك.
                             </p>
 
                             {subscription && (
-                                <div className="mb-6 rounded-lg bg-gray-50 p-4 dark:bg-gray-700">
-                                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                                <div className="mb-8 rounded-2xl bg-gray-50 p-6 border border-gray-100 inline-block w-full max-w-sm">
+                                    <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
                                         الخطة الحالية
                                     </p>
-                                    <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                                    <p className="text-xl font-black text-[#020617] mb-1">
                                         {subscription.plan?.name}
                                     </p>
                                     {subscription.ends_at && (
-                                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                                        <p className="text-sm font-medium text-emerald-600">
                                             صالح حتى {new Date(subscription.ends_at).toLocaleDateString('ar-EG')}
                                         </p>
                                     )}
                                 </div>
                             )}
 
-                            <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+                            <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
                                 <Link
                                     href="/"
-                                    className="inline-flex items-center justify-center rounded-md bg-indigo-600 px-6 py-3 text-sm font-medium text-white transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                                    className="inline-flex items-center justify-center rounded-xl bg-[#020617] px-8 py-4 text-sm font-bold text-white transition hover:bg-black hover:-translate-y-1 shadow-lg"
                                 >
                                     تصفح الموقع
                                 </Link>
                                 <Link
                                     href={route('plans.index')}
-                                    className="inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-6 py-3 text-sm font-medium text-gray-700 transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+                                    className="inline-flex items-center justify-center rounded-xl border-2 border-gray-100 bg-white px-8 py-4 text-sm font-bold text-gray-700 transition hover:border-gray-200 hover:bg-gray-50"
                                 >
                                     عرض الخطط
                                 </Link>
                             </div>
                         </div>
-                    </div>
+                    )}
                 </div>
-            </div>
-        </AuthenticatedLayout>
+            </main>
+            <Footer />
+        </div>
     );
 }

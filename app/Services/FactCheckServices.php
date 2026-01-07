@@ -3,129 +3,335 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use App\Models\TrustedDomain;
+
 
 class FactCheckServices
 {
-    private function fetchUrlContent($url)
+    private const PRIMARY_MODEL = 'llama-3.3-70b-versatile'; 
+    private const FAST_MODEL = 'llama-3.1-8b-instant';
+
+    private function fetchUrlContent(string $url): string
     {
         try {
             $response = Http::withoutVerifying()
                 ->retry(2, 500)
                 ->timeout(15)
                 ->withHeaders([
-                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36',
+                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                    'Accept-Language' => 'ar,en;q=0.9',
                 ])
                 ->get("https://r.jina.ai/" . urlencode($url));
 
             if ($response->successful()) {
                 $body = $response->body();
-
-                return (strlen($body) < 150) ? "FAILED_CONTENT" : mb_substr($body, 0, 2000);
+                return (strlen($body) < 10) ? "FAILED_CONTENT" : mb_substr($body, 0, 3000);
             }
             return "FAILED_CONTENT";
         } catch (\Exception $e) {
+            Log::warning('Failed to fetch URL content', ['url' => $url, 'error' => $e->getMessage()]);
             return "FAILED_CONTENT";
         }
     }
-    private function refineContentForSearch($rawContent, $isFallback = false)
+
+    private function refineContentForSearch(string $rawContent, bool $isFallback = false): ?array
     {
-        $prompt = $isFallback
-            ? 'حلل الرابط المستخرج. استخرج عنواناً واضحاً باللغة العربية. إذا كان النص غير مفهوم رد بـ "INVALID". رد بـ JSON: {"title": "..", "body": "..", "keywords": ".."}'
-            : 'أنت خبير فحص حقائق. استخرج عنوان الخبر والكلمات المفتاحية. إذا كان النص عبارة عن رموز غير مفهومة، اجعل العنوان "INVALID". رد بـ JSON: {"title": "..", "body": "..", "keywords": ".." }';
+        $systemPrompt = $isFallback
+            ? 'You are a content extraction expert. Analyze the provided URL-extracted text and extract a clear Arabic news title. 
+               If the text is garbled, unreadable, or contains only symbols/code, respond with title: "INVALID".
+               
+               IMPORTANT: Always respond in valid JSON format with these exact keys:
+               {
+                 "title": "The news headline in Arabic (or INVALID if unreadable)",
+                 "body": "Brief summary of the news content in Arabic (max 200 chars)",
+                 "keywords": "Comma-separated Arabic keywords for search"
+               }'
+            : 'You are an expert Arabic news analyst and fact-checker. Your task is to extract the core claim from the provided news content.
+               
+               RULES:
+               1. Extract the main news headline/claim in Arabic
+               2. Identify key entities (people, organizations, locations, dates)
+               3. Generate search keywords that would help verify this claim
+               4. If content is unreadable/garbled, set title to "INVALID"
+               
+               IMPORTANT: Respond ONLY in valid JSON format:
+               {
+                 "title": "Main claim or headline in Arabic",
+                 "body": "Brief factual summary in Arabic (max 200 chars)",
+                 "keywords": "Arabic search keywords, comma-separated"
+               }';
 
         try {
-            $response = Http::withHeaders(['Authorization' => 'Bearer ' . config('services.groq.api_key')])
-                ->post('https://api.groq.com/openai/v1/chat/completions', [
-                    'model' => 'llama-3.1-8b-instant',
-                    'messages' => [
-                        ['role' => 'system', 'content' => $prompt],
-                        ['role' => 'user', 'content' => $rawContent]
-                    ],
-                    'response_format' => ['type' => 'json_object'],
-                ]);
-
-            return json_decode($response->json()['choices'][0]['message']['content'], true);
-        } catch (\Exception $e) {
-            return null;
-        }
-    }
-
-    private function searchInTrustedSources($data)
-    {
-
-        if (!$data || $data['title'] === "INVALID" || strlen($data['title']) < 5) {
-            return [];
-        }
-
-        try {
-            $domains = TrustedDomain::where('is_active', true)->pluck('domain')->toArray();
-
-            $response = Http::post('https://api.tavily.com/search', [
-                'api_key' => config('services.tavily.api_key'),
-                'query' => $data['title'],
-                'search_depth' => 'advanced',
-                'include_domains' => $domains,
-                'max_results' => 5
-            ]);
-
-            return $response->json()['results'] ?? [];
-        } catch (\Exception $e) {
-            return [];
-        }
-    }
-private function finalVerdict($originalNews, $searchResults)
-{
-    if (empty($searchResults)) {
-        return [
-            'rating' => 'غير مؤكد',
-            'percentage' => 0,
-            'explanation' => 'لم نجد نتائج مطابقة في المصادر الموثوقة حالياً.',
-            'evidence' => ''
-        ];
-    }
-
-    try {
-        $snippets = collect($searchResults)->map(fn($i) => [
-            'title' => $i['title'],
-            'content' => mb_substr($i['content'], 0, 1000) 
-        ])->toArray();
-
-        $response = Http::withHeaders(['Authorization' => 'Bearer ' . config('services.groq.api_key')])
-            ->timeout(45)
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . config('services.groq.api_key'),
+                'Content-Type' => 'application/json',
+            ])
+            ->timeout(30)
             ->post('https://api.groq.com/openai/v1/chat/completions', [
-                'model' => 'llama-3.1-8b-instant',
+                'model' => self::FAST_MODEL,
                 'messages' => [
-                    ['role' => 'system', 'content' => 'أنت خبير تدقيق جنائي للأخبار. 
-                    مهمتك هي مقارنة "الادعاء" بمجموعة "نتائج البحث".
-                    قواعد التحليل:
-                    1. إذا كانت النتائج تتحدث عن نفس الشخص ونفس الفعل (حتى لو بصياغة مختلفة)، فالخبر "صحيح".
-                    2. لا تكن حرفياً؛ ابحث عن المعنى الجوهري. (مثلاً: "القبض على سارق" هو نفسه "ضبط مسجل خطر قام بالسرقة").
-                    3. إذا أكدت النتائج الخبر، أعطِ نسبة ثقة بين 90-100%.
-                    4. اذكر الاقتباس الحقيقي الذي يؤكد الخبر في حقل evidence.
-                    رد بـ JSON فقط: {"rating": "صحيح/كاذب/مضلل/غير مؤكد", "percentage": 0-100, "explanation": "شرح موجز باللغة العربية", "evidence": "اقتباس من المصادر"}'],
-                    ['role' => 'user', 'content' => "الادعاء المراد فحصه: " . $originalNews['title'] . "\n\nالمصادر المتاحة للتحليل:\n" . json_encode($snippets)]
+                    ['role' => 'system', 'content' => $systemPrompt],
+                    ['role' => 'user', 'content' => "Content to analyze:\n\n" . $rawContent]
                 ],
                 'response_format' => ['type' => 'json_object'],
                 'temperature' => 0.1,
             ]);
 
-        if ($response->successful()) {
+            if (!$response->successful()) {
+                Log::error('Groq API error in refineContentForSearch', ['status' => $response->status()]);
+                return null;
+            }
+
             $data = $response->json();
-            return json_decode($data['choices'][0]['message']['content'], true);
+            $content = $data['choices'][0]['message']['content'] ?? null;
+            
+            if (!$content) {
+                return null;
+            }
+
+            return json_decode($content, true);
+        } catch (\Exception $e) {
+            Log::error('Exception in refineContentForSearch', ['error' => $e->getMessage()]);
+            return null;
+        }
+    }
+
+    private function searchInTrustedSources(array $data, ?int $days = null): array
+    {
+        if (!isset($data['title']) || mb_strlen($data['title']) < 10) {
+            return [];
         }
 
-        return ['rating' => 'تنبيه', 'percentage' => 50, 'explanation' => 'المحرك مشغول، لكن المصادر بالأسفل قد تفيدك.', 'evidence' => ''];
+        try {
+            $domains = TrustedDomain::where('is_active', true)->pluck('domain')->toArray();
+            if (empty($domains)) {
+                Log::warning('No active trusted domains configured');
+                return [];
+            }
 
-    } catch (\Exception $e) {
-        return ['rating' => 'خطأ في التحليل', 'percentage' => 0, 'explanation' => 'تعذر الربط التلقائي.', 'evidence' => ''];
+            // Combine title and keywords for better search
+            $searchQuery = $data['title'];
+            if (!empty($data['keywords'])) {
+                $searchQuery .= ' ' . $data['keywords'];
+            }
+
+            $payload = [
+                'api_key' => config('services.tavily.api_key'),
+                'query' => mb_substr($searchQuery, 0, 400),
+                'search_depth' => 'advanced',
+                'include_domains' => $domains,
+                'max_results' => 7,
+            ];
+
+            if ($days) {
+                $payload['days'] = $days;
+            }
+
+            $response = Http::timeout(25)->post('https://api.tavily.com/search', $payload);
+
+            if ($response->successful()) {
+                $results = $response->json()['results'] ?? [];
+                return collect($results)
+                    ->filter(function ($result) use ($domains) {
+                        foreach ($domains as $domain) {
+                            if (str_contains($result['url'] ?? '', $domain)) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    })
+                    ->map(function ($result) {
+                        // Extract date if not provided by API
+                        if (empty($result['published_date'])) {
+                            $result['published_date'] = $this->extractDate($result);
+                        }
+                        return $result;
+                    })
+                    ->values()
+                    ->all();
+            }
+
+            return [];
+        } catch (\Exception $e) {
+            Log::error('Search in trusted sources failed', ['error' => $e->getMessage()]);
+            return [];
+        }
     }
-}
-    public function check($input)
+
+    /**
+     * Try to extract date from content or URL.
+     */
+    private function extractDate(array $result): ?string
     {
-        $inputHash = md5(trim(mb_strtolower($input)));
+        // 1. Try URL first (Y-m-d or Y/m/d)
+        $url = $result['url'] ?? '';
+        if (preg_match('/(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})/', $url, $matches)) {
+            return $matches[1] . '-' . str_pad($matches[2], 2, '0', STR_PAD_LEFT) . '-' . str_pad($matches[3], 2, '0', STR_PAD_LEFT);
+        }
+
+        // 2. Try content snippet (Arabic dates)
+        // Matches: "06 يناير 2026", "6 كانون الثاني 2026", "2026-01-06"
+        $content = $result['content'] ?? '';
+        $months = implode('|', [
+            'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
+            'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر',
+            'كانون الثاني', 'شباط', 'آذار', 'نيسان', 'أيار', 'حزيران',
+            'تموز', 'آب', 'أيلول', 'تشرين الأول', 'تشرين الثاني', 'كانون الأول'
+        ]);
+
+        if (preg_match('/(\d{1,2})\s+('.$months.')\s+(\d{4})/', $content, $matches)) {
+             return $matches[1] . ' ' . $matches[2] . ' ' . $matches[3];
+        }
+        
+        return null; // No date found
+    }
+
+    /**
+     * Generate final verdict by analyzing claim against found sources.
+     */
+    private function finalVerdict(array $originalNews, array $searchResults): array
+    {
+        if (empty($searchResults)) {
+            return [
+                'rating' => 'غير مؤكد',
+                'percentage' => 0,
+                'summary' => 'لم نعثر على مصادر موثوقة تؤكد أو تنفي هذا الخبر. يُنصح بالتحقق من مصادر إضافية.',
+                'evidence' => ''
+            ];
+        }
+
+        try {
+            $snippets = collect($searchResults)
+                ->take(5)
+                ->map(fn($item) => [
+                    'title' => $item['title'] ?? '',
+                    'url' => $item['url'] ?? '',
+                    'content' => mb_substr($item['content'] ?? '', 0, 800)
+                ])
+                ->toArray();
+
+            $systemPrompt = <<<PROMPT
+You are an expert forensic fact-checker specializing in Arabic news verification. Your task is to analyze whether the provided claim is supported, contradicted, or unverifiable based on the search results from trusted sources.
+
+VERIFICATION RULES:
+1. CONTEXTUAL RELEVANCE: First determine if the search results are actually related to the claim. Unrelated results = "غير مؤكد" with 0%.
+2. EVIDENCE ANALYSIS: Look for direct confirmation, contradiction, or partial information.
+3. SOURCE QUALITY: Weight official government/news agency sources higher.
+
+CONFIDENCE SCORING (be conservative):
+- 0-49%: "غير صحيح" (False) - Sources directly contradict the claim
+- 50-69%: "غير مؤكد" (Unverified) - Insufficient evidence or mixed signals  
+- 70-89%: "صحيح" (True) - Multiple sources confirm with minor variations
+- 90-100%: "رسمي" (Official) - Official sources directly confirm
+
+OUTPUT FORMAT (respond ONLY with this JSON structure):
+{
+  "rating": "One of: رسمي, صحيح, غير مؤكد, غير صحيح",
+  "percentage": <number 0-100>,
+  "summary": "Detailed Arabic explanation of the verdict (2-3 sentences)",
+  "evidence": "Direct Arabic quote from sources that supports the verdict"
+}
+
+IMPORTANT: 
+- All text fields MUST be in Arabic
+- Be skeptical - when in doubt, use "غير مؤكد"
+- The summary should explain WHY you reached this conclusion
+PROMPT;
+
+            $userMessage = "الادعاء المراد التحقق منه:\n" . ($originalNews['title'] ?? '') . "\n\n";
+            $userMessage .= "نتائج البحث من المصادر الموثوقة:\n" . json_encode($snippets, JSON_UNESCAPED_UNICODE);
+
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . config('services.groq.api_key'),
+                'Content-Type' => 'application/json',
+            ])
+            ->timeout(60)
+            ->post('https://api.groq.com/openai/v1/chat/completions', [
+                'model' => self::PRIMARY_MODEL,
+                'messages' => [
+                    ['role' => 'system', 'content' => $systemPrompt],
+                    ['role' => 'user', 'content' => $userMessage]
+                ],
+                'response_format' => ['type' => 'json_object'],
+                'temperature' => 0.1,
+            ]);
+
+            if ($response->successful()) {
+                $data = $response->json();
+                $content = $data['choices'][0]['message']['content'] ?? null;
+                
+                if ($content) {
+                    $result = json_decode($content, true);
+                    
+                    if ($result && isset($result['percentage'])) {
+                        // Enforce correct label based on percentage thresholds
+                        $percentage = max(0, min(100, (int)$result['percentage']));
+                        $result['percentage'] = $percentage;
+                        $result['rating'] = $this->getCorrectLabel($percentage);
+                        
+                        return $result;
+                    }
+                }
+            }
+
+            // Fallback response when API fails
+            return $this->buildFallbackVerdict($searchResults);
+            
+        } catch (\Exception $e) {
+            Log::error('Final verdict generation failed', ['error' => $e->getMessage()]);
+            return $this->buildFallbackVerdict($searchResults);
+        }
+    }
+
+    private function buildFallbackVerdict(array $searchResults): array
+    {
+        $summary = !empty($searchResults)
+            ? "وجدنا مصادر متعلقة بالموضوع: " . mb_substr($searchResults[0]['title'] ?? '', 0, 100)
+            : 'تعذر التحليل التلقائي. يُرجى المحاولة مرة أخرى.';
+
+        return [
+            'rating' => 'غير مؤكد',
+            'percentage' => 50,
+            'summary' => $summary,
+            'evidence' => $searchResults[0]['title'] ?? ''
+        ];
+    }
+    
+
+    /**
+     * Get the correct Arabic label based on confidence percentage.
+     */
+    private function getCorrectLabel(int $percentage): string
+    {
+        return match (true) {
+            $percentage >= 90 => 'رسمي',
+            $percentage >= 70 => 'صحيح',
+            $percentage >= 50 => 'غير مؤكد',
+            default => 'غير صحيح',
+        };
+    }
+
+    /**
+     * Main entry point for fact-checking a news claim or URL.
+     * Checks cache first, then processes and stores new checks.
+     */
+    /**
+     * Main entry point for fact-checking a news claim or URL.
+     * Checks cache first, then processes and stores new checks.
+     */
+    public function check(string $input, ?int $days = null, ?int $userId = null): array
+    {
+        $inputHash = md5(trim(mb_strtolower($input)) . ($days ? "_$days" : ""));
+        
+        // Check cache first
         $existingCheck = \App\Models\FactCheck::where('hash', $inputHash)->first();
         if ($existingCheck) {
+            // If user is authenticated, attach to pivot table
+            if ($userId) {
+                $existingCheck->users()->syncWithoutDetaching([$userId]);
+            }
+
             return [
                 'status' => 'Fetched from Cache',
                 'verdict' => [
@@ -138,39 +344,59 @@ private function finalVerdict($originalNews, $searchResults)
             ];
         }
 
-
+        // Process new input
         $processed = $this->identifyInputType($input);
         $raw = $processed['content'];
         $isFallback = ($raw === "FAILED_CONTENT");
 
-        if ($isFallback) {
+        if ($isFallback && $processed['type'] === 'url') {
             $raw = "عنوان الخبر من الرابط: " . $this->extractTitleFromUrl($input);
         }
 
         $data = $this->refineContentForSearch($raw, $isFallback);
-        if (!$data || $data['title'] === "INVALID") {
-            return ['status' => 'error', 'message' => 'محتوى غير مفهوم'];
+        
+        if (!$data || ($data['title'] ?? '') === "INVALID" || empty($data['title'])) {
+            return [
+                'status' => 'error', 
+                'message' => 'محتوى غير مفهوم أو غير صالح للتحقق'
+            ];
         }
 
-        $results = $this->searchInTrustedSources($data);
+        $results = $this->searchInTrustedSources($data, $days);
         $verdict = $this->finalVerdict($data, $results);
 
-        $searchScore = collect($results)->avg('score') * 100;
-        $finalConfidence = round(($verdict['percentage'] + $searchScore) / 2);
+        $searchScore = !empty($results) 
+            ? (collect($results)->avg('score') ?? 0) * 100 
+            : 0;
+        
+        $verdictPercentage = (int)($verdict['percentage'] ?? 0);
+        
+        $finalConfidence = !empty($results)
+            ? (int)round(($verdictPercentage * 0.7) + ($searchScore * 0.3))
+            : $verdictPercentage;
+        
+        $finalConfidence = max(0, min(100, $finalConfidence));
+        $finalLabel = $this->getCorrectLabel($finalConfidence);
 
-
+        // Store the result
         $newRecord = \App\Models\FactCheck::create([
-            'hash'        => $inputHash,
-            'input_text'  => $input,                 
-            'label'       => $verdict['rating'] ?? 'غير مؤكد', 
-            'confidence'  => (int)$finalConfidence,    
-            'summary'     => $verdict['explanation'] ?? 'فشل التحليل', 
-            'evidence'    => $verdict['evidence'] ?? '',
-            'sources'     => collect($results)->take(3)->map(fn($r) => [
-                'title' => $r['title'],
-                'url' => $r['url']
-            ])->toArray()                            
+            'hash' => $inputHash,
+            'input_text' => mb_substr($input, 0, 2000),
+            'label' => $finalLabel,
+            'confidence' => $finalConfidence,
+            'summary' => $verdict['summary'] ?? 'فشل التحليل',
+            'evidence' => $verdict['evidence'] ?? '',
+            'period' => $days,
+            'sources' => collect($results)->take(5)->map(fn($r) => [
+                'title' => $r['title'] ?? '',
+                'url' => $r['url'] ?? '',
+                'date' => $r['published_date'] ?? null
+            ])->toArray()
         ]);
+
+        if ($userId) {
+            $newRecord->users()->attach($userId);
+        }
 
         return [
             'status' => 'New Fact-Check Completed',
@@ -183,18 +409,61 @@ private function finalVerdict($originalNews, $searchResults)
             'sources' => $newRecord->sources
         ];
     }
-    private function identifyInputType($input)
+
+    /**
+     * Identify if input is a URL or plain text.
+     */
+    private function identifyInputType(string $input): array
     {
         if (filter_var($input, FILTER_VALIDATE_URL)) {
             return ['type' => 'url', 'content' => $this->fetchUrlContent($input)];
         }
-        return ['type' => 'text', 'content' => mb_substr($input, 0, 2000)];
+        return ['type' => 'text', 'content' => mb_substr($input, 0, 3000)];
     }
 
-    private function extractTitleFromUrl($url)
+    /**
+     * Extract a readable title from a URL path as fallback.
+     * Tries to find the most meaningful segment in the path.
+     */
+    private function extractTitleFromUrl(string $url): string
     {
-        $path = parse_url($url, PHP_URL_PATH);
-        $title = str_replace(['-', '_', '/', '.html'], ' ', urldecode(basename($path)));
-        return (is_numeric($title) || strlen($title) < 5) ? "INVALID" : $title;
+        $path = parse_url($url, PHP_URL_PATH) ?? '';
+        
+        // Decode path to handle Arabic characters
+        $decodedPath = urldecode($path);
+        
+        // Split path into segments using slash or common separators
+        $segments = preg_split('#[\\/]#', $decodedPath, -1, PREG_SPLIT_NO_EMPTY);
+        
+        if (empty($segments)) {
+            return "INVALID";
+        }
+
+        // Filter and clean segments
+        $candidates = collect($segments)
+            ->map(function ($segment) {
+                // Remove file extensions
+                $clean = preg_replace('/\.(html|htm|php|aspx)$/i', '', $segment);
+                // Replace separators with spaces
+                return str_replace(['-', '_', '+'], ' ', $clean);
+            })
+            ->filter(function ($segment) {
+                // Filter out purely numeric segments, short segments, or dates
+                if (is_numeric($segment)) return false;
+                if (mb_strlen($segment) < 4) return false;
+                // Filter common year/month patterns if they appear alone? (Keep simple for now)
+                return true;
+            })
+            ->values();
+
+        if ($candidates->isEmpty()) {
+            return "INVALID";
+        }
+
+        // Return the longest candidate (usually the title slug)
+        // or the last candidate if we assume structure is /category/title
+        $bestCandidate = $candidates->sortByDesc(fn($s) => mb_strlen($s))->first();
+
+        return  trim(preg_replace('/\s+/', ' ', $bestCandidate));
     }
 }

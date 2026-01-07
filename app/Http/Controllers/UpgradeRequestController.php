@@ -5,38 +5,51 @@ namespace App\Http\Controllers;
 use App\Models\UpgradeRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Validation\ValidationException;
 
 class UpgradeRequestController extends Controller
 {
     public function store(Request $request)
     {
-        $key = 'upgrade_request:' . auth()->id();
+        $request->validate([
+            'request_message' => 'required|string|min:10',
+            'documents' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120',
+        ]);
 
-        if (RateLimiter::tooManyAttempts($key, 3)) {
-            $seconds = RateLimiter::availableIn($key);
-            throw ValidationException::withMessages([
-                'message' => "عفواً، لقد تجاوزت حد المحاولات. يرجى الانتظار {$seconds} ثانية.",
-            ]);
+        try {
+            \DB::transaction(function () use ($request) {
+                $existingRequest = UpgradeRequest::where('user_id', Auth::id())
+                    ->where('status', 'pending')
+                    ->lockForUpdate()
+                    ->first();
+
+                if ($existingRequest) {
+                    throw new \Exception('pending_request_exists');
+                }
+
+                $path = null;
+                if ($request->hasFile('documents')) {
+                    $path = $request->file('documents')->store('upgrade_requests', 'public');
+                }
+
+                UpgradeRequest::create([
+                    'user_id' => Auth::id(),
+                    'request_message' => $request->request_message,
+                    'documents' => $path,
+                    'status' => 'pending',
+                ]);
+            });
+        } catch (\Illuminate\Database\QueryException $e) {
+            if ($e->getCode() === '23000') {
+                return back()->with('error', 'لديك طلب قيد المراجعة بالفعل.');
+            }
+            throw $e;
+        } catch (\Exception $e) {
+            if ($e->getMessage() === 'pending_request_exists') {
+                return back()->with('error', 'لديك طلب قيد المراجعة بالفعل.');
+            }
+            throw $e;
         }
 
-        RateLimiter::hit($key, 60);
-
-        $request->validate([
-            'document' => 'required|file|mimes:pdf,doc,docx|max:2048',
-            'message' => 'nullable|string|max:1000',
-        ]);
-
-        $path = $request->file('document')->store('upgrade_requests', 'public');
-
-        UpgradeRequest::create([
-            'user_id' => auth()->id(),
-            'status' => 'pending',
-            'documents' => $path,
-            'request_message' => $request->message,
-        ]);
-
-        return back()->with('success', 'تم استلام طلبك والمستندات بنجاح.');
+        return back()->with('success', 'تم إرسال طلب الانضمام بنجاح.');
     }
 }

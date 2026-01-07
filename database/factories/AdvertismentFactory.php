@@ -29,7 +29,7 @@ class AdvertismentFactory extends Factory
                 ->first()?->id
             ?? Subscription::factory()->for($user),
             'title' => fake()->words(3, true),
-            'image_url' => 'https://placehold.co/800x400/gray/FFF', // يولد رابط صورة وهمي
+            'image_url' => 'https://placehold.co/800x400/gray/FFF',
             'target_link' => fake()->url(),
             'number_of_days' => fake()->numberBetween(1, 60),
             'admin_notes' => fake()->optional()->sentence(),

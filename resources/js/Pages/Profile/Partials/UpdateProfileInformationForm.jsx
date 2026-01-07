@@ -17,14 +17,32 @@ export default function UpdateProfileInformation({ mustVerifyEmail, status, clas
             avatar: null,
         });
 
+    useEffect(() => {
+        if (user.avatar) {
+            setAvatarPreview(`/storage/${user.avatar}`);
+        } else {
+            setAvatarPreview(null);
+        }
+    }, [user.avatar]);
+
     const submit = (e) => {
             e.preventDefault();
 
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentTab = urlParams.get('tab') || 'overview';
+
         router.post(route('profile.update'), {
             _method: 'patch',
+            tab: currentTab,
             ...data,
         }, {
             preserveScroll: true,
+            onSuccess: () => {
+                router.visit(window.location.href, {
+                    preserveScroll: true,
+                    preserveState: false
+                });
+            },
         });
     };
 
