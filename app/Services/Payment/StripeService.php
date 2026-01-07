@@ -191,6 +191,35 @@ class StripeService implements PaymentProviderInterface
     }
 
     /**
+     * Retrieve checkout session with URL for reuse.
+     */
+    public function getCheckoutSessionWithUrl(string $sessionId): ?CheckoutSession
+    {
+        $this->ensureConfigured();
+        
+        try {
+            $session = $this->stripe->checkout->sessions->retrieve($sessionId);
+            
+            if (!$session->url) {
+                return null;
+            }
+            
+            return new CheckoutSession(
+                sessionId: $session->id,
+                url: $session->url,
+                status: $session->status,
+                customerId: $session->customer,
+            );
+        } catch (ApiErrorException $e) {
+            Log::error('Failed to retrieve Stripe session with URL', [
+                'session_id' => $sessionId,
+                'error' => $e->getMessage(),
+            ]);
+            return null;
+        }
+    }
+
+    /**
      * Cancel a Stripe subscription.
      */
     public function cancelSubscription(string $subscriptionId): bool

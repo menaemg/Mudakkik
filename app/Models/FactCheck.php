@@ -16,6 +16,7 @@ class FactCheck extends Model
         'evidence',
         'sources',
         'period',
+        'type',
     ];
 
     protected $casts = [

@@ -84,9 +84,9 @@ it('handles sequential credit consumption with varying amounts', function () {
         $user->fresh()->consumeAiCredit(5),   // Should fail (only 4 left)
     ];
 
-    expect($results[0])->toBeTrue();
-    expect($results[1])->toBeTrue();
-    expect($results[2])->toBeFalse();
+    expect($results[0])->toBeTruthy();
+    expect($results[1])->toBeTruthy();
+    expect($results[2])->toBeFalsy();
 
     // Verify remaining credits
     $freshUser = $user->fresh();

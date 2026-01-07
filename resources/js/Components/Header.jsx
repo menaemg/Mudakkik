@@ -127,7 +127,7 @@ const Header = ({ auth, ticker }) => {
                             <div className="hidden lg:flex items-center">
                                 <Link href="/check" className="flex items-center gap-2 text-white bg-white/5 hover:bg-green-600/20 hover:border-green-500/50 px-3 py-1.5 rounded-full border border-white/10 transition-all duration-300 group shadow-sm">
                                     <FaCheckDouble className="text-green-400 group-hover:text-green-300 transition-colors text-xs" />
-                                    <span className="font-bold text-xs group-hover:text-green-100">كاشف الحقائق</span>
+                                    <span className="font-bold text-xs group-hover:text-green-100">مختبر الحقيقة</span>
                                 </Link>
                             </div>
                         )}
@@ -265,7 +265,7 @@ const Header = ({ auth, ticker }) => {
                         <div className="px-4 mb-4">
                             <Link href="/check" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-center gap-2 text-white bg-green-600 px-3 py-3 rounded-xl shadow-sm w-full">
                                 <FaCheckDouble className="text-white text-sm" />
-                                <span className="font-bold text-sm">كاشف الحقائق</span>
+                                <span className="font-bold text-sm">مختبر الحقيقة</span>
                             </Link>
                         </div>
 
