@@ -36,9 +36,9 @@ export default function ProfileSidebar({ stats, activeTab, setActiveTab, current
 
     const canAccessArticles = user.role === 'journalist' || user.role === 'admin';
     const isFreePlan = current_plan?.is_free || current_plan?.slug === 'free';
-      // console.log('Current Plan:', current_plan);
-      // console.log('Stats Plan:', stats?.plan);
-      // console.log('Is Free Plan Logic:', isFreePlan);
+    // console.log('Current Plan:', current_plan);
+    // console.log('Stats Plan:', stats?.plan);
+    // console.log('Is Free Plan Logic:', isFreePlan);
     return (
 
         <div className="flex flex-col gap-6">
@@ -144,7 +144,7 @@ export default function ProfileSidebar({ stats, activeTab, setActiveTab, current
             </div>
 
             {isFreePlan && (
-                <div className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-2xl p-5 text-white text-center shadow-lg animate-in slide-in-from-bottom-5">
+                <div className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-2xl p-5 text-white text-center shadow-lg animate-in slide-in-from-bottom-5 relative z-10">
                     <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3 backdrop-blur-sm">
                         <FaLock className="text-white" />
                     </div>

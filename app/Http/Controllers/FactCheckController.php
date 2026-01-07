@@ -55,6 +55,46 @@ class FactCheckController extends Controller
         ]);
     }
 
+    /**
+     * API endpoint that returns JSON response.
+     */
+    public function verifyApi(Request $request, FactCheckServices $service)
+    {
+        $request->validate([
+            'text' => 'required|string|min:10|max:5000',
+            'period' => 'nullable|integer|in:1,3,7,30,365',
+        ]);
+
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json(['error' => 'يجب تسجيل الدخول لاستخدام هذه الميزة.'], 401);
+        }
+
+        if (!$user->consumeAiCredit(1)) {
+            return response()->json([
+                'error' => 'لقد استنفدت رصيد كاشف الحقائق لهذا الشهر. يرجى الترقية للمتابعة.',
+                'open_plan_modal' => true
+            ], 402);
+        }
+
+        $result = $service->check($request->text, $request->period, $user->id);
+
+        if (isset($result['status']) && $result['status'] === 'error') {
+            $user->increment('ai_recurring_credits');
+            $user->refresh();
+            return response()->json(['error' => 'حدث خطأ تقني أثناء التحليل، لم يتم خصم الرصيد.'], 500);
+        }
+
+        $user->refresh();
+
+        return response()->json([
+            'success' => true,
+            'result' => $result,
+            'new_credits' => $user->ai_recurring_credits + $user->ai_bonus_credits
+        ]);
+    }
+
     public function history()
     {
         if (!auth()->check()) {

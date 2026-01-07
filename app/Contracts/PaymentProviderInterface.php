@@ -32,6 +32,11 @@ interface PaymentProviderInterface
     public function retrieveSession(string $sessionId): ?SessionData;
 
     /**
+     * Retrieve checkout session with URL for reuse.
+     */
+    public function getCheckoutSessionWithUrl(string $sessionId): ?CheckoutSession;
+
+    /**
      * Cancel a subscription.
      */
     public function cancelSubscription(string $subscriptionId): bool;

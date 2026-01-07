@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Notifications\CustomVerifyEmail;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Notifications\Notifiable;
@@ -13,6 +14,14 @@ class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, HasApiTokens;
+
+    /**
+     * Send the email verification notification with welcome content.
+     */
+    public function sendEmailVerificationNotification(): void
+    {
+        $this->notify(new CustomVerifyEmail);
+    }
 
     /**
      * Bootstrap the model.

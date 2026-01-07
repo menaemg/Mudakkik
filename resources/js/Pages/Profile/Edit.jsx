@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Head, usePage, Link } from '@inertiajs/react';
 import { FaLock } from 'react-icons/fa';
+import { CheckCircle, X } from 'lucide-react';
 import ProfileSidebar from './Partials/ProfileSidebar';
 import OverviewTab from './Partials/Tabs/OverviewTab';
 import ArticlesTab from './Partials/Tabs/ArticlesTab';
@@ -28,7 +29,19 @@ export default function Edit({
   current_plan,
   ticker,
 }) {
-  const { auth } = usePage().props;
+  const { auth, flash } = usePage().props;
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+
+  // Handle flash success messages
+  useEffect(() => {
+    if (flash?.success) {
+      setToastMessage(flash.success);
+      setShowToast(true);
+      const timer = setTimeout(() => setShowToast(false), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [flash?.success]);
 
   const getTabFromUrl = () => {
     if (typeof window === 'undefined') return 'overview';
@@ -82,6 +95,19 @@ export default function Edit({
     <div className="flex flex-col min-h-screen bg-[#F4F7FA] font-sans" dir="rtl">
       <Head title="لوحة التحكم | مدقق نيوز" />
 
+      {/* Toast Notification */}
+      {showToast && toastMessage && (
+        <div className="fixed top-24 left-1/2 transform -translate-x-1/2 z-50 animate-fade-in">
+          <div className="bg-emerald-500 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 min-w-[300px]">
+            <CheckCircle className="w-6 h-6 flex-shrink-0" />
+            <span className="font-bold text-sm flex-1">{toastMessage}</span>
+            <button onClick={() => setShowToast(false)} className="hover:bg-white/20 rounded-full p-1 transition-colors">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      )}
+
       <Header auth={auth} ticker={ticker} />
 
       <main className="flex-grow pt-32 pb-20">
@@ -120,55 +146,55 @@ export default function Edit({
                 )
               )}
 
-                            {activeTab === 'subscription' && (
-                                    <SubscriptionTab
-                                        subscription={subscription}
-                                        plan={current_plan}
-                                    />
-                                )}
-                            {activeTab === 'create_post' && (
-                            <CreatePostTab categories={categories} setActiveTab={setActiveTab} />
-                            )}
+              {activeTab === 'subscription' && (
+                <SubscriptionTab
+                  subscription={subscription}
+                  plan={current_plan}
+                />
+              )}
+              {activeTab === 'create_post' && (
+                <CreatePostTab categories={categories} setActiveTab={setActiveTab} />
+              )}
 
-                            {activeTab === 'edit_post' && postToEdit && (
-                            <EditPostTab
-                                post={postToEdit}
-                                categories={categories}
-                                setActiveTab={setActiveTab}
-                            />
-                            )}
+              {activeTab === 'edit_post' && postToEdit && (
+                <EditPostTab
+                  post={postToEdit}
+                  categories={categories}
+                  setActiveTab={setActiveTab}
+                />
+              )}
 
-                            {activeTab === 'overview' && (
-                                <OverviewTab
-                                    stats={dashboardStats}
-                                    recentPosts={recent_posts}
-                                    setActiveTab={setActiveTab}
-                                    setPostToEdit={setPostToEdit}
-                                    current_plan={current_plan}
-                                    recentLikes={recent_likes}
-                                    upgradeRequestStatus={upgrade_request_status}
-                                />
-                            )}
+              {activeTab === 'overview' && (
+                <OverviewTab
+                  stats={dashboardStats}
+                  recentPosts={recent_posts}
+                  setActiveTab={setActiveTab}
+                  setPostToEdit={setPostToEdit}
+                  current_plan={current_plan}
+                  recentLikes={recent_likes}
+                  upgradeRequestStatus={upgrade_request_status}
+                />
+              )}
 
-                            {activeTab === 'articles' && (
-                          <ArticlesTab
-                              articles={articles}
-                              setActiveTab={setActiveTab}
-                              setPostToEdit={setPostToEdit}
-                          />
-                        )}
+              {activeTab === 'articles' && (
+                <ArticlesTab
+                  articles={articles}
+                  setActiveTab={setActiveTab}
+                  setPostToEdit={setPostToEdit}
+                />
+              )}
 
-                            {activeTab === 'likes' && (
-                                <LikesTab likedPosts={liked_posts} />
-                            )}
+              {activeTab === 'likes' && (
+                <LikesTab likedPosts={liked_posts} />
+              )}
 
-                            {activeTab === 'settings' && (
-                                <SettingsTab
-                                    stats={dashboardStats}
-                                    mustVerifyEmail={mustVerifyEmail}
-                                    status={status}
-                                />
-                            )}
+              {activeTab === 'settings' && (
+                <SettingsTab
+                  stats={dashboardStats}
+                  mustVerifyEmail={mustVerifyEmail}
+                  status={status}
+                />
+              )}
             </div>
           </div>
         </div>

@@ -29,18 +29,41 @@ class PaymentService
         string $successUrl,
         string $cancelUrl
     ): CheckoutSession {
-        // Generate idempotency key to prevent duplicate payments
-        $idempotencyKey = $this->generateIdempotencyKey($user, $plan);
+        // Check for existing pending payment for the same plan (within last 30 minutes)
+        $existingPayment = Payment::where('user_id', $user->id)
+            ->where('status', 'pending')
+            ->where('created_at', '>', now()->subMinutes(30))
+            ->whereNotNull('provider_payment_id')
+            ->whereJsonContains('metadata->plan_id', $plan->id)
+            ->first();
 
-        // Create pending payment record
-        $payment = $this->createPendingPayment($user, $plan, $idempotencyKey);
+        // If existing pending payment found, try to retrieve the session
+        if ($existingPayment) {
+            $sessionData = $this->provider->retrieveSession($existingPayment->provider_payment_id);
+            
+            // If session is still valid (not expired), return the existing checkout URL
+            if ($sessionData && $sessionData->status !== 'expired') {
+                // Retrieve the full session to get the URL
+                $session = $this->provider->getCheckoutSessionWithUrl($existingPayment->provider_payment_id);
+                if ($session && $session->url) {
+                    return $session;
+                }
+            }
+            
+            // Session expired or invalid, mark payment as failed
+            $existingPayment->markAsFailed('Checkout session expired');
+        }
 
-        // Build success URL manually - {CHECKOUT_SESSION_ID} must NOT be URL encoded
-        // Stripe will replace this placeholder with the actual session ID
+        // Create new pending payment and checkout session
         $separator = str_contains($successUrl, '?') ? '&' : '?';
-        $successUrl = $successUrl . $separator . 'session_id={CHECKOUT_SESSION_ID}&payment_id=' . $payment->id;
-
-        return $this->provider->createCheckoutSession($plan, $user, $successUrl, $cancelUrl);
+        
+        // Create checkout session first
+        $checkout = $this->provider->createCheckoutSession($plan, $user, $successUrl, $cancelUrl);
+        
+        // Create pending payment with session info
+        $payment = $this->createPendingPayment($user, $plan, $checkout->sessionId);
+        
+        return $checkout;
     }
 
     /**
@@ -177,15 +200,15 @@ class PaymentService
     /**
      * Create a pending payment record.
      */
-    private function createPendingPayment(User $user, Plan $plan, string $idempotencyKey): Payment
+    private function createPendingPayment(User $user, Plan $plan, string $sessionId): Payment
     {
         return Payment::create([
             'user_id' => $user->id,
             'amount' => $plan->price,
             'currency' => 'USD',
             'payment_method' => 'card',
-            'idempotency_key' => $idempotencyKey,
             'provider' => $this->provider->getProviderName(),
+            'provider_payment_id' => $sessionId,
             'status' => 'pending',
             'metadata' => [
                 'plan_id' => $plan->id,

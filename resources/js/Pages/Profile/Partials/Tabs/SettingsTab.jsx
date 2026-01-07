@@ -1,28 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
 import UpdateProfileInformation from '../UpdateProfileInformationForm';
 import UpdatePasswordForm from '../UpdatePasswordForm';
 import DeleteUserForm from '../DeleteUserForm';
-import { FaUserShield, FaCheckCircle, FaTimesCircle, FaHourglassHalf } from 'react-icons/fa';
-import { useForm, usePage } from '@inertiajs/react';
+import { FaUserShield, FaCheckCircle, FaTimesCircle, FaHourglassHalf, FaUserTie } from 'react-icons/fa';
+import { usePage } from '@inertiajs/react';
 import { Button } from "@/components/ui/button";
+import JoinJournalistModal from '@/Components/JoinJournalistModal';
 
 export default function SettingsTab({ mustVerifyEmail, status }) {
     const { upgrade_request_status, auth } = usePage().props;
     const user = auth.user;
     const isNormalUser = user.role === 'user';
-
-    const { data, setData, post, processing, errors } = useForm({
-        document: null,
-        message: '',
-    });
-
-    const submitUpgradeRequest = (e) => {
-        e.preventDefault();
-        post(route('upgrade.store'));
-    };
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     return (
         <div className="space-y-6 animate-in fade-in duration-500 slide-in-from-bottom-2">
+
+            <JoinJournalistModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
 
             {isNormalUser && (
                 <div className="bg-gradient-to-r from-[#000a2e] to-blue-900 rounded-2xl p-6 md:p-8 text-white shadow-lg relative overflow-hidden mb-8">
@@ -38,31 +32,14 @@ export default function SettingsTab({ mustVerifyEmail, status }) {
                         </div>
 
                         <div>
-                        {!upgrade_request_status && (
-                        <form onSubmit={submitUpgradeRequest} className="mt-4 space-y-4 text-right">
-                            <div>
-                                <label className="block text-white/80 text-sm font-bold mb-1">رسالة الطلب</label>
-                                <textarea
-                                    value={data.message}
-                                    onChange={e => setData('message', e.target.value)}
-                                    className="w-full rounded-lg bg-white/10 border-white/20 text-white placeholder-white/50 focus:ring-yellow-400"
-                                    placeholder="لماذا تريد الانضمام إلينا؟"
-                                ></textarea>
-                            </div>
-                            <div>
-                                <label className="block text-white/80 text-sm font-bold mb-1">السيرة الذاتية / نموذج عمل (PDF)</label>
-                                <input
-                                    type="file"
-                                    onChange={e => setData('document', e.target.files[0])}
-                                    className="w-full text-sm text-white/70 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-yellow-500 file:text-black hover:file:bg-yellow-400"
-                                />
-                                {errors.document && <p className="text-red-300 text-xs mt-1">{errors.document}</p>}
-                            </div>
-                            <Button disabled={processing} className="bg-yellow-500 text-black font-bold w-full">
-                                إرسال الطلب
-                            </Button>
-                        </form>
-                    )}
+                            {!upgrade_request_status && (
+                                <Button
+                                    onClick={() => setIsModalOpen(true)}
+                                    className="bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-black shadow-lg gap-2 h-11 px-6 text-base font-bold transition-transform hover:scale-105"
+                                >
+                                    <FaUserTie /> قدم طلب الانضمام
+                                </Button>
+                            )}
                             {upgrade_request_status === 'pending' && (
                                 <div className="flex flex-col items-center bg-white/10 px-6 py-3 rounded-xl border border-white/20">
                                     <FaHourglassHalf className="text-yellow-400 text-xl mb-1 animate-pulse" />

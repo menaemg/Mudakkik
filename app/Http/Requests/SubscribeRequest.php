@@ -3,8 +3,6 @@
 namespace App\Http\Requests;
 
 use App\Rules\ActivePlanRule;
-use App\Rules\NoPendingPaymentRule;
-use App\Rules\NotCurrentPlanRule;
 use App\Rules\PaidPlanRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -32,8 +30,6 @@ class SubscribeRequest extends FormRequest
                 'exists:plans,slug',
                 new ActivePlanRule(),
                 new PaidPlanRule(),
-                new NotCurrentPlanRule(),
-                new NoPendingPaymentRule(),
             ],
         ];
     }
