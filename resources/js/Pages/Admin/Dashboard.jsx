@@ -8,18 +8,24 @@ import {
 import { Users, Newspaper, ShieldAlert, LayoutGrid, Activity } from "lucide-react";
 
 export default function Dashboard({ 
-    totalUsers, totalPosts, pendingUpgrades, postsStats, adsStats, plansChart, checkActivity 
+    totalUsers = 0, 
+    totalPosts = 0, 
+    pendingUpgrades = 0, 
+    postsStats = { published: 0, pending: 0 }, 
+    adsStats = { approved: 0, pending: 0, rejected: 0 }, 
+    plansChart = [], 
+    checkActivity = [] 
 }) {
     
     const postPie = [
-        { name: "منشور", value: postsStats.published, color: "#10b981" },
-        { name: "قيد المراجعة", value: postsStats.pending, color: "#3b82f6" },
+        { name: "منشور", value: postsStats?.published || 0, color: "#10b981" },
+        { name: "قيد المراجعة", value: postsStats?.pending || 0, color: "#3b82f6" },
     ];
 
     const adsPie = [
-        { name: "مقبول", value: adsStats.approved, color: "#10b981" },
-        { name: "قيد المراجعة", value: adsStats.pending, color: "#f59e0b" },
-        { name: "مرفوض", value: adsStats.rejected, color: "#ef4444" },
+        { name: "مقبول", value: adsStats?.approved || 0, color: "#10b981" },
+        { name: "قيد المراجعة", value: adsStats?.pending || 0, color: "#f59e0b" },
+        { name: "مرفوض", value: adsStats?.rejected || 0, color: "#ef4444" },
     ];
 
     return (

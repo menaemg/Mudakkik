@@ -8,7 +8,9 @@ use App\Models\Post;
 use App\Models\UpgradeRequest;
 use App\Models\FactCheck;
 use App\Models\Plan;
+use App\Models\Advertisment;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\DB;
 
 class AdminDashboardController extends Controller
 {
@@ -20,9 +22,9 @@ class AdminDashboardController extends Controller
         ];
 
         $adsStats = [
-            'approved' => \App\Models\Advertisment::where('status', 'approved')->count(),
-            'pending'  => \App\Models\Advertisment::where('status', 'pending')->count(),
-            'rejected' => \App\Models\Advertisment::where('status', 'rejected')->count(),
+            'approved' => Advertisment::where('status', 'approved')->count(),
+            'pending'  => Advertisment::where('status', 'pending')->count(),
+            'rejected' => Advertisment::where('status', 'rejected')->count(),
         ];
 
         $plansChart = Plan::withCount(['subscriptions' => fn($q) => $q->where('status', 'active')])
@@ -36,9 +38,16 @@ class AdminDashboardController extends Controller
                 ];
             });
 
+        // التعديل المقترح لتحسين الأداء: استعلام واحد بدلاً من 7
+        $startDate = now()->subDays(6)->startOfDay();
+        $counts = FactCheck::where('created_at', '>=', $startDate)
+            ->select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as count'))
+            ->groupBy('date')
+            ->pluck('count', 'date');
+
         $checkActivity = collect(range(6, 0))->map(fn($i) => [
             'day' => now()->subDays($i)->translatedFormat('D'),
-            'count' => FactCheck::whereDate('created_at', now()->subDays($i))->count(),
+            'count' => $counts[now()->subDays($i)->toDateString()] ?? 0,
         ]);
 
         return Inertia::render('Admin/Dashboard', [
