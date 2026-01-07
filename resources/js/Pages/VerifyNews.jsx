@@ -23,6 +23,15 @@ export default function VerifyNews({ auth, ticker }) {
     const [error, setError] = useState(null);
     const [activeTab, setActiveTab] = useState('new'); // 'new' | 'history'
 
+    useEffect(() => {
+        // #history
+        if (window.location.hash === "#history") {
+            setActiveTab("history");
+            // scroll smooth للأعلى
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+    }, []);
+
     const [localResult, setLocalResult] = useState(null);
 
     const result = flash?.result;
@@ -94,7 +103,7 @@ export default function VerifyNews({ auth, ticker }) {
                 setLocalResult(res.data);
                 if (res.data.input_text) setData('text', res.data.input_text);
                 if (res.data.period) setData('period', res.data.period);
-                if (res.data.type) setMode(res.data.type); 
+                if (res.data.type) setMode(res.data.type);
 
 
                 setError(null);

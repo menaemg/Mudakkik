@@ -6,8 +6,8 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\Home\FeaturedController;
 use App\Http\Controllers\Admin\Home\HeroController;
 use App\Http\Controllers\Admin\Home\TickerController;
-use App\Http\Controllers\Admin\Home\TopStoriesController;
 use App\Http\Controllers\Admin\Home\TopicsSectionController;
+use App\Http\Controllers\Admin\Home\TopStoriesController;
 use App\Http\Controllers\Admin\JoinRequestController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
 use App\Http\Controllers\Admin\PlanController as AdminPlanController;
@@ -107,10 +107,10 @@ Route::middleware(['auth', 'verified', 'can:admin-access'])
                 Route::post('/top-stories/update', 'update')->name('top-stories.update');
             });
 
-              Route::controller(TopicsSectionController::class)->group(function () {
-                  Route::get('/top-topics', [TopicsSectionController::class, 'index'])->name('topics.index');
-                  Route::post('/top-topics/update', [TopicsSectionController::class, 'update'])->name('topics.update');
-              });
+            Route::controller(TopicsSectionController::class)->group(function () {
+                Route::get('/top-topics', [TopicsSectionController::class, 'index'])->name('topics.index');
+                Route::post('/top-topics/update', [TopicsSectionController::class, 'update'])->name('topics.update');
+            });
         });
 
         /* Reports */
