@@ -41,6 +41,7 @@ Route::get('/plans', [PlanController::class, 'index'])->name('plans.index');
 Route::get('/check', function () {
     return Inertia::render('VerifyNews');
 });
+Route::post('/search-news', [FactCheckController::class, 'search'])->middleware('auth');
 Route::post('/verify-news', [FactCheckController::class, 'verify'])->middleware('auth');
 Route::get('/api/fact-check/history', [FactCheckController::class, 'history'])->middleware('auth');
 Route::get('/api/fact-check/{factCheck}', [FactCheckController::class, 'show'])->middleware('auth');
@@ -148,9 +149,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/upgrade-requests', [UpgradeRequestController::class, 'store'])->name('upgrade-requests.store');
 
     Route::post('/posts/{post}/like', [LikeController::class, 'toggle'])->name('posts.like');
-});
 
-Route::middleware(['auth'])->group(function () {
+    // Notifications
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead'])->name('notifications.read');
     Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy'])->name('notifications.destroy');

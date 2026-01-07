@@ -18,6 +18,7 @@ export default function VerifyNews({ auth, ticker }) {
         text: '',
         period: "3" // Default period
     });
+    const [mode, setMode] = useState('verify');
     const [analysisStep, setAnalysisStep] = useState(0);
     const [error, setError] = useState(null);
     const [activeTab, setActiveTab] = useState('new'); // 'new' | 'history'
@@ -65,8 +66,12 @@ export default function VerifyNews({ auth, ticker }) {
             return;
         }
         setError(null); // Clear previous errors
+        setError(null); // Clear previous errors
         setLocalResult(null); // Clear previous local results
-        post('/verify-news', {
+
+        const endpoint = mode === 'search' ? '/search-news' : '/verify-news';
+
+        post(endpoint, {
             preserveScroll: true,
             onSuccess: () => { },
             onError: (errors) => {
@@ -86,8 +91,11 @@ export default function VerifyNews({ auth, ticker }) {
         axios.get(`/api/fact-check/${id}`)
             .then(res => {
                 setLocalResult(res.data);
+                setLocalResult(res.data);
                 if (res.data.input_text) setData('text', res.data.input_text);
                 if (res.data.period) setData('period', res.data.period);
+                if (res.data.type) setMode(res.data.type); 
+
 
                 setError(null);
                 setActiveTab('new');
@@ -113,6 +121,7 @@ export default function VerifyNews({ auth, ticker }) {
         "صحيح": { color: "from-emerald-600 to-teal-400", icon: <CheckCircle size={40} />, shadow: "shadow-emerald-500/40", text: "text-emerald-600" },
         "غير مؤكد": { color: "from-amber-500 to-orange-400", icon: <HelpCircle size={40} />, shadow: "shadow-amber-500/40", text: "text-amber-600" },
         "غير صحيح": { color: "from-[#b20e1e] to-rose-500", icon: <XCircle size={40} />, shadow: "shadow-red-500/40", text: "text-[#b20e1e]" },
+        "Search": { color: "from-violet-600 to-fuchsia-500", icon: <Search size={40} />, shadow: "shadow-violet-500/40", text: "text-violet-600" },
     };
     const config = displayResult ? (verdictConfigs[verdictLabel] ?? defaultConfig) : {};
 
@@ -123,10 +132,10 @@ export default function VerifyNews({ auth, ticker }) {
 
     // Button text based on state
     const getButtonText = () => {
-        if (loading) return "جاري المعالجة...";
+        if (loading) return mode === 'search' ? "جاري البحث..." : "جاري المعالجة...";
         if (!isLoggedIn) return "سجل دخول للمتابعة";
         if (!isTextValid) return `أدخل ${10 - (data.text?.length || 0)} حرف على الأقل`;
-        return "تشغيل الفحص";
+        return mode === 'search' ? "بدء البحث" : "تشغيل الفحص";
     };
 
     return (
@@ -193,38 +202,74 @@ export default function VerifyNews({ auth, ticker }) {
                             >
                                 <div className="lg:col-span-5 relative">
                                     <div className="sticky top-24 h-auto bg-white/5 backdrop-blur-[40px] rounded-[3rem] border border-white/10 shadow-2xl overflow-hidden flex flex-col">
-                                        <div className="p-4 bg-white/5 border-b border-white/5 flex flex-wrap items-center justify-between gap-4">
-                                            <div className="flex items-center gap-2">
-                                                <div className="flex gap-1">
-                                                    <div className="w-2.5 h-2.5 rounded-full bg-red-500/50"></div>
-                                                    <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/50"></div>
-                                                    <div className="w-2.5 h-2.5 rounded-full bg-green-500/50"></div>
-                                                </div>
-                                                <span className="text-gray-500 text-[9px] font-black uppercase tracking-wider mr-3">محطة التحقق</span>
-                                            </div>
-
-                                            <div className="flex items-center gap-3">
-                                                {isLoggedIn && (
-                                                    <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10">
-                                                        <Zap size={12} className={canSubmit ? "text-amber-400 fill-amber-400" : "text-gray-500"} />
-                                                        <span className="text-[10px] font-bold text-gray-300">{auth.user?.credits?.total_ai || 0} رصيد</span>
+                                        <div className="flex flex-col border-b border-white/5 bg-white/5">
+                                            {/* Row 1: Header Label & Dots + Date Select */}
+                                            <div className="flex items-center justify-between px-6 py-3 border-b border-white/5">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="flex gap-1.5">
+                                                        <div className="w-2.5 h-2.5 rounded-full bg-red-500/50"></div>
+                                                        <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/50"></div>
+                                                        <div className="w-2.5 h-2.5 rounded-full bg-green-500/50"></div>
                                                     </div>
-                                                )}
+                                                    <span className="text-gray-500 text-[10px] font-black uppercase tracking-widest">محطة التحقق</span>
+                                                </div>
 
+                                                {/* Date Select Moved Here */}
                                                 <div className="relative group">
                                                     <select
                                                         value={data.period}
                                                         onChange={(e) => setData('period', e.target.value)}
-                                                        className="appearance-none pl-8 pr-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-lg text-xs text-gray-300 font-bold outline-none cursor-pointer transition-all duration-300 focus:ring-2 focus:ring-blue-500/50"
+                                                        className="appearance-none pl-8 pr-3 py-1 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-lg text-[10px] text-gray-300 font-bold outline-none cursor-pointer transition-all duration-300 focus:ring-1 focus:ring-blue-500/50"
                                                         dir="rtl"
                                                     >
-                                                        <option value="1" className="bg-[#0f172a]">آخر 24 ساعة</option>
-                                                        <option value="3" className="bg-[#0f172a]">آخر 3 أيام</option>
-                                                        <option value="7" className="bg-[#0f172a]">آخر أسبوع</option>
-                                                        <option value="30" className="bg-[#0f172a]">آخر شهر</option>
-                                                        <option value="365" className="bg-[#0f172a]">آخر سنة</option>
+                                                        <option value="1" className="bg-[#0f172a]">24 ساعة</option>
+                                                        <option value="3" className="bg-[#0f172a]">3 أيام</option>
+                                                        <option value="7" className="bg-[#0f172a]">أسبوع</option>
+                                                        <option value="30" className="bg-[#0f172a]">شهر</option>
+                                                        <option value="365" className="bg-[#0f172a]">سنة</option>
                                                     </select>
-                                                    <Clock size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none group-hover:text-blue-400 transition-colors" />
+                                                    <Clock size={10} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none group-hover:text-blue-400 transition-colors" />
+                                                </div>
+                                            </div>
+
+                                            {/* Row 2: Controls (Credits, Toggle) */}
+                                            <div className="flex items-center justify-end px-4 py-2 gap-3">
+                                                {/* Credits & Toggle */}
+                                                <div className="flex items-center gap-2 sm:gap-3 w-full justify-between">
+                                                    {isLoggedIn && (
+                                                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 shadow-sm relative group overflow-hidden">
+                                                            <div className="absolute inset-0 bg-amber-500/10 translate-x-full group-hover:translate-x-0 transition-transform duration-700"></div>
+                                                            <div className="relative flex items-center gap-2">
+                                                                <div className="bg-amber-500/20 p-1 rounded-full">
+                                                                    <Zap size={10} className="text-amber-400 fill-amber-400 animate-pulse" />
+                                                                </div>
+                                                                <div className="flex flex-col leading-none">
+                                                                    <span className="text-[8px] font-bold text-amber-500/80 uppercase tracking-wider mb-0.5 hidden sm:block">الرصيد</span>
+                                                                    <span className="text-xs font-black text-amber-100 font-mono tracking-widest">
+                                                                        {auth.user?.credits?.total_ai || 0}
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    )}
+
+                                                    {/* Mode Toggle Switch */}
+                                                    <div className="flex items-center bg-black/40 rounded-xl p-1 border border-white/10 shadow-inner">
+                                                        <button
+                                                            onClick={() => setMode('verify')}
+                                                            className={`relative px-4 py-1.5 text-[10px] font-black rounded-lg transition-all duration-300 flex items-center gap-1.5 ${mode === 'verify' ? 'bg-[#b20e1e] text-white shadow-lg shadow-red-900/20' : 'text-gray-400 hover:text-white'}`}
+                                                        >
+                                                            <ShieldCheck size={12} />
+                                                            المحقق
+                                                        </button>
+                                                        <button
+                                                            onClick={() => setMode('search')}
+                                                            className={`relative px-4 py-1.5 text-[10px] font-black rounded-lg transition-all duration-300 flex items-center gap-1.5 ${mode === 'search' ? 'bg-violet-600 text-white shadow-lg shadow-violet-900/20' : 'text-gray-400 hover:text-white'}`}
+                                                        >
+                                                            <Search size={12} />
+                                                            الباحث
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -233,7 +278,7 @@ export default function VerifyNews({ auth, ticker }) {
                                                 value={data.text}
                                                 onChange={(e) => setData('text', e.target.value)}
                                                 className="w-full min-h-[60vh] bg-transparent text-white text-lg md:text-xl font-medium outline-none resize-none placeholder:text-gray-700 leading-relaxed"
-                                                placeholder=">>> ألصق الخبر أو الادعاء المطلوب فحصه..."
+                                                placeholder={mode === 'search' ? ">>> أدخل الموضوع أو السؤال للبحث عنه..." : ">>> ألصق الخبر أو الادعاء المطلوب فحصه..."}
                                             />
                                         </div>
                                         <button
@@ -246,10 +291,10 @@ export default function VerifyNews({ auth, ticker }) {
                                             }}
                                             disabled={!canSubmit}
                                             type="button"
-                                            aria-label={loading ? "جاري المعالجة" : "تشغيل فحص الحقائق"}
+                                            aria-label={loading ? "جاري المعالجة" : (mode === 'search' ? "بدء البحث" : "تشغيل فحص الحقائق")}
                                             className={`w-full p-6 flex items-center justify-between group overflow-hidden relative text-right transition-colors
                                                 ${canSubmit
-                                                    ? 'bg-[#b20e1e] hover:bg-[#900b18] cursor-pointer'
+                                                    ? (mode === 'search' ? 'bg-violet-600 hover:bg-violet-700 cursor-pointer' : 'bg-[#b20e1e] hover:bg-[#900b18] cursor-pointer')
                                                     : 'bg-gray-600 cursor-not-allowed opacity-75'
                                                 }`}
                                         >
@@ -258,11 +303,11 @@ export default function VerifyNews({ auth, ticker }) {
                                                 <div className="flex items-center justify-between w-full mb-1">
                                                     <span className="text-xl font-black text-white">{getButtonText()}</span>
                                                 </div>
-                                                {/* Mobile Credit Display */}
+                                                {/* Mobile Credit Display - Removed as it's now top visible */}
                                                 {isLoggedIn && (
-                                                    <div className="md:hidden flex items-center gap-2 text-white/60 text-xs font-bold mt-1">
-                                                        <Zap size={12} className={canSubmit ? "text-amber-400 fill-amber-400" : ""} />
-                                                        <span>{auth.user?.credits?.total_ai || 0} رصيد متبقي</span>
+                                                    <div className="md:hidden flex items-center gap-1 text-white/40 text-[10px] font-bold mt-1">
+                                                        <span>رصيدك الحالي:</span>
+                                                        <span className="text-amber-400">{auth.user?.credits?.total_ai || 0}</span>
                                                     </div>
                                                 )}
                                                 {!isLoggedIn && (
@@ -291,7 +336,7 @@ export default function VerifyNews({ auth, ticker }) {
                                                     {error ? "حدث خطأ" : "بانتظار الأوامر..."}
                                                 </h3>
                                                 <p className="text-gray-700 max-w-sm mx-auto font-medium text-sm mb-4">
-                                                    {error ? error : "أدخل النص واضغط على الزر لبدء الفحص"}
+                                                    {error ? error : (mode === 'search' ? "أدخل موضوع البحث واضغط الزر" : "أدخل النص واضغط على الزر لبدء الفحص")}
                                                 </p>
                                                 {error && (
                                                     <button onClick={handleRetry} className="px-6 py-2 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl transition-colors text-sm">
@@ -310,12 +355,12 @@ export default function VerifyNews({ auth, ticker }) {
                                                     <div className="flex justify-center gap-2">
                                                         {[1, 2, 3].map(i => <motion.div key={i} animate={{ y: [0, -15, 0] }} transition={{ duration: 0.8, delay: i * 0.15, repeat: Infinity }} className="w-3 h-3 bg-blue-500 rounded-full"></motion.div>)}
                                                     </div>
-                                                    <h3 className="text-3xl font-black text-white tracking-tighter">جاري الفحص...</h3>
+                                                    <h3 className="text-3xl font-black text-white tracking-tighter">جاري {mode === 'search' ? 'البحث' : 'الفحص'}...</h3>
                                                     <div className="space-y-2">
                                                         <p className="text-blue-400 font-bold text-xs uppercase tracking-widest">
                                                             {analysisStep === 1 && "البحث في المصادر..."}
                                                             {analysisStep === 2 && "مطابقة السياق..."}
-                                                            {analysisStep === 3 && "تحليل النتائج..."}
+                                                            {analysisStep === 3 && (mode === 'search' ? "تلخيص النتائج..." : "تحليل النتائج...")}
                                                             {analysisStep === 4 && "إعداد التقرير..."}
                                                         </p>
                                                         <p className="text-gray-500 font-medium text-sm">نبحث في أكثر من 30 مصدر موثوق</p>
@@ -348,16 +393,24 @@ export default function VerifyNews({ auth, ticker }) {
                                                                 {config.icon}
                                                             </div>
                                                             <div>
-                                                                <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest block mb-1">الحكم</span>
-                                                                <h3 className={`text-5xl md:text-6xl font-black ${config.text} tracking-tighter`}>{verdictLabel}</h3>
+                                                                {(displayResult.type !== 'search' && mode !== 'search' && displayResult.verdict?.label !== 'Search') && (
+                                                                    <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest block mb-1">الحكم</span>
+                                                                )}
+                                                                <h3 className={`text-5xl md:text-6xl font-black ${config.text} tracking-tighter`}>
+                                                                    {verdictLabel === 'Search' ? 'تقرير' : verdictLabel}
+                                                                </h3>
                                                             </div>
                                                         </div>
                                                         <div className="text-center md:text-left">
-                                                            <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest block mb-2">نسبة الثقة</span>
-                                                            <div className="flex items-baseline justify-center md:justify-end">
-                                                                <span className="text-7xl font-black text-gray-900 leading-none tracking-tighter">{(displayResult.verdict?.confidence || displayResult.confidence_score)?.toString().replace('%', '')}</span>
-                                                                <span className="text-2xl font-black text-gray-300">%</span>
-                                                            </div>
+                                                            {(displayResult.type !== 'search' && mode !== 'search' && displayResult.verdict?.label !== 'Search') && (
+                                                                <>
+                                                                    <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest block mb-2">نسبة الثقة</span>
+                                                                    <div className="flex items-baseline justify-center md:justify-end">
+                                                                        <span className="text-7xl font-black text-gray-900 leading-none tracking-tighter">{(displayResult.verdict?.confidence || displayResult.confidence_score)?.toString().replace('%', '')}</span>
+                                                                        <span className="text-2xl font-black text-gray-300">%</span>
+                                                                    </div>
+                                                                </>
+                                                            )}
                                                         </div>
                                                     </div>
 
@@ -457,9 +510,9 @@ export default function VerifyNews({ auth, ticker }) {
                         )}
                     </AnimatePresence>
                 </div>
-            </main>
+            </main >
             <Footer />
-        </div>
+        </div >
     );
 }
 
