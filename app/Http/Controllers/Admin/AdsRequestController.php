@@ -111,7 +111,8 @@ public function update(Request $request, Advertisment $advertisment)
 
     public function destroy(Advertisment $advertisment)
     {
-        // Only admins can access this controller, so we just check ownership isn't required
+        $this->authorize('delete', $advertisment);
+
         // Refund credit only for pending ads
         if ($advertisment->status === 'pending') {
              $advertisment->user->refundAdCredit($advertisment->number_of_days);

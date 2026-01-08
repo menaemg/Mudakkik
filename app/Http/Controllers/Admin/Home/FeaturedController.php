@@ -12,7 +12,7 @@ class FeaturedController extends Controller
 {
     public function index()
     {
-        $rawSlots = HomeSlot::whereIn('section', ['featured', 'editors_choice'])->get();
+        $rawSlots = HomeSlot::whereIn('section', ['featured', 'editors_choice'])->with('post')->get();
         $getSlot = fn($sec, $name) => $rawSlots->where('section', $sec)->where('slot_name', $name)->first();
 
         $featuredData = ['main' => null, 'subs' => [], 'editors' => []];

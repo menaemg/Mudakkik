@@ -18,12 +18,12 @@ return new class extends Migration
             $table->string('title');
             $table->string('image_url');
             $table->string('target_link');
+            $table->string('position')->index();
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
             $table->integer('number_of_days');
             $table->text('admin_notes')->nullable();
             $table->string('status', 20)->default('pending');
-            $table->string('position')->index()->after('target_link');
             $table->timestamps();
         });
     }

@@ -1,12 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { FaExternalLinkAlt } from 'react-icons/fa';
-
-const getImagePath = (path) => {
-    if (!path) return '/assets/images/placeholder.webp';
-    if (path.startsWith('http')) return path;
-    return `/storage/${path}`;
-};
+import { getImagePath } from '@/utils/imagePaths';
 
 const getDomain = (url) => {
     try {

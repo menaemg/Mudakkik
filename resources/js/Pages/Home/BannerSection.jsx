@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import { FaBolt, FaStar, FaExternalLinkAlt } from 'react-icons/fa';
+import { getImagePath } from '@/utils/imagePaths';
 
 const BannerSkeleton = () => (
     <section className="container mx-auto px-4 py-8 md:py-12 mb-8">
@@ -33,9 +34,7 @@ export default function BannerSection({ data, type = 'news' }) {
     const isAd = type === 'ad';
 
     const content = {
-        image: data?.image
-            ? (data.image.startsWith('http') ? data.image : `/storage/${data.image}`)
-            : "/assets/images/banner-placeholder.webp",
+        image: getImagePath(data?.image, "/assets/images/banner-placeholder.webp"),
 
         title: data?.title || (isAd ? data?.company_name : ''),
 
@@ -86,7 +85,7 @@ export default function BannerSection({ data, type = 'news' }) {
                     </p>
 
                     <div className="flex gap-4">
-                        <a href={content.link} target={isAd ? "_blank" : "_self"}>
+                        <a href={content.link} target={isAd ? "_blank" : "_self"} rel={isAd ? "noopener noreferrer" : undefined}>
                             <Button className={`rounded-full px-8 py-6 text-base font-bold shadow-lg hover:-translate-y-1 transition-all
                                 ${isAd ? 'bg-amber-500 hover:bg-amber-600 text-black shadow-amber-900/20' : 'bg-brand-red hover:bg-red-700 text-white shadow-red-900/50'}
                             `}>

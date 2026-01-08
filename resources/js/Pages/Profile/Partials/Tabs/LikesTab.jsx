@@ -1,7 +1,7 @@
 import React from 'react';
 import Pagination from '@/Components/Pagination';
 import ArticleListItem from '../ArticleListItem';
-import { FaHeart, FaBookmark } from 'react-icons/fa';
+import { FaHeart } from 'react-icons/fa';
 
 export default function LikesTab({ likedPosts }) {
     return (
@@ -40,7 +40,7 @@ export default function LikesTab({ likedPosts }) {
                     ) : (
                         <div className="flex-grow flex flex-col items-center justify-center h-full text-center p-8">
                             <div className="w-28 h-28 bg-gray-50 rounded-full flex items-center justify-center mb-6 shadow-inner animate-pulse-slow">
-                                <FaBookmark className="text-5xl text-gray-200" />
+                                <FaHeart className="text-5xl text-gray-200" />
                             </div>
                             <h3 className="text-xl font-black text-gray-900 mb-2">لا توجد إعجابات</h3>
                             <p className="text-gray-500 text-sm font-medium max-w-xs mx-auto leading-relaxed">

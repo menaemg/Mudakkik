@@ -70,7 +70,9 @@ sudo supervisorctl restart mudakkik-horizon || true
 
 # Clear OPcache to ensure new code is loaded
 echo "🧹 Clearing caches..."
-php artisan optimize:clear 2>/dev/null || true
+if ! php artisan optimize:clear 2>&1; then
+    echo "⚠️ Cache clear reported errors (continuing deployment)"
+fi
 
 # Health check with retry logic
 echo "🏥 Running health check..."
@@ -84,7 +86,8 @@ for i in $(seq 1 $MAX_RETRIES); do
         echo "✅ Health check passed (HTTP $HTTP_CODE)"
         break
     elif [ "$i" -eq "$MAX_RETRIES" ]; then
-        echo "⚠️ Health check returned HTTP $HTTP_CODE after $MAX_RETRIES attempts (may need manual verification)"
+        echo "❌ Health check failed after $MAX_RETRIES attempts (HTTP $HTTP_CODE)"
+        exit 1
     else
         echo "⏳ Retry $i/$MAX_RETRIES - waiting for server..."
     fi

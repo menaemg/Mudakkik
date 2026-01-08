@@ -16,7 +16,7 @@ class WelcomeController extends Controller
         $hero          = $homeService->getHeroWithSlots();
         $featured      = $homeService->getFeaturedManual();
         $topStories    = $homeService->getTopStoriesWithSlots();
-        $entertainment = $homeService->getEntertainmentWithSlots(['entertainment', 'arts'], 6);
+        $entertainment = $homeService->getEntertainmentWithSlots();
         $business = $homeService->getBusinessWithSlots();
         $gridSection   = $homeService->getGridSection();
         $ads           = $homeService->getAds();

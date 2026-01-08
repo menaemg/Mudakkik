@@ -5,6 +5,7 @@ import DeleteUserForm from '../DeleteUserForm';
 import { FaUserShield, FaCheckCircle, FaTimesCircle, FaHourglassHalf, FaFileUpload } from 'react-icons/fa';
 import { useForm, usePage } from '@inertiajs/react';
 import { Button } from "@/components/ui/button";
+import Swal from 'sweetalert2';
 import JoinJournalistModal from '@/Components/JoinJournalistModal';
 
 export default function SettingsTab({ mustVerifyEmail, status }) {
@@ -13,7 +14,7 @@ export default function SettingsTab({ mustVerifyEmail, status }) {
     const isNormalUser = user.role === 'user';
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const { data, setData, post, processing, errors } = useForm({
+    const { data, setData, post, processing, errors, reset } = useForm({
         message: '',
         document: null,
     });
@@ -21,7 +22,23 @@ export default function SettingsTab({ mustVerifyEmail, status }) {
     const submitUpgradeRequest = (e) => {
         e.preventDefault();
         post(route('upgrade-requests.store'), {
-            forceFormData: true, // Required for file uploads
+            forceFormData: true,
+            onSuccess: () => {
+                reset();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'تم إرسال الطلب',
+                    text: 'سيقوم المسؤولون بمراجعة طلبك والرد عليك قريباً.',
+                    confirmButtonColor: '#000a2e'
+                });
+            },
+            onError: () => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'خطأ',
+                    text: 'يرجى التأكد من إدخال البيانات بشكل صحيح.',
+                });
+            }
         });
     };
 
