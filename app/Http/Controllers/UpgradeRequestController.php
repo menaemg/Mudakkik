@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\UpgradeRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class UpgradeRequestController extends Controller
 {
@@ -37,6 +38,15 @@ class UpgradeRequestController extends Controller
                     'documents' => $path,
                     'status' => 'pending',
                 ]);
+                $admin = User::where('role', 'admin')->first();
+                if ($admin) {
+                    $admin->notify(new \App\Notifications\AdminActivityNotification([
+                        'title' => 'طلب انضمام جديد',
+                        'message' => 'قدم ' . auth()->user()->name . ' طلباً للترقية إلى صحفي.',
+                        'link' => route('admin.requests.join'), 
+                        'type' => 'upgrade_request'
+                    ]));
+                }
             });
         } catch (\Illuminate\Database\QueryException $e) {
             if ($e->getCode() === '23000') {

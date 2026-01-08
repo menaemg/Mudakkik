@@ -1,20 +1,61 @@
 import React, { useState, useEffect } from "react";
-import { Link, usePage } from "@inertiajs/react";
+// إضافة router هنا
+import { Link, usePage, router } from "@inertiajs/react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  LayoutDashboard, WholeWord, Users, CreditCard, Megaphone, Hash,
-  Newspaper, Menu, X, Bell, ChevronLeft, ShieldCheck,
-  UserRoundCheck, Package, Layers, FolderTree, LogOut,
-  Monitor, ScrollText, LayoutTemplate, House, Settings, 
-  ShieldAlert, CreditCard as PaymentIcon
+  LayoutDashboard,
+  WholeWord,
+  Users,
+  CreditCard,
+  Megaphone,
+  Hash,
+  Newspaper,
+  Menu,
+  X,
+  Bell,
+  ChevronLeft,
+  ShieldCheck,
+  UserRoundCheck,
+  Package,
+  Layers,
+  FolderTree,
+  LogOut,
+  Monitor,
+  ScrollText,
+  LayoutTemplate,
+  House,
+  Settings,
+  ShieldAlert,
+  CreditCard as PaymentIcon,
+  MessageSquare,
 } from "lucide-react";
 import Swal from "sweetalert2";
 
 export default function AdminLayout({ children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState(null);
+  const [showNotifications, setShowNotifications] = useState(false);
+
   const { auth, admin, flash, url: currentUrl } = usePage().props;
   const pendingReports = admin?.pendingReportsCount || 0;
+
+  const notifications = auth?.user?.notifications || [];
+  const unreadCount = auth?.user?.unread_notifications_count || 0;
+
+  // دالة التعامل مع "تحديد الكل كمقروء"
+  const handleMarkAllRead = () => {
+    router.post(
+      route("notifications.read"),
+      {},
+      {
+        onSuccess: () => {
+          setShowNotifications(false);
+          // هنا البيانات ستتحدث تلقائياً لأن الكنترولر يرجع back()
+        },
+        preserveScroll: true,
+      }
+    );
+  };
 
   const menuItems = [
     { label: "الرئيسية", icon: LayoutDashboard, url: "/admin/dashboard" },
@@ -33,9 +74,21 @@ export default function AdminLayout({ children }) {
       list: [
         { label: "شريط الأخبار", icon: ScrollText, url: "/admin/home/ticker" },
         { label: "الهيرو سكشن", icon: LayoutTemplate, url: "/admin/home/hero" },
-        { label: "أخبار مميزة", icon: LayoutTemplate, url: "/admin/home/featured" },
-        { label: "أهم قصص اليوم", icon: LayoutTemplate, url: "/admin/home/top-stories" },
-        { label: "أهم المواضيع", icon: LayoutTemplate, url: "/admin/home/top-topics" },
+        {
+          label: "أخبار مميزة",
+          icon: LayoutTemplate,
+          url: "/admin/home/featured",
+        },
+        {
+          label: "أهم قصص اليوم",
+          icon: LayoutTemplate,
+          url: "/admin/home/top-stories",
+        },
+        {
+          label: "أهم المواضيع",
+          icon: LayoutTemplate,
+          url: "/admin/home/top-topics",
+        },
       ],
     },
     {
@@ -43,9 +96,18 @@ export default function AdminLayout({ children }) {
       icon: Users,
       list: [
         { label: "قائمة المستخدمين", icon: Users, url: "/admin/users" },
-        { label: "طلبات الانضمام", icon: UserRoundCheck, url: "/admin/requests/join" },
+        {
+          label: "طلبات الانضمام",
+          icon: UserRoundCheck,
+          url: "/admin/requests/join",
+        },
         { label: "إعلانات مدقق", icon: Megaphone, url: "/admin/requests/ads" },
-        { label: "البلاغات", icon: ShieldAlert, url: "/admin/reports", badge: pendingReports },
+        {
+          label: "البلاغات",
+          icon: ShieldAlert,
+          url: "/admin/reports",
+          badge: pendingReports,
+        },
       ],
     },
     {
@@ -61,7 +123,11 @@ export default function AdminLayout({ children }) {
       label: "إعدادات النظام",
       icon: Settings,
       list: [
-        { label: "المواقع الموثوقة", icon: WholeWord, url: "/admin/trusted-domains" },
+        {
+          label: "المواقع الموثوقة",
+          icon: WholeWord,
+          url: "/admin/trusted-domains",
+        },
       ],
     },
   ];
@@ -78,9 +144,24 @@ export default function AdminLayout({ children }) {
       });
     }
   }, [flash]);
-
+  useEffect(() => {
+    if (showNotifications && unreadCount > 0) {
+      router.post(
+        route("notifications.read"),
+        {},
+        {
+          preserveScroll: true, 
+          onSuccess: () => {
+          },
+        }
+      );
+    }
+  }, [showNotifications]);
   return (
-    <div className="flex h-screen bg-[#F8FAFC] font-sans text-right overflow-hidden" dir="rtl">
+    <div
+      className="flex h-screen bg-[#F8FAFC] font-sans text-right overflow-hidden"
+      dir="rtl"
+    >
       <aside
         className={`
           fixed inset-y-0 right-0 z-50 w-72 bg-[#001246] text-white shadow-2xl
@@ -93,12 +174,21 @@ export default function AdminLayout({ children }) {
           <div className="bg-red-600 p-2 rounded-xl shadow-lg rotate-3">
             <ShieldCheck size={28} className="text-white" />
           </div>
-          <span className="text-xl font-serif">المـ<span className="text-red-500">دقق</span></span>
-          <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden mr-auto p-1"><X size={24} /></button>
+          <span className="text-xl font-serif">
+            المـ<span className="text-red-500">دقق</span>
+          </span>
+          <button
+            onClick={() => setIsSidebarOpen(false)}
+            className="lg:hidden mr-auto p-1"
+          >
+            <X size={24} />
+          </button>
         </div>
 
         <nav className="flex-1 overflow-y-auto px-4 py-6 space-y-2 custom-scrollbar">
-          <p className="text-[10px] font-black text-slate-500 uppercase tracking-[3px] mb-4 pr-4">لوحة التحكم</p>
+          <p className="text-[10px] font-black text-slate-500 uppercase tracking-[3px] mb-4 pr-4">
+            لوحة التحكم
+          </p>
 
           {menuItems.map((item) => {
             const hasSubmenu = !!item.list;
@@ -109,24 +199,47 @@ export default function AdminLayout({ children }) {
                 {hasSubmenu ? (
                   <button
                     onClick={() => setOpenMenu(isOpen ? null : item.label)}
-                    className={`flex items-center justify-between w-full p-3 rounded-xl transition-all group ${isOpen ? 'bg-white/10 text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`}
+                    className={`flex items-center justify-between w-full p-3 rounded-xl transition-all group ${
+                      isOpen
+                        ? "bg-white/10 text-white"
+                        : "text-slate-400 hover:bg-white/5 hover:text-white"
+                    }`}
                   >
                     <div className="flex items-center gap-3">
-                      <item.icon size={20} className={isOpen ? "text-red-500" : "group-hover:text-red-500"} />
+                      <item.icon
+                        size={20}
+                        className={
+                          isOpen ? "text-red-500" : "group-hover:text-red-500"
+                        }
+                      />
                       <span className="text-sm font-bold">{item.label}</span>
                     </div>
-                    <ChevronLeft size={16} className={`transition-transform duration-300 ${isOpen ? "-rotate-90 text-red-500" : ""}`} />
+                    <ChevronLeft
+                      size={16}
+                      className={`transition-transform duration-300 ${
+                        isOpen ? "-rotate-90 text-red-500" : ""
+                      }`}
+                    />
                   </button>
                 ) : (
                   <Link
                     href={item.url}
-                    className={`flex items-center justify-between p-3 rounded-xl transition-all group hover:bg-white/5 text-slate-400 hover:text-white ${currentUrl === item.url ? 'bg-white/10 text-white' : ''}`}
+                    className={`flex items-center justify-between p-3 rounded-xl transition-all group hover:bg-white/5 text-slate-400 hover:text-white ${
+                      currentUrl === item.url ? "bg-white/10 text-white" : ""
+                    }`}
                   >
                     <div className="flex items-center gap-3">
-                      <item.icon size={20} className="group-hover:text-red-500" />
+                      <item.icon
+                        size={20}
+                        className="group-hover:text-red-500"
+                      />
                       <span className="text-sm font-bold">{item.label}</span>
                     </div>
-                    {item.badge > 0 && <span className="bg-red-600 text-[10px] px-2 py-0.5 rounded-full">{item.badge}</span>}
+                    {item.badge > 0 && (
+                      <span className="bg-red-600 text-[10px] px-2 py-0.5 rounded-full">
+                        {item.badge}
+                      </span>
+                    )}
                   </Link>
                 )}
 
@@ -143,13 +256,23 @@ export default function AdminLayout({ children }) {
                           <Link
                             key={sub.url}
                             href={sub.url}
-                            className={`flex items-center justify-between p-2.5 rounded-lg transition-all ${currentUrl === sub.url ? 'text-white bg-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
+                            className={`flex items-center justify-between p-2.5 rounded-lg transition-all ${
+                              currentUrl === sub.url
+                                ? "text-white bg-white/10"
+                                : "text-slate-400 hover:text-white hover:bg-white/5"
+                            }`}
                           >
                             <div className="flex items-center gap-3">
                               <sub.icon size={14} />
-                              <span className="text-xs font-medium">{sub.label}</span>
+                              <span className="text-xs font-medium">
+                                {sub.label}
+                              </span>
                             </div>
-                            {sub.badge > 0 && <span className="bg-red-600 text-[8px] px-1.5 py-0.5 rounded-full">{sub.badge}</span>}
+                            {sub.badge > 0 && (
+                              <span className="bg-red-600 text-[8px] px-1.5 py-0.5 rounded-full">
+                                {sub.badge}
+                              </span>
+                            )}
                           </Link>
                         ))}
                       </div>
@@ -164,7 +287,9 @@ export default function AdminLayout({ children }) {
         <div className="shrink-0 p-6 bg-black/20 border-t border-white/5">
           <div className="bg-white/5 rounded-2xl p-4 border border-white/5 flex items-center gap-2">
             <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            <span className="text-xs font-bold text-green-500">النظام متصل الآن</span>
+            <span className="text-xs font-bold text-green-500">
+              النظام متصل الآن
+            </span>
           </div>
         </div>
       </aside>
@@ -172,26 +297,137 @@ export default function AdminLayout({ children }) {
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <header className="shrink-0 h-20 bg-white border-b border-slate-200 flex items-center justify-between px-8 z-40">
           <div className="flex items-center gap-6">
-            <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden text-[#001246] p-2 hover:bg-slate-100 rounded-xl transition-all">
+            <button
+              onClick={() => setIsSidebarOpen(true)}
+              className="lg:hidden text-[#001246] p-2 hover:bg-slate-100 rounded-xl transition-all"
+            >
               <Menu size={28} />
             </button>
             <div className="hidden lg:block">
-               <h1 className="text-sm font-bold text-slate-500">لوحة التحكم / <span className="text-[#001246]">نظرة عامة</span></h1>
+              <h1 className="text-sm font-bold text-slate-500">
+                لوحة التحكم / <span className="text-[#001246]">نظرة عامة</span>
+              </h1>
             </div>
           </div>
 
           <div className="flex items-center gap-5">
+            <div className="relative">
+              <button
+                onClick={() => setShowNotifications(!showNotifications)}
+                className="p-2.5 bg-slate-50 rounded-xl hover:bg-slate-100 transition-all relative group"
+              >
+                <Bell
+                  size={22}
+                  className="text-[#001246] group-hover:rotate-12 transition-transform"
+                />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-600 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white animate-bounce">
+                    {unreadCount}
+                  </span>
+                )}
+              </button>
+
+              <AnimatePresence>
+                {showNotifications && (
+                  <>
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      onClick={() => setShowNotifications(false)}
+                      className="fixed inset-0 z-40"
+                    />
+                    <motion.div
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      className="absolute left-0 mt-3 w-80 bg-white rounded-[2rem] shadow-2xl border border-slate-100 z-50 overflow-hidden"
+                    >
+                      <div className="p-5 bg-slate-50/50 border-b border-slate-100 flex justify-between items-center">
+                        <span className="text-xs font-black text-[#001246]">
+                          الإشعارات
+                        </span>
+                        {unreadCount > 0 && (
+                          <button
+                            onClick={handleMarkAllRead}
+                            className="text-[10px] font-black text-blue-600 hover:underline"
+                          >
+                            تحديد الكل كمقروء
+                          </button>
+                        )}
+                      </div>
+                      <div className="max-h-80 overflow-y-auto">
+                        {notifications.length > 0 ? (
+                          notifications.map((n) => (
+                            <Link
+                              key={n.id}
+                              href={n.data.link}
+                              onClick={() => setShowNotifications(false)}
+                              className={`flex gap-3 p-4 border-b border-slate-50 hover:bg-slate-50 transition-colors ${
+                                !n.read_at ? "bg-blue-50/20" : ""
+                              }`}
+                            >
+                              <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center shrink-0 shadow-sm">
+                                <MessageSquare
+                                  size={16}
+                                  className="text-red-500"
+                                />
+                              </div>
+                              <div className="flex flex-col min-w-0 text-right">
+                                <p className="text-[11px] font-black text-[#001246] truncate">
+                                  {n.data.title}
+                                </p>
+                                <p className="text-[10px] text-slate-500 mt-0.5 line-clamp-2 leading-relaxed">
+                                  {n.data.message}
+                                </p>
+                              </div>
+                            </Link>
+                          ))
+                        ) : (
+                          <div className="p-10 text-center">
+                            <Bell
+                              size={32}
+                              className="mx-auto text-slate-200 mb-2"
+                            />
+                            <p className="text-xs font-bold text-slate-400">
+                              لا توجد إشعارات
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
+            </div>
+
             <div className="flex items-center gap-3 pr-4 border-r border-slate-200">
               <div className="text-left hidden sm:block">
-                <p className="text-xs font-black text-[#001246]">{auth?.user?.name}</p>
-                <p className="text-[10px] text-slate-400 font-bold tracking-tighter">@{auth?.user?.username}</p>
+                <p className="text-xs font-black text-[#001246] text-right">
+                  {auth?.user?.name}
+                </p>
+                <p className="text-[10px] text-slate-400 font-bold tracking-tighter text-right">
+                  @{auth?.user?.username}
+                </p>
               </div>
               <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-black shadow-lg">
                 {auth?.user?.name?.charAt(0)}
               </div>
             </div>
-            <Link href="/" className="p-2 bg-slate-100 rounded-xl hover:bg-slate-200 transition-all"><House size={20} /></Link>
-            <Link href={route("logout")} method="post" as="button" className="p-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition-all"><LogOut size={20} /></Link>
+            <Link
+              href="/"
+              className="p-2 bg-slate-100 rounded-xl hover:bg-slate-200 transition-all"
+            >
+              <House size={20} />
+            </Link>
+            <Link
+              href={route("logout")}
+              method="post"
+              as="button"
+              className="p-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition-all"
+            >
+              <LogOut size={20} />
+            </Link>
           </div>
         </header>
 
@@ -203,7 +439,9 @@ export default function AdminLayout({ children }) {
       <AnimatePresence>
         {isSidebarOpen && (
           <motion.div
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             onClick={() => setIsSidebarOpen(false)}
             className="fixed inset-0 bg-[#001246]/60 backdrop-blur-sm z-40 lg:hidden"
           />
@@ -212,3 +450,5 @@ export default function AdminLayout({ children }) {
     </div>
   );
 }
+
+AdminLayout.layout = (page) => <AdminLayout children={page} />;
