@@ -117,12 +117,10 @@ export default function HeroSection({ hero, ads }) {
 
     const { main, side, strip, trending } = hero || {};
 
-    // All ads now come as a flat array - they rotate randomly across all slots
     const allAds = ads || [];
 
     const safePosts = strip?.slice(0, 2) || [];
 
-    // Mix posts and ads in the strip - ads rotate in their slots
     const finalStrip = [
         { type: 'post', data: safePosts[0] },
         { type: 'ad', data: allAds },

@@ -48,7 +48,8 @@ export default function TopStories({ slots }) {
     };
 
     const EditControl = ({ slotName, hasPost, postLink, isLarge }) => (
-        <div className="absolute top-2 left-2 z-50 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-y-2 group-hover:translate-y-0 w-[calc(100%-1rem)]">
+        <div className="absolute top-2 left-2 z-50 flex gap-2 opacity-0 group-hover:opacity-100
+        transition-all duration-200 translate-y-2 group-hover:translate-y-0 w-[calc(100%-1rem)]">
             <div className="bg-white/95 backdrop-blur-sm rounded-lg shadow-2xl p-1 border border-slate-200 flex gap-1 items-center flex-1">
                 <div className="flex-1 min-w-0">
                     <AsyncSelect
@@ -81,14 +82,16 @@ export default function TopStories({ slots }) {
                                 const post = slots.find(s => s.slot_name === slotName)?.post;
                                 setPreviewPost(post);
                             }}
-                            className="bg-blue-50 hover:bg-blue-100 text-blue-600 p-2 rounded-lg border border-blue-200 shadow-sm flex items-center justify-center h-[42px] w-[42px]"
+                            className="bg-blue-50 hover:bg-blue-100 text-blue-600 p-2 rounded-lg
+                            border border-blue-200 shadow-sm flex items-center justify-center h-[42px] w-[42px]"
                             title="معاينة"
                         >
                             <Eye size={18} />
                         </button>
                         <button
                             onClick={() => handleReset(slotName)}
-                            className="bg-red-50 hover:bg-red-100 text-red-600 p-2 rounded-lg border border-red-200 shadow-sm flex items-center justify-center h-[42px] w-[42px]"
+                            className="bg-red-50 hover:bg-red-100 text-red-600 p-2
+                            rounded-lg border border-red-200 shadow-sm flex items-center justify-center h-[42px] w-[42px]"
                             title="إزالة"
                         >
                             <Trash2 size={18} />

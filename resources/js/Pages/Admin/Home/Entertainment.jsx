@@ -14,8 +14,6 @@ const getImageUrl = (path) => {
     if (path.startsWith('http')) return path;
     return `/storage/${path}`;
 };
-
-// تأكد أن الكنترولر يرسل agendaAd مع الـ slots
 export default function Entertainment({ slots, agendaAd }) {
     const [previewPost, setPreviewPost] = useState(null);
 
@@ -105,22 +103,18 @@ export default function Entertainment({ slots, agendaAd }) {
     );
 
     const RenderSlot = ({ name }) => {
-        // --- تعديل: معالجة خاصة لقسم الأجندة الإعلاني ---
         if (name === 'agenda') {
             return (
                 <div className="h-[200px] bg-gradient-to-br from-pink-600 to-rose-700 mb-6 flex flex-col items-center justify-center text-white text-center p-6 rounded-xl shadow-xl relative overflow-hidden group border border-pink-500/30">
 
-                    {/* علامة القفل: ليعرف الأدمن أن هذا القسم للقراءة فقط هنا */}
                     <div className="absolute top-2 left-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
                         <Badge className="bg-black/50 hover:bg-black/70 text-white text-[10px] gap-1 backdrop-blur-md border-0 px-2 py-1">
                             <Lock size={10} /> مساحة إعلانية
                         </Badge>
                     </div>
 
-                    {/* إذا كان هناك إعلان قادم من الباك إند */}
                     {agendaAd ? (
                         <>
-                            {/* صورة خلفية خفيفة للإعلان إن وجدت */}
                             {agendaAd.image && (
                                 <img
                                     src={getImageUrl(agendaAd.image)}
@@ -136,7 +130,6 @@ export default function Entertainment({ slots, agendaAd }) {
                                 <p className="text-[10px] text-white/90 mb-4 line-clamp-1 font-medium">
                                     {agendaAd.description || 'عرض خاص'}
                                 </p>
-                                {/* زر المحاكاة (شكلي فقط) */}
                                 <div className="inline-flex items-center gap-1 bg-white text-rose-600 px-4 py-1.5 text-[10px] font-bold rounded-full shadow-sm">
                                     <span>اضغط هنا</span>
                                     <ExternalLink size={10} />
@@ -144,7 +137,6 @@ export default function Entertainment({ slots, agendaAd }) {
                             </div>
                         </>
                     ) : (
-                        /* الحالة الافتراضية إذا لم يكن هناك إعلان نشط */
                         <div className="relative z-10 opacity-60">
                             <Calendar className="mx-auto mb-2" size={24} />
                             <h4 className="text-lg font-bold mb-1">أجندة الفعاليات</h4>
@@ -155,7 +147,6 @@ export default function Entertainment({ slots, agendaAd }) {
             );
         }
 
-        // --- باقي الكروت القابلة للتعديل ---
         const slotData = slots.find(s => s.slot_name === name) || { slot_name: name, type: 'unknown' };
         const { post, is_manual, type } = slotData;
 
@@ -267,7 +258,6 @@ export default function Entertainment({ slots, agendaAd }) {
                     </div>
 
                     <div className="lg:col-span-3">
-                        {/* هنا استدعاء الأجندة الإعلانية */}
                         <RenderSlot name="agenda" />
 
                         <div className="flex flex-col bg-white p-4 rounded-xl border border-gray-100 shadow-sm min-h-[300px]">
