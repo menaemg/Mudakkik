@@ -130,7 +130,7 @@ export default function AdsTab({ adRequests, remainingDays, setActiveTab, setAdT
             <div className="absolute top-0 right-0 w-96 h-96 bg-brand-blue/5 rounded-full blur-3xl -z-10 translate-x-1/3 -translate-y-1/3"></div>
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-50 rounded-full blur-3xl -z-10"></div>
 
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10 border-b border-gray-100 pb-8 flex-shrink-0">
+            <div className="flex flex-col md:flex-row justify-between items-start gap-6 mb-10 border-b border-gray-100 pb-8 flex-shrink-0">
                 <div>
                     <div className="flex items-center gap-3 mb-2">
                         <div className="w-12 h-12 bg-[#000a2e] text-white rounded-2xl flex items-center justify-center shadow-lg shadow-blue-900/20">
@@ -143,7 +143,7 @@ export default function AdsTab({ adRequests, remainingDays, setActiveTab, setAdT
                     </p>
                 </div>
 
-                <div className="flex items-center gap-4 w-full md:w-auto">
+                <div className="flex items-center gap-4 w-full md:w-auto mt-2 md:mt-0">
                     <div className="bg-gradient-to-br from-[#020617] to-[#1e293b] p-4 rounded-2xl text-white shadow-xl shadow-gray-900/10 min-w-[160px] relative overflow-hidden group">
                         <div className="absolute top-0 right-0 w-16 h-16 bg-white/10 rounded-full blur-xl group-hover:bg-white/20 transition-all"></div>
                         <div className="relative z-10 flex justify-between items-center">
@@ -258,7 +258,7 @@ export default function AdsTab({ adRequests, remainingDays, setActiveTab, setAdT
                         </div>
                     </div>
                 ) : (
-                    <div className="flex-grow flex flex-col items-center justify-center text-center bg-gray-50/30 rounded-[2.5rem] border-2 border-dashed border-gray-100 min-h-[300px] h-full">
+                    <div className="flex-grow flex flex-col items-center pt-24 text-center bg-gray-50/30 rounded-[2.5rem] border-2 border-dashed border-gray-100 min-h-[300px] h-full">
                         <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mb-4 shadow-sm border border-gray-50">
                             <FaBullhorn className="text-4xl text-gray-200" />
                         </div>

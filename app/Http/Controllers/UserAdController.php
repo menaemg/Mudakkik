@@ -92,6 +92,18 @@ class UserAdController extends Controller
                     'status' => 'pending'
                 ]);
             });
+          
+            $admins = \App\Models\User::where('role', 'admin')->get();
+          
+            foreach ($admins as $admin) {
+                 $admin->notify(new \App\Notifications\AdminActivityNotification([
+                    'title' => 'طلب إعلان جديد',
+                    'message' => 'لديك طلب إعلان جديد من ' . auth()->user()->name,
+                    'link' => route('admin.requests.ads'), 
+                    'type' => 'ad_request',
+                ])); 
+            }
+
         } catch (\Exception $e) {
             Storage::disk('public')->delete($imagePath);
             throw $e;
