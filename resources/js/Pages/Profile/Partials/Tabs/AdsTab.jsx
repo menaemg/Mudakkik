@@ -172,99 +172,88 @@ export default function AdsTab({ adRequests, remainingDays, setActiveTab, setAdT
 
             <div className="flex-grow flex flex-col h-full">
                 {adRequests && adRequests.data.length > 0 ? (
-                    <div className="overflow-hidden rounded-[2rem] border border-gray-100 shadow-sm flex-grow bg-white h-full flex flex-col">
-                        <table className="w-full text-right flex-grow">
-                            <thead className="bg-gray-50 text-gray-500 text-[11px] font-black uppercase tracking-wider">
-                                <tr>
-                                    <th className="px-8 py-5">تفاصيل الإعلان</th>
-                                    <th className="px-6 py-5">الفترة</th>
-                                    <th className="px-6 py-5">الحالة</th>
-                                    <th className="px-6 py-5">إجراءات</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-50 bg-white">
-                                {adRequests.data.map((ad) => (
-                                    <tr key={ad.id} className="hover:bg-blue-50/20 transition-colors group">
-                                        <td className="px-8 py-5">
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-20 h-14 rounded-xl overflow-hidden border border-gray-100 shadow-sm shrink-0 relative group-hover:scale-105 transition-transform">
-                                                    <img src={`/storage/${ad.image_path}`} alt={ad.title} className="w-full h-full object-cover" />
-                                                </div>
-                                                <div>
-                                                    <p className="font-bold text-gray-900 text-sm line-clamp-1 mb-1">{ad.title}</p>
-                                                    {(() => {
-                                                        try {
-                                                            const hostname = new URL(ad.target_url).hostname;
-                                                            return (
-                                                                <a href={ad.target_url} target="_blank" rel="noopener noreferrer" className="text-xs text-brand-blue hover:underline flex items-center gap-1 font-medium" dir="ltr">
-                                                                    <FaGlobe size={10} /> {hostname}
-                                                                </a>
-                                                            );
-                                                        } catch {
-                                                            return (
-                                                                <span className="text-xs text-gray-400 flex items-center gap-1 font-medium" dir="ltr">
-                                                                    <FaGlobe size={10} /> رابط غير صالح
-                                                                </span>
-                                                            );
-                                                        }
-                                                    })()}
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-5">
-                                            <div className="flex flex-col gap-1">
-                                                <span className="text-xs font-bold text-gray-700 flex items-center gap-1.5">
-                                                    <FaCalendarAlt className="text-gray-400 text-[10px]" />
-                                                    {new Date(ad.requested_start_date).toLocaleDateString('ar-EG')}
-                                                </span>
-                                                <span className="text-[10px] font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md w-fit">
-                                                    لمدة {ad.duration} أيام
-                                                </span>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-5">
-                                            {getStatusBadge(ad.status)}
-                                        </td>
-                                        <td className="px-6 py-5">
-                                            <div className="flex items-center gap-2">
-                                                <Button
-                                                    size="icon"
-                                                    variant="ghost"
-                                                    onClick={() => handleAction('view_ad', ad)}
-                                                    className="h-8 w-8 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg"
-                                                    title="معاينة التفاصيل"
-                                                >
-                                                    <FaEye size={14} />
-                                                </Button>
-
-                                                {ad.status === 'pending' && (
-                                                    <Button
-                                                        size="icon"
-                                                        variant="ghost"
-                                                        onClick={() => handleAction('edit_ad', ad)}
-                                                        className="h-8 w-8 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg"
-                                                        title="تعديل الطلب"
-                                                    >
-                                                        <FaEdit size={14} />
-                                                    </Button>
-                                                )}
-
-                                                <Button
-                                                    size="icon"
-                                                    variant="ghost"
-                                                    onClick={() => handleDelete(ad)}
-                                                    className="h-8 w-8 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg"
-                                                    title="حذف"
-                                                >
-                                                    <FaTrash size={14} />
-                                                </Button>
-                                            </div>
-                                        </td>
+                    <div className="overflow-hidden rounded-[2rem] border border-gray-100 shadow-sm flex-grow bg-white h-full flex flex-col relative">
+                        <div className="flex-grow overflow-auto">
+                            <table className="w-full text-right">
+                                <thead className="bg-gray-50 text-gray-500 text-[11px] font-black uppercase tracking-wider sticky top-0 z-10">
+                                    <tr>
+                                        <th className="px-8 py-5 w-[45%]">تفاصيل الإعلان</th>
+                                        <th className="px-6 py-5 whitespace-nowrap w-[20%]">الفترة</th>
+                                        <th className="px-6 py-5 whitespace-nowrap w-[15%]">الحالة</th>
+                                        <th className="px-6 py-5 whitespace-nowrap w-[10%]">إجراءات</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                        <div className="mt-auto p-4 border-t border-gray-100">
+                                </thead>
+                                <tbody className="divide-y divide-gray-50 bg-white">
+                                    {adRequests.data.map((ad) => (
+                                        <tr key={ad.id} className="hover:bg-blue-50/20 transition-colors group">
+                                            <td className="px-8 py-5 align-middle">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-20 h-14 rounded-xl overflow-hidden
+                                                    border border-gray-100 shadow-sm shrink-0 relative
+                                                    group-hover:scale-105 transition-transform">
+                                                        <img src={`/storage/${ad.image_path}`} alt={ad.title} className="w-full h-full object-cover" />
+                                                    </div>
+                                                    <div className="min-w-0">
+                                                        <p className="font-bold text-gray-900 text-sm line-clamp-1 mb-1">{ad.title}</p>
+                                                        {(() => {
+                                                            try {
+                                                                const hostname = new URL(ad.target_url).hostname;
+                                                                return (
+                                                                    <a
+                                                                    href={ad.target_url}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    className="text-xs text-brand-blue hover:underline flex items-center gap-1 font-medium"
+                                                                    dir="ltr">
+                                                                        <FaGlobe size={10} /> {hostname}
+                                                                    </a>
+                                                                );
+                                                            } catch {
+                                                                return (
+                                                                    <span className="text-xs text-gray-400 flex items-center gap-1 font-medium" dir="ltr">
+                                                                        <FaGlobe size={10} /> رابط غير صالح
+                                                                    </span>
+                                                                );
+                                                            }
+                                                        })()}
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-5 whitespace-nowrap align-middle">
+                                                <div className="flex flex-col gap-1">
+                                                    <span className="text-xs font-bold text-gray-700 flex items-center gap-1.5">
+                                                        <FaCalendarAlt className="text-gray-400 text-[10px]" />
+                                                        {new Date(ad.requested_start_date).toLocaleDateString('ar-EG')}
+                                                    </span>
+                                                    <span className="text-[10px] font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md w-fit">
+                                                        لمدة {ad.duration} أيام
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-5 whitespace-nowrap align-middle">
+                                                {getStatusBadge(ad.status)}
+                                            </td>
+                                            <td className="px-6 py-5 whitespace-nowrap align-middle">
+                                                <div className="flex items-center gap-2">
+                                                    <Button size="icon" variant="ghost" onClick={() => handleAction('view_ad', ad)} className="h-8 w-8 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
+                                                        <FaEye size={14} />
+                                                    </Button>
+                                                    {ad.status === 'pending' && (
+                                                        <Button size="icon" variant="ghost" onClick={() => handleAction('edit_ad', ad)} className="h-8 w-8 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg">
+                                                            <FaEdit size={14} />
+                                                        </Button>
+                                                    )}
+                                                    <Button size="icon" variant="ghost" onClick={() => handleDelete(ad)} className="h-8 w-8 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg">
+                                                        <FaTrash size={14} />
+                                                    </Button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div className="mt-auto p-4 border-t border-gray-100 bg-white z-20 relative">
                             <Pagination links={adRequests.links} />
                         </div>
                     </div>

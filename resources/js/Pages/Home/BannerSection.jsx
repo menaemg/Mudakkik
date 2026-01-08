@@ -1,9 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import { FaBolt, FaStar, FaExternalLinkAlt } from 'react-icons/fa';
 import { getImagePath } from '@/utils/imagePaths';
+import AdRotator from '@/Components/AdRotator';
+import { motion } from 'framer-motion';
 
 const BannerSkeleton = () => (
     <section className="container mx-auto px-4 py-8 md:py-12 mb-8">
@@ -25,24 +27,88 @@ const BannerSkeleton = () => (
     </section>
 );
 
-export default function BannerSection({ data, type = 'news' }) {
+export default function BannerSection({ data, type = 'news', post, ad }) {
+
     useEffect(() => {
         AOS.init({ duration: 800, once: true });
     }, []);
-    if (!data) return <BannerSkeleton />;
 
-    const isAd = type === 'ad';
+    const actualData = data || ad || post;
+    const actualType = (!data && ad && ad.length > 0) ? 'ad' : type;
+
+    if (!actualData) return <BannerSkeleton />;
+
+    const isAd = actualType === 'ad';
+
+    if (isAd && actualData) {
+        const adsArray = Array.isArray(actualData) ? actualData : [actualData];
+
+        return (
+            <section className="w-full py-16 md:py-24 bg-gradient-to-b from-slate-50 via-white to-slate-50" data-aos="fade-up">
+                <div className="container mx-auto px-4 lg:px-6">
+                    <div className="text-center mb-12">
+                        <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.6 }}
+                            className="inline-block"
+                        >
+                            <span className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500/10 to-red-500/10 text-amber-700 px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-wider border border-amber-200/50">
+                                <motion.div animate={{ rotate: 360 }} transition={{ duration: 3, repeat: Infinity }}>
+                                    <FaStar size={12} />
+                                </motion.div>
+                                عروض حصرية مختارة بعناية
+                            </span>
+                        </motion.div>
+                    </div>
+
+                    <div className="relative">
+                        <motion.div
+                            className="absolute -top-24 -left-24 w-96 h-96 bg-gradient-to-br from-amber-300/20 to-transparent rounded-full blur-3xl"
+                            animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.5, 0.3] }}
+                            transition={{ duration: 8, repeat: Infinity }}
+                        />
+                        <motion.div
+                            className="absolute -bottom-24 -right-24 w-96 h-96 bg-gradient-to-br from-red-300/20 to-transparent rounded-full blur-3xl"
+                            animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.5, 0.3] }}
+                            transition={{ duration: 8, repeat: Infinity, delay: 1 }}
+                        />
+
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8 }}
+                            className="relative bg-white/80 backdrop-blur-2xl rounded-3xl overflow-hidden shadow-2xl border border-white/60 hover:border-white/80 transition-all duration-500 group"
+                        >
+                            <div className="absolute inset-0 bg-gradient-to-r from-amber-500/0 via-transparent to-red-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+
+                            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gradient-to-r from-amber-500 via-red-500 to-amber-500 to-transparent opacity-60"></div>
+
+                            <div className="relative">
+                                <AdRotator
+                                    ads={adsArray}
+                                    variant="banner"
+                                    interval={5000}
+                                    className="w-full"
+                                />
+                            </div>
+                        </motion.div>
+                    </div>
+                </div>
+            </section>
+        );
+    }
 
     const content = {
-        image: getImagePath(data?.image, "/assets/images/banner-placeholder.webp"),
+        image: getImagePath(actualData?.image, "/assets/images/banner-placeholder.webp"),
 
-        title: data?.title || (isAd ? data?.company_name : ''),
+        title: actualData?.title || (isAd ? actualData?.company_name : ''),
 
-        description: data?.description || (isAd ? data?.notes : data?.excerpt),
+        description: actualData?.description || (isAd ? actualData?.notes : actualData?.excerpt),
 
-        category: isAd ? "شريك استراتيجي" : (data?.category?.name || "تغطية حصرية"),
+        category: isAd ? "شريك استراتيجي" : (actualData?.category?.name || "تغطية حصرية"),
 
-        link: isAd ? data?.link : (data?.slug ? route('posts.show', data.slug) : '#')
+        link: isAd ? actualData?.link : (actualData?.slug ? route('posts.show', actualData.slug) : '#')
     };
 
     return (
@@ -53,7 +119,7 @@ export default function BannerSection({ data, type = 'news' }) {
                 <img
                     src={content.image}
                     alt={content.title || content.description || (isAd ? 'إعلان' : 'Banner')}
-                    className="w-full h-full object-cover transition-transform duration-[2000ms] group-hover:scale-110 will-change-transform"
+                    className="w-full h-full object-cover transition-transform duration-&lsqb;2000ms&rsqb; group-hover:scale-110 will-change-transform"
                 />
 
                 <div className={`absolute inset-0 bg-gradient-to-l opacity-90
