@@ -21,7 +21,7 @@ class ProfileController extends Controller
     public function edit(Request $request): Response
     {
         /** @var \App\Models\User $user */
-        $user = $request->user();
+        $user = $request->user()->fresh();
 
         $postsCount = $user->posts()->count();
         $followersCount = $user->followers()->count();
@@ -42,7 +42,9 @@ class ProfileController extends Controller
 
         $myArticles = $user->posts()
             ->latest()
-            ->paginate(6, ['*'], 'articles_page');
+            ->paginate(6, ['*'], 'articles_page')
+            ->withQueryString();
+
 
         $recentPosts = $user->posts()
             ->latest()
@@ -52,11 +54,8 @@ class ProfileController extends Controller
         $likedPosts = $user->likedPosts()
             ->with('user:id,name')
             ->latest('likes.created_at')
-            ->paginate(6, ['*'], 'likes_page');
-
-        $adRequests = $user->adRequests()
-            ->latest()
-            ->paginate(5, ['*'], 'ads_page');
+            ->paginate(6, ['*'], 'likes_page')
+            ->withQueryString();
 
         $latestUpgradeRequest = UpgradeRequest::where('user_id', $user->id)
         ->latest()
@@ -93,21 +92,24 @@ class ProfileController extends Controller
         ->take(3)
         ->get();
 
-        $adRequests = Advertisment::where('user_id', $user->id)
-        ->latest()
-        ->paginate(10, ['*'], 'ads_page')
-        ->through(function ($ad) {
-            return [
-                'id' => $ad->id,
-                'title' => $ad->title,
-                'image_path' => $ad->image_url,
-                'target_url' => $ad->target_link,
-                'requested_start_date' => $ad->start_date,
-                'requested_end_date' => $ad->end_date,
-                'duration' => $ad->number_of_days,
-                'status' => $ad->status,
-            ];
-        });
+          $adRequests = $user->advertisements()
+             ->latest()
+             ->paginate(5, ['*'], 'ads_page')
+             ->through(function ($ad) {
+                return [
+                    'id' => $ad->id,
+                    'title' => $ad->title,
+                    'image_path' => $ad->image_url,
+                    'target_url' => $ad->target_link,
+                    'requested_start_date' => $ad->start_date,
+                    'requested_end_date' => $ad->end_date,
+                    'duration' => $ad->number_of_days,
+                    'status' => $ad->status,
+                ];
+             })
+
+
+             ->withQueryString();
 
         return Inertia::render('Profile/Edit', [
             'mustVerifyEmail' => $user instanceof MustVerifyEmail,

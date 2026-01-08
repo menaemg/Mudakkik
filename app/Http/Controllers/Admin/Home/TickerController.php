@@ -7,38 +7,16 @@ use App\Models\HomeSlot;
 use App\Models\Post;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-
+use App\Services\HomePageService;
 class TickerController extends Controller
 {
-    public function index()
+public function index(HomePageService $homeService)
     {
-        $settings = HomeSlot::section('ticker')->with('post')->get()->keyBy('slot_name');
-        $tickerSlots = [];
-        $excludeIds = [];
+        $tickerSlots = $homeService->getTickerWithSlots()->values();
 
-        for ($i = 1; $i <= 5; $i++) {
-            $slotName = (string)$i;
-            $setting = $settings->get($slotName);
-
-            if ($setting && $setting->post_id) {
-                $tickerSlots[] = ['slot' => $slotName, 'type' => 'manual', 'post' => $setting->post];
-                $excludeIds[] = $setting->post_id;
-            } else {
-                $tickerSlots[] = ['slot' => $slotName, 'type' => 'auto', 'post' => null];
-            }
-        }
-
-        $autoPosts = Post::where('status', 'published')->where('type', 'news')
-            ->whereNotIn('id', $excludeIds)->latest()->take(5)->get();
-
-        $autoIndex = 0;
-        foreach ($tickerSlots as &$slot) {
-            if ($slot['type'] === 'auto' && isset($autoPosts[$autoIndex])) {
-                $slot['post'] = $autoPosts[$autoIndex++];
-            }
-        }
-
-        return Inertia::render('Admin/Home/Ticker', ['tickerSlots' => $tickerSlots]);
+        return Inertia::render('Admin/Home/Ticker', [
+            'tickerSlots' => $tickerSlots
+        ]);
     }
 
     public function update(Request $request)
@@ -48,6 +26,9 @@ class TickerController extends Controller
             ['section' => 'ticker', 'slot_name' => $request->slot_name],
             ['post_id' => $request->post_id]
         );
+
+        \Cache::forget('global.ticker_posts');
+
         return back()->with('success', 'تم التحديث');
     }
 }

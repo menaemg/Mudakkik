@@ -12,49 +12,27 @@ class FeaturedController extends Controller
 {
     public function index()
     {
-        $settings = HomeSlot::whereIn('section', ['featured', 'editors_choice'])
-            ->with(['post' => function ($query) {
-                $query->where('status', 'published')
-                      ->where(function($q) {
-                          $q->where('ai_verdict', '!=', 'fake')
-                            ->orWhereNull('ai_verdict');
-                      })
-                      ->with(['user', 'category']);
-            }])
-            ->get();
+        $rawSlots = HomeSlot::whereIn('section', ['featured', 'editors_choice'])->with('post')->get();
+        $getSlot = fn($sec, $name) => $rawSlots->where('section', $sec)->where('slot_name', $name)->first();
 
-        $featuredData = [
-            'main' => $this->formatSlot($settings, 'featured', 'main'),
-            'subs' => [],
-            'editors' => []
-        ];
+        $featuredData = ['main' => null, 'subs' => [], 'editors' => []];
+
+        $item = $getSlot('featured', 'main');
+        $featuredData['main'] = ['section'=>'featured', 'slot_name'=>'main', 'post'=>$item?->post, 'post_id'=>$item?->post_id];
 
         for($i=1; $i<=4; $i++) {
-            $featuredData['subs'][] = $this->formatSlot($settings, 'featured', "sub_{$i}");
+            $item = $getSlot('featured', "sub_{$i}");
+            $featuredData['subs'][] = ['section'=>'featured', 'slot_name'=>"sub_{$i}", 'post'=>$item?->post, 'post_id'=>$item?->post_id];
         }
 
         for($i=1; $i<=4; $i++) {
-            $featuredData['editors'][] = $this->formatSlot($settings, 'editors_choice', (string)$i);
+             $item = $getSlot('editors_choice', (string)$i);
+             $featuredData['editors'][] = ['section'=>'editors_choice', 'slot_name'=>(string)$i, 'post'=>$item?->post, 'post_id'=>$item?->post_id];
         }
 
-        return Inertia::render('Admin/Home/Featured', [
-            'featuredData' => $featuredData
-        ]);
+        return Inertia::render('Admin/Home/Featured', ['featuredData' => $featuredData]);
     }
 
-    private function formatSlot($collection, $section, $slotName)
-    {
-        $item = $collection->where('section', $section)->where('slot_name', $slotName)->first();
-
-        $post = $item ? $item->post : null;
-
-        return [
-            'section' => $section,
-            'slot_name' => $slotName,
-            'post' => $post,
-            'post_id' => $post ? $item->post_id : null
-        ];
-    }
 
     public function update(Request $request)
     {

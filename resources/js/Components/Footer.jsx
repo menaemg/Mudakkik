@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from '@inertiajs/react';
 import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, FaHeart } from 'react-icons/fa';
 import { Separator } from "@/components/ui/separator";
 
@@ -12,13 +13,20 @@ export default function Footer() {
 
                     <div className="lg:col-span-4 flex flex-col items-start">
                         <div className="flex items-center gap-2 mb-6">
-                            <div className="w-10 h-10 bg-brand-red rounded-lg flex items-center
-                            justify-center shadow-lg shadow-red-900/50">
-                                <span className="font-black text-xl text-white">M</span>
-                            </div>
-                            <div className="text-3xl font-extrabold tracking-wider uppercase">
-                                Mudakik <span className="text-gray-500">News</span>
-                            </div>
+                            <Link href="/" className="flex items-center gap-3 group shrink-0">
+                        <div className="w-10 h-10 bg-gradient-to-br from-brand-red to-red-700 rounded-xl flex items-center justify-center shadow-lg shadow-red-900/40 group-hover:rotate-6 transition-transform border border-white/10">
+                            <span className="font-black text-2xl text-white pb-1 relative top-[1px]">مـ</span>
+                        </div>
+
+                        <div className="flex flex-col justify-center">
+                            <h1 className="text-2xl font-black text-white leading-none tracking-tight">
+                                مدقق <span className="text-brand-red">.</span>
+                            </h1>
+                            <span className="text-[10px] font-bold text-gray-400 tracking-[0.2em] -mt-0.5 mr-0.5">
+                                نيوز
+                            </span>
+                        </div>
+                    </Link>
                         </div>
 
                         <p className="text-gray-400 text-sm mb-8 leading-relaxed">
@@ -78,7 +86,8 @@ export default function Footer() {
 
                 <div className="flex flex-col md:flex-row justify-between items-center text-xs text-gray-500 gap-4 font-medium">
                     <p className="flex items-center gap-1">
-                        جميع الحقوق محفوظة © 2025 <span className="text-gray-300 font-bold">Mudakik News</span>
+                        جميع الحقوق محفوظة © 2025
+                        <span className="text-gray-300 font-bold">Mudakik News</span>
                     </p>
                     <div className="flex items-center gap-1">
                         <span>صنع بكل</span>

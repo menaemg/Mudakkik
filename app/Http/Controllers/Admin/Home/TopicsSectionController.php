@@ -8,40 +8,35 @@ use App\Models\Category;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Validation\Rule;
+use App\Models\Advertisment;
+use App\Services\HomePageService;
 
 class TopicsSectionController extends Controller
 {
-    public function index()
+public function index(HomePageService $homeService)
     {
-        $settings = HomeSlot::where('section', 'editor_alerts')
-            ->with(['post.user', 'post.category'])
-            ->get();
+        $rawAlerts = $homeService->getEditorAlertsManual();
 
         $alertsData = [];
         for($i=1; $i<=2; $i++) {
-            $alertsData[] = $this->formatSlot($settings, 'editor_alerts', (string)$i);
+            $slotName = (string)$i;
+            $item = $rawAlerts->where('slot_name', $slotName)->first();
+            $alertsData[] = [
+                'section' => 'editor_alerts',
+                'slot_name' => $slotName,
+                'post' => $item?->post,
+                'post_id' => $item?->post_id
+            ];
         }
 
-        $categories = Category::withCount(['posts' => function($q) {
-            $q->where('status', 'published');
-        }])->get();
+        $categories = Category::withCount(['posts' => fn($q) => $q->where('status', 'published')])->get();
+        $upcomingAd = Advertisment::with('user')->where('status', 'active')->where('start_date', '>', now())->orderBy('start_date', 'asc')->first();
 
         return Inertia::render('Admin/Home/TopicsSection', [
             'alertsData' => $alertsData,
-            'categories' => $categories
+            'categories' => $categories,
+            'upcomingAd' => $upcomingAd
         ]);
-    }
-
-    private function formatSlot($collection, $section, $slotName)
-    {
-        $item = $collection->where('section', $section)->where('slot_name', $slotName)->first();
-        $post = $item ? $item->post : null;
-        return [
-            'section' => $section,
-            'slot_name' => $slotName,
-            'post' => $post,
-            'post_id' => $post ? $item->post_id : null
-        ];
     }
 
     public function update(Request $request)

@@ -74,21 +74,12 @@ export default function AdminLayout({ children }) {
       list: [
         { label: "شريط الأخبار", icon: ScrollText, url: "/admin/home/ticker" },
         { label: "الهيرو سكشن", icon: LayoutTemplate, url: "/admin/home/hero" },
-        {
-          label: "أخبار مميزة",
-          icon: LayoutTemplate,
-          url: "/admin/home/featured",
-        },
-        {
-          label: "أهم قصص اليوم",
-          icon: LayoutTemplate,
-          url: "/admin/home/top-stories",
-        },
-        {
-          label: "أهم المواضيع",
-          icon: LayoutTemplate,
-          url: "/admin/home/top-topics",
-        },
+        { label: "أخبار مميزة", icon: LayoutTemplate, url: "/admin/home/featured" },
+        { label: "أهم قصص اليوم", icon: LayoutTemplate, url: "/admin/home/top-stories" },
+        { label: "أهم المواضيع", icon: LayoutTemplate, url: "/admin/home/top-topics" },
+        { label: "الفنون والترفيه", icon: LayoutTemplate, url: "/admin/home/entertainment" },
+        { label: "مال واعمال ", icon: LayoutTemplate, url: "/admin/home/business" },
+        { label: "قسم البانر", icon: LayoutTemplate, url: "/admin/home/banner" },
       ],
     },
     {
