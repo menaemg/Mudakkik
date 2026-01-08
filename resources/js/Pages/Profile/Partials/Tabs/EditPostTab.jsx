@@ -4,14 +4,24 @@ import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import InputError from '@/Components/InputError';
 import { Button } from "@/components/ui/button";
-import { FaSave, FaImage, FaArrowRight } from 'react-icons/fa';
+import {
+    FaSave,
+    FaImage,
+    FaArrowRight,
+    FaEdit,
+    FaLayerGroup,
+    FaTag,
+    FaHeading,
+    FaCamera
+} from 'react-icons/fa';
 import Swal from 'sweetalert2';
 
 export default function EditPostTab({ post, categories, setActiveTab }) {
     const [blobUrl, setBlobUrl] = useState(null);
-    const getInitialImage = () => post.image || null;
+    const getInitialImage = () => post.image ? `/storage/${post.image}` : null;
 
     const [imagePreview, setImagePreview] = useState(getInitialImage());
+
     useEffect(() => {
         return () => {
             if (blobUrl) URL.revokeObjectURL(blobUrl);
@@ -64,81 +74,139 @@ export default function EditPostTab({ post, categories, setActiveTab }) {
     };
 
     return (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 animate-in fade-in duration-500">
-             <div className="mb-6 border-b border-gray-100 pb-4 flex justify-between items-center">
+        <div className="bg-white rounded-[2.5rem] shadow-xl shadow-gray-200/40 border border-white p-8 md:p-10 animate-in fade-in duration-700 relative overflow-hidden min-h-[calc(100vh-16rem)] h-full flex flex-col">
+
+             <div className="absolute top-0 left-0 w-64 h-64 bg-green-50/50 rounded-full blur-3xl -z-10"></div>
+
+             <div className="mb-10 border-b border-gray-100 pb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h3 className="font-bold text-xl text-gray-900 flex items-center gap-2">
-                        <FaSave className="text-green-600" /> تعديل المقال
+                    <h3 className="font-black text-2xl text-[#020617] flex items-center gap-3 mb-2">
+                        <div className="w-10 h-10 bg-green-50 text-green-600 rounded-xl flex items-center justify-center shadow-sm border border-green-100">
+                            <FaEdit size={18} />
+                        </div>
+                        تعديل المحتوى
                     </h3>
-                    <p className="text-gray-500 text-sm mt-1">تنبيه: التعديل يعيد المقال للمراجعة.</p>
+                    <div className="flex items-center gap-2 text-sm font-medium text-amber-600 bg-amber-50 px-3 py-1 rounded-lg w-fit border border-amber-100 mt-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                        تنبيه: الحفظ سيعيد المقال للمراجعة
+                    </div>
                 </div>
-                <Button variant="ghost" onClick={() => setActiveTab('articles')} className="text-gray-500 hover:text-gray-900">
-                    <FaArrowRight className="ml-2" /> إلغاء
+                <Button
+                    variant="outline"
+                    onClick={() => setActiveTab('articles')}
+                    className="border-gray-200 text-gray-500 hover:text-gray-900 hover:bg-gray-50 hover:border-gray-300 rounded-xl px-5 h-10 gap-2 font-bold"
+                >
+                    <FaArrowRight size={12} /> إلغاء وتراجع
                 </Button>
             </div>
 
-            <form onSubmit={submit} className="space-y-6">
-                <div>
-                    <InputLabel value="عنوان المقال" />
-                    <TextInput value={data.title} onChange={(e) => setData('title', e.target.value)} className="mt-1 block w-full" />
+            <form onSubmit={submit} className="space-y-8 flex-grow flex flex-col">
+
+                <div className="space-y-2">
+                    <InputLabel value="عنوان المقال" className="text-gray-700 font-bold" />
+                    <div className="relative">
+                        <TextInput
+                            value={data.title}
+                            onChange={(e) => setData('title', e.target.value)}
+                            className="w-full text-lg font-bold py-4 px-5 pl-12 rounded-2xl border-gray-200 bg-white focus:ring-green-500/20 focus:border-green-500 transition-all placeholder:font-normal"
+                        />
+                        <FaHeading className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm" />
+                    </div>
                     <InputError message={errors.title} className="mt-2" />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <InputLabel value="القسم" />
-                        <select value={data.category_id} onChange={(e) => setData('category_id', e.target.value)} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-brand-blue focus:ring-brand-blue">
-                            <option value="">اختر القسم</option>
-                            {categories && categories.map((cat) => (<option key={cat.id} value={cat.id}>{cat.name}</option>))}
-                        </select>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                        <InputLabel value="القسم" className="text-gray-700 font-bold flex items-center gap-2"><FaLayerGroup className="text-gray-400" /> التصنيف</InputLabel>
+                        <div className="relative">
+                            <select
+                                value={data.category_id}
+                                onChange={(e) => setData('category_id', e.target.value)}
+                                className="w-full appearance-none py-3.5 px-5 rounded-xl border-gray-200 bg-gray-50 text-gray-700 font-medium focus:border-green-500 focus:ring-green-500 shadow-sm cursor-pointer hover:bg-white transition-colors"
+                            >
+                                <option value="">اختر القسم</option>
+                                {categories && categories.map((cat) => (<option key={cat.id} value={cat.id}>{cat.name}</option>))}
+                            </select>
+                            <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                                <FaLayerGroup size={12} />
+                            </div>
+                        </div>
                         <InputError message={errors.category_id} className="mt-2" />
                     </div>
-                    <div>
-                        <InputLabel value="النوع" />
-                        <select value={data.type} onChange={(e) => setData('type', e.target.value)} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-brand-blue focus:ring-brand-blue">
-                            <option value="article">مقال</option>
-                            <option value="news">خبر</option>
-                        </select>
+
+                    <div className="space-y-2">
+                        <InputLabel value="النوع" className="text-gray-700 font-bold flex items-center gap-2"><FaTag className="text-gray-400" /> نوع المحتوى</InputLabel>
+                        <div className="grid grid-cols-2 gap-3">
+                            <div
+                                onClick={() => setData('type', 'article')}
+                                className={`cursor-pointer rounded-xl border p-3 flex items-center justify-center gap-2 transition-all ${data.type === 'article' ? 'bg-green-50 border-green-200 text-green-700 shadow-sm' : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-50'}`}
+                            >
+                                <span className="font-bold text-sm">مقال</span>
+                            </div>
+                            <div
+                                onClick={() => setData('type', 'news')}
+                                className={`cursor-pointer rounded-xl border p-3 flex items-center justify-center gap-2 transition-all ${data.type === 'news' ? 'bg-green-50 border-green-200 text-green-700 shadow-sm' : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-50'}`}
+                            >
+                                <span className="font-bold text-sm">خبر</span>
+                            </div>
+                        </div>
                         <InputError message={errors.type} className="mt-2" />
                     </div>
                 </div>
 
-                <div>
-                    <InputLabel value="صورة الغلاف" />
+                <div className="space-y-2">
+                    <InputLabel value="صورة الغلاف" className="text-gray-700 font-bold" />
                     <div className="mt-2">
                         {!imagePreview ? (
-                            <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
-                                <FaImage className="w-8 h-8 mb-2 text-gray-400" />
-                                <span className="text-sm text-gray-500">اضغط لرفع صورة جديدة</span>
+                            <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-gray-300 border-dashed rounded-2xl cursor-pointer bg-gray-50 hover:bg-gray-100 hover:border-green-400 transition-all duration-300">
+                                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                    <FaImage className="w-8 h-8 mb-2 text-gray-400" />
+                                    <span className="text-sm text-gray-500 font-medium">اضغط لرفع صورة جديدة</span>
+                                </div>
                                 <input type="file" className="hidden" onChange={handleImageChange} accept="image/*" />
                             </label>
                         ) : (
-                            <div className="relative w-full h-64 rounded-lg overflow-hidden border border-gray-200 group">
+                            <div className="relative w-full h-72 rounded-2xl overflow-hidden border border-gray-200 group shadow-md">
                                 <img
                                     src={imagePreview}
                                     alt="Preview"
-                                    className="w-full h-full object-cover"
+                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                                     onError={(e) => { e.target.onerror = null; e.target.src = '/images/placeholder.jpg'; }}
                                 />
-                                <label className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer transition-opacity">
-                                    <span className="text-white font-bold border border-white px-4 py-2 rounded-lg">تغيير الصورة</span>
-                                    <input type="file" className="hidden" onChange={handleImageChange} accept="image/*" />
-                                </label>
+                                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm gap-3">
+                                    <label className="cursor-pointer bg-white text-gray-900 font-bold px-6 py-3 rounded-xl shadow-lg hover:scale-105 transition-transform flex items-center gap-2">
+                                        <FaCamera className="text-green-600" />
+                                        تغيير
+                                        <input type="file" className="hidden" onChange={handleImageChange} accept="image/*" />
+                                    </label>
+                                </div>
                             </div>
                         )}
                         <InputError message={errors.image} className="mt-2" />
                     </div>
                 </div>
 
-                <div>
-                    <InputLabel value="المحتوى" />
-                    <textarea value={data.body} onChange={(e) => setData('body', e.target.value)} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-brand-blue focus:ring-brand-blue min-h-[300px]"></textarea>
+                <div className="space-y-2 flex-grow flex flex-col">
+                    <InputLabel value="المحتوى" className="text-gray-700 font-bold" />
+                    <textarea
+                        value={data.body}
+                        onChange={(e) => setData('body', e.target.value)}
+                        className="block w-full h-full rounded-2xl border-gray-200 bg-white shadow-sm focus:border-green-500 focus:ring-green-500 min-h-[400px] py-4 px-5 text-base leading-relaxed flex-grow"
+                    ></textarea>
                     <InputError message={errors.body} className="mt-2" />
                 </div>
 
-                <div className="flex justify-end">
-                    <Button disabled={processing} className="bg-green-600 text-white px-8 py-3 rounded-lg shadow-lg hover:bg-green-700 font-bold">
-                        <FaSave className="ml-2" /> حفظ التعديلات
+                {/* الزر */}
+                <div className="flex justify-end pt-6 border-t border-gray-100 mt-auto">
+                    <Button
+                        disabled={processing}
+                        className="bg-green-600 hover:bg-green-700 text-white px-10 py-4 rounded-xl shadow-lg shadow-green-500/20 font-bold text-sm transition-all transform hover:-translate-y-0.5"
+                    >
+                        {processing ? 'جاري الحفظ...' : (
+                            <span className="flex items-center gap-2">
+                                <FaSave /> حفظ التعديلات
+                            </span>
+                        )}
                     </Button>
                 </div>
             </form>

@@ -24,6 +24,7 @@ class Advertisment extends Model
         'start_date',
         'end_date',
         'status',
+        "position"
     ];
 
     protected $casts = [

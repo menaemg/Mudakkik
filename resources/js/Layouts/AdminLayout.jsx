@@ -36,6 +36,9 @@ export default function AdminLayout({ children }) {
         { label: "أخبار مميزة", icon: LayoutTemplate, url: "/admin/home/featured" },
         { label: "أهم قصص اليوم", icon: LayoutTemplate, url: "/admin/home/top-stories" },
         { label: "أهم المواضيع", icon: LayoutTemplate, url: "/admin/home/top-topics" },
+        { label: "الفنون والترفيه", icon: LayoutTemplate, url: "/admin/home/entertainment" },
+        { label: "مال واعمال ", icon: LayoutTemplate, url: "/admin/home/business" },
+        { label: "قسم البانر", icon: LayoutTemplate, url: "/admin/home/banner" },
       ],
     },
     {

@@ -19,7 +19,6 @@ class DatabaseSeeder extends Seeder
             PostSeeder::class,
             UpgradeRequestSeeder::class,
             AdvertismentSeeder::class,
-            AdRequestSeeder::class,
             SubscriptionSeeder::class,
             PaymentSeeder::class,
             LikeSeeder::class,

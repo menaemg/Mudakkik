@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('title');
             $table->string('image_url');
             $table->string('target_link');
+            $table->string('position')->index();
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
             $table->integer('number_of_days');

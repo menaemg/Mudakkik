@@ -4,34 +4,22 @@ namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
 use Inertia\Middleware;
-use App\Models\Post;
-use App\Models\HomeSlot;
 use App\Models\PostReport;
+use App\Services\HomePageService;
 
 class HandleInertiaRequests extends Middleware
 {
-    /**
-     * The root template that is loaded on the first page visit.
-     *
-     * @var string
-     */
     protected $rootView = 'app';
 
-    /**
-     * Determine the current asset version.
-     */
     public function version(Request $request): ?string
     {
         return parent::version($request);
     }
 
-    /**
-     * Define the props that are shared by default.
-     *
-     * @return array<string, mixed>
-     */
     public function share(Request $request): array
     {
+        $homeService = app(HomePageService::class);
+
         return [
             ...parent::share($request),
 
@@ -64,36 +52,8 @@ class HandleInertiaRequests extends Middleware
                     : 0,
             ],
 
-            'ticker' => \Cache::remember('global.ticker_posts', 300, function () {
-                $safeQuery = function($query) {
-                    return $query->where('status', 'published')
-                                 ->where(function($q) {
-                                     $q->where('ai_verdict', '!=', 'fake')->orWhereNull('ai_verdict');
-                                 });
-                };
-
-                $tickerSlots = HomeSlot::with([
-                    'post' => function($q) use ($safeQuery) {
-                        $q->tap($safeQuery)->select('id', 'title', 'slug', 'is_breaking');
-                    }
-                ])->where('section', 'ticker')->get()->keyBy('slot_name');
-
-                $tickerPosts = collect();
-                $tickerFallbackPosts = Post::where('type', 'news')
-                    ->tap($safeQuery)
-                    ->latest()
-                    ->select('id', 'title', 'slug', 'is_breaking')
-                    ->take(5)
-                    ->get();
-
-                for ($i = 1; $i <= 5; $i++) {
-                    $post = $tickerSlots->get((string)$i)?->post ?? $tickerFallbackPosts->shift();
-                    if ($post) {
-                        $tickerPosts->push($post);
-                    }
-                }
-
-                return $tickerPosts;
+            'ticker' => \Cache::remember('global.ticker_posts', 300, function () use ($homeService) {
+                return $homeService->getTickerWithSlots()->values();
             }),
 
             'flash' => [

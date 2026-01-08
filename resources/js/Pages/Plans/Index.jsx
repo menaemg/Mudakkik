@@ -254,8 +254,8 @@ export default function PlansIndex({ auth, plans, currentSubscription, upgradeRe
                         })}
                     </div>
 
-                    {/* Journalist Section - Only show for normal users */}
-                    {!isJournalist && !isAdmin && (
+                    {/* Journalist Section - Only show for authenticated normal users */}
+                    {!isGuest && !isJournalist && !isAdmin && (
                         <div className="mt-24 text-center bg-white rounded-[2.5rem] p-12 border border-gray-100 shadow-xl relative overflow-hidden" data-aos="zoom-in">
                             <div className="absolute top-0 right-0 w-64 h-64 bg-blue-50 rounded-full blur-3xl -z-10 opacity-50"></div>
 

@@ -126,10 +126,14 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->likes();
     }
 
-    public function adRequests()
+    public function advertisements()
     {
-        return $this->hasMany(AdRequest::class);
+        return $this->hasMany(Advertisment::class, 'user_id');
     }
+    public function refundAdCredit(int $days): void
+      {
+          $this->increment('ad_credits', $days);
+      }
 
     public function upgradeRequests()
     {
@@ -270,7 +274,6 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return \DB::transaction(function () use ($amount) {
             $user = static::lockForUpdate()->find($this->id);
-            
             if (!$user) {
                 return false;
             }
@@ -290,7 +293,6 @@ class User extends Authenticatable implements MustVerifyEmail
 
                 $user->update(['ai_recurring_credits' => 0]);
                 $user->decrement('ai_bonus_credits', $neededFromBonus);
-                
                 $this->refresh();
                 return 'mixed';
             }
@@ -315,7 +317,6 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return \DB::transaction(function () use ($days) {
             $user = static::lockForUpdate()->find($this->id);
-            
             if (!$user) {
                 return false;
             }
@@ -326,7 +327,6 @@ class User extends Authenticatable implements MustVerifyEmail
                 $this->refresh();
                 return true;
             }
-            
             return false;
         });
     }

@@ -7,6 +7,9 @@ use App\Http\Controllers\Admin\Home\FeaturedController;
 use App\Http\Controllers\Admin\Home\HeroController;
 use App\Http\Controllers\Admin\Home\TickerController;
 use App\Http\Controllers\Admin\Home\TopicsSectionController;
+use App\Http\Controllers\Admin\Home\BannerController;
+use App\Http\Controllers\Admin\Home\BusinessController;
+use App\Http\Controllers\Admin\Home\EntertainmentController;
 use App\Http\Controllers\Admin\Home\TopStoriesController;
 use App\Http\Controllers\Admin\JoinRequestController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
@@ -82,8 +85,8 @@ Route::middleware(['auth', 'verified', 'can:admin-access'])
             Route::delete('/join/{upgradeRequest}', [JoinRequestController::class, 'destroy'])->name('requests.join.destroy');
 
             Route::get('/ads', [AdsRequestController::class, 'index'])->name('requests.ads');
-            Route::patch('/ads/{adRequest}', [AdsRequestController::class, 'update'])->name('requests.ads.update');
-            Route::delete('/ads/{adRequest}', [AdsRequestController::class, 'destroy'])->name('requests.ads.destroy');
+            Route::patch('/ads/{advertisment}', [AdsRequestController::class, 'update'])->name('requests.ads.update');
+            Route::delete('/ads/{advertisment}', [AdsRequestController::class, 'destroy'])->name('requests.ads.destroy');
         });
 
         Route::prefix('home')->name('home.')->group(function () {
@@ -107,10 +110,25 @@ Route::middleware(['auth', 'verified', 'can:admin-access'])
                 Route::post('/top-stories/update', 'update')->name('top-stories.update');
             });
 
-            Route::controller(TopicsSectionController::class)->group(function () {
-                Route::get('/top-topics', [TopicsSectionController::class, 'index'])->name('topics.index');
-                Route::post('/top-topics/update', [TopicsSectionController::class, 'update'])->name('topics.update');
-            });
+              Route::controller(TopicsSectionController::class)->group(function () {
+                  Route::get('/top-topics', [TopicsSectionController::class, 'index'])->name('topics.index');
+                  Route::post('/top-topics/update', [TopicsSectionController::class, 'update'])->name('topics.update');
+              });
+
+              Route::controller(BannerController::class)->group(function () {
+                        Route::get('/banner', 'index')->name('banner.index');
+                        Route::post('/banner/update', 'update')->name('banner.update');
+                    });
+
+              Route::controller(EntertainmentController::class)->group(function () {
+                  Route::get('/entertainment', 'index')->name('entertainment.index');
+                  Route::post('/entertainment/update', 'update')->name('entertainment.update');
+              });
+
+              Route::controller(BusinessController::class)->group(function () {
+                  Route::get('/business', 'index')->name('business.index');
+                  Route::post('/business/update', 'update')->name('business.update');
+              });
         });
 
         /* Reports */
@@ -150,7 +168,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::post('/posts/{post}/like', [LikeController::class, 'toggle'])->name('posts.like');
 
+    Route::put('/ads/{advertisment}', [App\Http\Controllers\UserAdController::class, 'update'])->name('ads.update');
+    Route::delete('/ads/{advertisment}', [App\Http\Controllers\UserAdController::class, 'destroy'])->name('ads.destroy');
+});
+
     // Notifications
+
+Route::middleware(['auth'])->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead'])->name('notifications.read');
     Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy'])->name('notifications.destroy');

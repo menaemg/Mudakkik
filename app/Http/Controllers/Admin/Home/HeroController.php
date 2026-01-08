@@ -7,82 +7,31 @@ use App\Models\HomeSlot;
 use App\Models\Post;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Illuminate\Validation\Rule;
+use App\Services\HomePageService;
 
 class HeroController extends Controller
 {
-    public function index()
+    public function index(HomePageService $homeService)
     {
-        $settings = HomeSlot::section('hero')
-            ->with(['post' => function ($q) {
-                $q->where('status', 'published')
-                  ->where(function($qq) { $qq->where('ai_verdict', '!=', 'fake')->orWhereNull('ai_verdict'); });
-            }])
-            ->get()
-            ->keyBy('slot_name');
-
-        $excludeIds = [];
-        $manualMain = $settings->get('main');
-        $mainPost = $manualMain?->post;
-
-        if (!$mainPost) {
-            $mainPost = Post::where('status', 'published')
-                ->whereIn('type', ['article', 'news'])
-                ->where(function($q) { $q->where('ai_verdict', '!=', 'fake')->orWhereNull('ai_verdict'); })
-                ->with(['user', 'category'])
-                ->latest()
-                ->first();
-        }
-        if ($mainPost) $excludeIds[] = $mainPost->id;
-        $sideNews = Post::where('status', 'published')
-            ->where('type', 'news')
-            ->where(function($q) { $q->where('ai_verdict', '!=', 'fake')->orWhereNull('ai_verdict'); })
-            ->whereNotIn('id', $excludeIds)
-            ->latest()
-            ->take(4)
-            ->get();
-
-        $excludeIds = array_merge($excludeIds, $sideNews->pluck('id')->toArray());
-
-        $strips = [];
-        foreach(['strip_1', 'strip_2'] as $slotName) {
-            $manualStrip = $settings->get($slotName);
-            $post = $manualStrip?->post;
-
-            if (!$post) {
-                $post = Post::where('status', 'published')
-                    ->where('type', 'article')
-                    ->where(function($q) { $q->where('ai_verdict', '!=', 'fake')->orWhereNull('ai_verdict'); })
-                    ->whereNotIn('id', $excludeIds)
-                    ->inRandomOrder()
-                    ->with('user')
-                    ->first();
-            }
-
-            if ($post) $excludeIds[] = $post->id;
-
-            $strips[$slotName] = [
-                'post' => $post,
-                'post_id' => $manualStrip?->post_id
-            ];
-        }
-
-        $trending = Post::where('status', 'published')
-            ->whereNotIn('id', $excludeIds)
-            ->orderByDesc('views')
-            ->take(5)
-            ->get();
+        $data = $homeService->getHeroWithSlots();
+        $trending = Post::publishedTrusted()->orderByDesc('views')->take(5)->get();
 
         return Inertia::render('Admin/Home/Hero', [
             'heroSettings' => [
                 'main' => [
-                    'post' => $mainPost,
-                    'post_id' => $manualMain?->post_id
+                    'post' => $data['main'],
+                    'post_id' => ($data['main'] && !$data['main']->is_auto_filled) ? $data['main']->id : null
                 ],
-                'strip_1' => $strips['strip_1'],
-                'strip_2' => $strips['strip_2'],
+                'strip_1' => [
+                    'post' => $data['strip'][0] ?? null,
+                    'post_id' => (isset($data['strip'][0]) && !$data['strip'][0]->is_auto_filled) ? $data['strip'][0]->id : null
+                ],
+                'strip_2' => [
+                    'post' => $data['strip'][1] ?? null,
+                    'post_id' => (isset($data['strip'][1]) && !$data['strip'][1]->is_auto_filled) ? $data['strip'][1]->id : null
+                ],
             ],
-            'autoSideNews'  => $sideNews,
+            'autoSideNews'  => $data['side'],
             'trendingStats' => $trending,
         ]);
     }
@@ -91,23 +40,14 @@ class HeroController extends Controller
     {
         $request->validate([
             'slot_name' => 'required|string',
-            'post_id'   => [
-                'nullable',
-                Rule::exists('posts', 'id')->where(function ($query) {
-                    $query->where('status', 'published')
-                          ->where(function($q) {
-                              $q->where('ai_verdict', '!=', 'fake')
-                                ->orWhereNull('ai_verdict');
-                          });
-                }),
-            ]
+            'post_id'   => 'nullable|exists:posts,id'
         ]);
 
         HomeSlot::updateOrCreate(
             ['section' => 'hero', 'slot_name' => $request->slot_name],
-            ['post_id' => $request->post_id]
+            ['post_id' => $request->post_id, 'type' => 'post']
         );
 
-        return back()->with('success', 'تم التحديث');
+        return back()->with('success', 'تم تحديث القسم بنجاح');
     }
 }
