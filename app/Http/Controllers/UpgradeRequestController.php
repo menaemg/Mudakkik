@@ -38,8 +38,9 @@ class UpgradeRequestController extends Controller
                     'documents' => $path,
                     'status' => 'pending',
                 ]);
-                $admin = User::where('role', 'admin')->first();
-                if ($admin) {
+
+                $admins = User::where('role', 'admin')->get();
+                foreach ($admins as $admin) {
                     $admin->notify(new \App\Notifications\AdminActivityNotification([
                         'title' => 'طلب انضمام جديد',
                         'message' => 'قدم ' . auth()->user()->name . ' طلباً للترقية إلى صحفي.',

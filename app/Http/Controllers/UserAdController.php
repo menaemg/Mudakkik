@@ -100,6 +100,7 @@ class UserAdController extends Controller
                     'title' => 'طلب إعلان جديد',
                     'message' => 'لديك طلب إعلان جديد من ' . auth()->user()->name,
                     'link' => route('admin.requests.ads'), 
+                    'type' => 'ad_request',
                 ])); 
             }
 
