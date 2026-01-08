@@ -82,15 +82,18 @@ export default function Ticker({ tickerSlots }) {
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
 
                             <div className="flex items-center gap-4 min-w-[150px]">
-                                <span className="bg-slate-200 text-slate-600 w-8 h-8 flex items-center justify-center rounded-full font-black">
+                                <span className="bg-slate-200 text-slate-600 w-8 h-8 flex
+                                items-center justify-center rounded-full font-black">
                                     {index + 1}
                                 </span>
                                 {slot.type === 'manual' ? (
-                                    <span className="text-[10px] bg-amber-100 text-amber-700 px-2 py-1 rounded-lg font-bold border border-amber-200 flex items-center gap-1">
+                                    <span className="text-[10px] bg-amber-100 text-amber-700
+                                    px-2 py-1 rounded-lg font-bold border border-amber-200 flex items-center gap-1">
                                         <Check size={12}/> مثبت يدوياً
                                     </span>
                                 ) : (
-                                    <span className="text-[10px] bg-blue-100 text-blue-700 px-2 py-1 rounded-lg font-bold border border-blue-200 flex items-center gap-1">
+                                    <span className="text-[10px] bg-blue-100 text-blue-700 px-2 py-1
+                                    rounded-lg font-bold border border-blue-200 flex items-center gap-1">
                                         <Search size={12}/> تلقائي
                                     </span>
                                 )}
@@ -99,7 +102,9 @@ export default function Ticker({ tickerSlots }) {
                             <div className="flex-1">
                                 {slot.post ? (
                                     <div className="flex items-center gap-3">
-                                        <button onClick={() => setPreviewPost(slot.post)} className="font-bold text-[#001246] hover:text-blue-600 transition-colors text-sm line-clamp-1 text-right flex-1">
+                                        <button onClick={() => setPreviewPost(slot.post)} className="font-bold
+                                        text-[#001246] hover:text-blue-600 transition-colors
+                                        text-sm line-clamp-1 text-right flex-1">
                                             {slot.post.title}
                                         </button>
                                         <span className="text-[10px] text-slate-400 shrink-0">{new Date(slot.post.created_at).toLocaleDateString('ar-EG')}</span>
@@ -128,7 +133,8 @@ export default function Ticker({ tickerSlots }) {
                                 {slot.type === 'manual' && (
                                     <button
                                         onClick={() => handleReset(slot.slot)}
-                                        className="bg-red-50 text-red-600 hover:bg-red-100 p-2 rounded-lg transition-colors border border-red-200"
+                                        className="bg-red-50 text-red-600 hover:bg-red-100 p-2
+                                        rounded-lg transition-colors border border-red-200"
                                         title="إلغاء التثبيت"
                                     >
                                         <X size={18} />

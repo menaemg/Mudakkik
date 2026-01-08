@@ -338,7 +338,6 @@ $strips = [];
     $type = $slot?->type ?? 'post';
 
     if ($type === 'post') {
-      // Null check: if slot doesn't exist, return safe default
       if ($slot === null) {
         return ['type' => 'post', 'data' => null];
       }
@@ -396,7 +395,6 @@ $strips = [];
 public function getAds()
 {
     try {
-        // Return flat list of active ads - they rotate randomly across all slots
         return Advertisment::where('status', 'approved')
             ->where(function($q) {
                 $q->whereNull('start_date')->orWhere('start_date', '<=', now());

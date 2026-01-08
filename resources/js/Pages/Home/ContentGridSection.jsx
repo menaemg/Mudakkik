@@ -1,5 +1,10 @@
 import React, { useEffect } from 'react';
-import { FaFacebookF, FaInstagram, FaTwitter, FaBolt, FaClock } from 'react-icons/fa';
+import { FaFacebookF,
+   FaInstagram,
+   FaTwitter,
+   FaBolt,
+   FaClock
+  } from 'react-icons/fa';
 import { Badge } from "@/components/ui/badge";
 import AOS from 'aos';
 import 'aos/dist/aos.css';
@@ -16,7 +21,8 @@ const SectionLabel = ({ title, colorClass = "bg-black" }) => (
 const DontMissCard = ({ post, delay }) => (
     <Link
         href={route('posts.show', post.slug)}
-        className="flex gap-5 mb-6 group cursor-pointer border-b border-gray-50 last:border-0 pb-6 last:pb-0 hover:bg-gray-50/50 p-2 rounded-lg transition-colors"
+        className="flex gap-5 mb-6 group cursor-pointer border-b border-gray-50
+        last:border-0 pb-6 last:pb-0 hover:bg-gray-50/50 p-2 rounded-lg transition-colors"
         data-aos="fade-up"
         data-aos-delay={delay}
     >
@@ -29,10 +35,13 @@ const DontMissCard = ({ post, delay }) => (
         </div>
         <div className="flex flex-col justify-between py-1 text-right">
             <div>
-                <Badge className="w-fit bg-blue-600 hover:bg-blue-700 text-white border-0 mb-2 px-2 py-0.5 text-[10px] rounded-sm shadow-sm">
+                <Badge className="w-fit bg-blue-600 hover:bg-blue-700
+                text-white border-0 mb-2 px-2 py-0.5 text-[10px] rounded-sm shadow-sm">
                     {post.category?.name}
                 </Badge>
-                <h3 className="font-bold text-[15px] leading-snug text-gray-900 group-hover:text-brand-blue transition-colors line-clamp-2">
+                <h3 className="font-bold text-[15px] leading-snug
+                text-gray-900 group-hover:text-brand-blue
+                transition-colors line-clamp-2">
                     {post.title}
                 </h3>
             </div>
@@ -48,7 +57,9 @@ const DontMissCard = ({ post, delay }) => (
 const BreakingNewsCard = ({ post }) => {
     if (!post) return null;
     return (
-        <Link href={route('posts.show', post.slug)} className="relative group cursor-pointer h-full min-h-[450px] rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 block" data-aos="zoom-in">
+        <Link href={route('posts.show', post.slug)} className="relative group cursor-pointer h-full min-h-[450px]
+        rounded-xl overflow-hidden shadow-lg
+        hover:shadow-2xl transition-all duration-300 block" data-aos="zoom-in">
             <img
                 src={post.image_url}
                 alt={post.title}
@@ -62,7 +73,8 @@ const BreakingNewsCard = ({ post }) => {
                         تحديث مباشر
                     </span>
                     <span className="relative flex h-3 w-3">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full
+                      bg-red-400 opacity-75"></span>
                       <span className="relative inline-flex rounded-full h-3 w-3 bg-red-600"></span>
                     </span>
                 </div>
@@ -80,7 +92,11 @@ const BreakingNewsCard = ({ post }) => {
 };
 
 const JustForYouItem = ({ post }) => (
-    <Link href={route('posts.show', post.slug)} className="flex gap-4 mb-4 group cursor-pointer border-b border-gray-50 pb-3 last:border-0 last:pb-0 hover:bg-gray-50/50 p-2 rounded-lg transition-colors text-right justify-end">
+    <Link href={route('posts.show', post.slug)} className="flex gap-4 mb-4 group cursor-pointer border-b
+    border-gray-50 pb-3 last:border-0 last:pb-0 hover:bg-gray-50/50 p-2
+    rounded-lg
+    transition-colors
+    text-right justify-end">
         <div className="flex flex-col justify-center">
             <span className="text-[10px] font-bold text-brand-red mb-1 uppercase tracking-wide">{post.category?.name}</span>
             <h4 className="font-bold text-sm leading-snug text-gray-800 group-hover:text-brand-blue transition-colors line-clamp-2">
@@ -122,8 +138,10 @@ export default function ContentGridSection({ dontMissPosts = [], breakingPost = 
                     <div className="bg-white p-6 shadow-sm border border-gray-100 rounded-xl mb-8">
                         <h3 className="font-bold text-sm text-gray-900 mb-5 text-center border-b border-gray-50 pb-3">تواصل معنا</h3>
                         <div className="flex justify-around">
-                            <div className="flex flex-col items-center gap-2 group cursor-pointer">
-                                <div className="w-12 h-12 rounded-full bg-[#1877F2] text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                            <div className="flex flex-col items-center gap-2
+                            group cursor-pointer">
+                                <div className="w-12 h-12 rounded-full bg-[#1877F2] text-white flex
+                                items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                                     <FaFacebookF size={20} />
                                 </div>
                             </div>
@@ -133,19 +151,23 @@ export default function ContentGridSection({ dontMissPosts = [], breakingPost = 
                                 </div>
                             </div>
                             <div className="flex flex-col items-center gap-2 group cursor-pointer">
-                                <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-500 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <div className="w-12 h-12 rounded-full bg-gradient-to-tr
+                                from-yellow-400 via-red-500 to-purple-500 text-white flex
+                                items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                                     <FaInstagram size={20} />
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div className="bg-brand-red text-white px-4 py-2 font-bold text-sm mb-5 shadow-md rounded-sm flex items-center justify-between">
+                    <div className="bg-brand-red text-white px-4 py-2
+                    font-bold text-sm mb-5 shadow-md rounded-sm flex items-center justify-between">
                         <FaBolt className="text-yellow-400" />
                         <span>خصيصاً لك</span>
                     </div>
 
-                    <div className="flex flex-col bg-white p-4 border border-gray-100 rounded-xl shadow-sm">
+                    <div className="flex flex-col bg-white p-4
+                    border border-gray-100 rounded-xl shadow-sm">
                         {forYouPosts.length > 0 ? forYouPosts.map((post) => (
                             <JustForYouItem key={post.id} post={post} />
                         )) : <p className="text-center text-gray-400 py-5">لا توجد اقتراحات</p>}

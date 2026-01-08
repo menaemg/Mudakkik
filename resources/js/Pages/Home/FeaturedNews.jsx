@@ -19,7 +19,8 @@ const formatDate = (dateString) => {
 };
 
 const MainCardSkeleton = () => (
-    <div className="h-[450px] md:h-[520px] w-full rounded-lg bg-gray-200 animate-pulse relative overflow-hidden mb-10">
+    <div className="h-[450px] md:h-[520px] w-full rounded-lg
+    bg-gray-200 animate-pulse relative overflow-hidden mb-10">
         <div className="absolute bottom-0 right-0 p-10 w-full space-y-4">
             <div className="h-8 bg-gray-300 rounded w-3/4"></div>
             <div className="h-8 bg-gray-300 rounded w-1/2"></div>

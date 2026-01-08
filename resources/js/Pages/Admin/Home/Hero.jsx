@@ -4,12 +4,27 @@ import { Head, router, usePage, Link } from "@inertiajs/react";
 import AsyncSelect from "react-select/async";
 import axios from "axios";
 import {
-    Layout, RefreshCw, ImageIcon, Monitor, Megaphone, Eye, X, Check, Search, AlertTriangle, ExternalLink
+    Layout,
+    RefreshCw,
+    ImageIcon,
+    Monitor,
+    Megaphone,
+    Eye, X,
+    Check,
+    Search,
+    AlertTriangle,
+    ExternalLink
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import PostView from "@/Pages/Admin/Components/Posts/Partials/PostView";
 
-const SelectionInput = ({ slotName, placeholder, loadOptions, handleUpdateSlot, formatOptionLabel }) => (
+const SelectionInput = ({
+  slotName,
+   placeholder,
+   loadOptions,
+   handleUpdateSlot,
+   formatOptionLabel
+  }) => (
     <div className="mt-4 relative group">
         <div className="absolute right-3 top-3 text-slate-400 z-10 pointer-events-none">
             <Search size={16} />
@@ -21,7 +36,10 @@ const SelectionInput = ({ slotName, placeholder, loadOptions, handleUpdateSlot, 
             onChange={(opt) => handleUpdateSlot(slotName, opt)}
             styles={{
                 control: (base) => ({
-                    ...base, borderRadius: "1rem", paddingRight: "2rem", borderColor: "#e2e8f0", backgroundColor: "#f8fafc", boxShadow: "none"
+                    ...base, borderRadius: "1rem",
+                    paddingRight: "2rem",
+                    borderColor: "#e2e8f0",
+                    backgroundColor: "#f8fafc", boxShadow: "none"
                 }),
                 menu: (base) => ({ ...base, borderRadius: "1rem", zIndex: 100 }),
             }}
@@ -138,7 +156,9 @@ export default function Hero({ heroSettings, autoSideNews = [] }) {
                                 { key: 'ad_2', label: 'إعلان 2', isAd: true, adData: stripAds[1] },
                             ].map((slot, idx) => (
                                 <div key={idx} className="flex flex-col gap-3">
-                                    <div className={`h-40 rounded-3xl relative overflow-hidden border-2 ${slot.isAd ? 'bg-purple-50 border-dashed border-purple-200' : 'bg-slate-100 border-white shadow-md'}`}>
+                                    <div className={`h-40 rounded-3xl relative overflow-hidden border-2
+                                      ${slot.isAd ? 'bg-purple-50 border-dashed border-purple-200' :
+                                      'bg-slate-100 border-white shadow-md'}`}>
                                         {slot.isAd ? (
                                             slot.adData ? (
                                                 <>
@@ -161,16 +181,22 @@ export default function Hero({ heroSettings, autoSideNews = [] }) {
                                             slot.data.post ? (
                                                 <>
                                                     <img src={getImageUrl(slot.data.post.image)} className="w-full h-full object-cover" />
-                                                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                                                        <button onClick={() => setPreviewPost(slot.data.post)} className="bg-white/20 p-2 rounded-full backdrop-blur text-white"><Eye/></button>
+                                                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0
+                                                    hover:opacity-100 transition-opacity">
+                                                        <button onClick={() => setPreviewPost(slot.data.post)} className="bg-white/20 p-2
+                                                        rounded-full backdrop-blur text-white"><Eye/></button>
                                                     </div>
-                                                    {slot.data.post_id && <button onClick={() => handleResetSlot(slot.key)} className="absolute top-2 left-2 bg-red-500 text-white p-1 rounded-lg"><X size={14}/></button>}
+                                                    {slot.data.post_id && <button onClick={() => handleResetSlot(slot.key)} className="absolute top-2 left-2 bg-red-500
+                                                    text-white p-1 rounded-lg"><X size={14}/></button>}
                                                 </>
                                             ) : <div className="h-full flex items-center justify-center text-[10px] text-slate-400 font-black uppercase">تعبئة تلقائية</div>
                                         )}
                                         <span className={`absolute top-0 right-0 text-white text-[9px] px-2 py-1 rounded-bl-xl font-black ${slot.isAd ? 'bg-purple-600' : 'bg-slate-900'}`}>{slot.label}</span>
                                     </div>
-                                    {!slot.isAd && <SelectionInput slotName={slot.key} placeholder="تثبيت مقال..." loadOptions={loadOptions} handleUpdateSlot={handleUpdateSlot} formatOptionLabel={formatOptionLabel} />}
+                                    {!slot.isAd && <SelectionInput slotName={slot.key} placeholder="تثبيت مقال..."
+                                    loadOptions={loadOptions}
+                                    handleUpdateSlot={handleUpdateSlot}
+                                    formatOptionLabel={formatOptionLabel} />}
                                 </div>
                             ))}
                         </div>
@@ -181,11 +207,14 @@ export default function Hero({ heroSettings, autoSideNews = [] }) {
             <AnimatePresence>
                 {previewPost && (
                     <>
-                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[90]" onClick={() => setPreviewPost(null)} />
-                        <motion.div initial={{ x: "-100%" }} animate={{ x: 0 }} exit={{ x: "-100%" }} className="fixed top-0 left-0 h-full w-full md:w-[600px] bg-white z-[100] shadow-2xl p-6 overflow-y-auto border-r">
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0
+                        bg-black/60 backdrop-blur-sm z-[90]" onClick={() => setPreviewPost(null)} />
+                        <motion.div initial={{ x: "-100%" }} animate={{ x: 0 }} exit={{ x: "-100%" }} className="fixed top-0 left-0 h-full w-full
+                        md:w-[600px] bg-white z-[100] shadow-2xl p-6 overflow-y-auto border-r">
                             <div className="flex justify-between items-center mb-6">
                                 <h3 className="font-black text-xl">معاينة المحتوى</h3>
-                                <button onClick={() => setPreviewPost(null)} className="p-2 bg-slate-100 rounded-full hover:bg-red-50 hover:text-red-500 transition-colors"><X/></button>
+                                <button onClick={() => setPreviewPost(null)} className="p-2 bg-slate-100 rounded-full
+                                hover:bg-red-50 hover:text-red-500 transition-colors"><X/></button>
                             </div>
                             <PostView post={previewPost} isPreview={true} />
                         </motion.div>

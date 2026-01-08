@@ -24,12 +24,14 @@ const SkeletonCard = () => {
 const LatestNewsCard = ({ category, date, title, image, delay, slug }) => (
     <Link
         href={route('posts.show', slug || '#')}
-        className="flex gap-3 items-center p-2 hover:bg-slate-50 rounded-xl transition-all group border border-transparent hover:border-slate-100 flex-1 min-h-0"
+        className="flex gap-3 items-center p-2 hover:bg-slate-50 rounded-xl
+        transition-all group border border-transparent hover:border-slate-100 flex-1 min-h-0"
         data-aos="fade-up"
         data-aos-delay={delay}
     >
         <div className="w-20 h-20 shrink-0 overflow-hidden rounded-lg relative shadow-sm border border-slate-100">
-            <img src={getImagePath(image)} alt={title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" onError={handleImageError} />
+            <img src={getImagePath(image)} alt={title} className="w-full h-full object-cover
+            transition-transform duration-500 group-hover:scale-110" onError={handleImageError} />
         </div>
         <div className="flex flex-col justify-center flex-1 min-w-0 py-1">
             <div className="flex items-center gap-2 text-[10px] text-gray-400 mb-1">
@@ -50,13 +52,15 @@ const MainFeatureCard = ({ story }) => (
         className="relative h-[400px] lg:h-full w-full rounded-[2rem] overflow-hidden group block shadow-xl border border-slate-100"
         data-aos="zoom-in"
     >
-        <img src={getImagePath(story?.image)} alt={story?.title} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" onError={handleImageError} />
+        <img src={getImagePath(story?.image)} alt={story?.title} className="w-full h-full object-cover transition-transform
+        duration-1000 group-hover:scale-105" onError={handleImageError} />
         <div className="absolute inset-0 bg-gradient-to-t from-[#001246] via-transparent to-transparent opacity-90"></div>
         <div className="absolute bottom-0 right-0 p-6 lg:p-8 w-full text-white z-10">
             <Badge className="bg-[#D00000] hover:bg-red-700 text-white border-0 mb-3 px-3 py-1 rounded-lg shadow-sm font-bold">
                 {story?.category?.name || 'عام'}
             </Badge>
-            <h1 className="text-2xl md:text-3xl lg:text-4xl font-black mb-3 leading-tight drop-shadow-md group-hover:text-slate-200 transition-colors line-clamp-3">
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-black mb-3 leading-tight
+            drop-shadow-md group-hover:text-slate-200 transition-colors line-clamp-3">
                 {story?.title}
             </h1>
             <div className="flex items-center gap-3 text-sm text-slate-300 mt-4 border-t border-white/10 pt-4">
@@ -77,7 +81,8 @@ const MainFeatureCard = ({ story }) => (
 const TrendingCard = ({ category, title, image, index, delay, slug, views }) => (
     <Link
         href={route('posts.show', slug || '#')}
-        className="flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-all group border border-transparent hover:border-slate-100 flex-1 min-h-0"
+        className="flex items-center justify-between p-3 rounded-xl hover:bg-slate-50
+        transition-all group border border-transparent hover:border-slate-100 flex-1 min-h-0"
         data-aos="fade-left"
         data-aos-delay={delay}
     >
@@ -98,14 +103,20 @@ const TrendingCard = ({ category, title, image, index, delay, slug, views }) => 
 );
 
 const BottomStripItem = ({ title, date, image, slug, delay }) => (
-    <Link href={route('posts.show', slug || '#')} className="flex items-center gap-3 p-3 h-28 bg-white rounded-2xl border border-slate-100 hover:border-brand-blue/20 hover:shadow-md transition-all cursor-pointer group" data-aos="fade-up" data-aos-delay={delay}>
+    <Link href={route('posts.show', slug || '#')} className="flex items-center gap-3 p-3 h-28 bg-white
+    rounded-2xl border
+    border-slate-100 hover:border-brand-blue/20 hover:shadow-md
+    transition-all cursor-pointer group" data-aos="fade-up" data-aos-delay={delay}>
         <div className="w-24 h-full shrink-0 overflow-hidden rounded-xl border border-slate-100 relative">
             <img src={getImagePath(image)} alt={title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" onError={handleImageError} />
         </div>
         <div className="flex-1 flex flex-col justify-center min-w-0">
-            <h3 className="font-bold text-sm text-[#001246] leading-snug mb-2 group-hover:text-brand-blue transition-colors line-clamp-2">{title}</h3>
-            <div className="text-[10px] text-gray-400 font-bold uppercase flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-brand-red group-hover:scale-150 transition-transform"></span>
+            <h3 className="font-bold text-sm text-[#001246] leading-snug
+            mb-2 group-hover:text-brand-blue transition-colors line-clamp-2">{title}</h3>
+            <div className="text-[10px] text-gray-400 font-bold
+            uppercase flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-brand-red
+                group-hover:scale-150 transition-transform"></span>
                 {date}
             </div>
         </div>
@@ -133,7 +144,9 @@ export default function HeroSection({ hero, ads }) {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-12 items-stretch lg:h-[550px]">
                 <div className="lg:col-span-3 order-2 lg:order-1 flex flex-col h-full">
-                    <div className="bg-black text-white px-4 py-2 font-bold text-lg w-fit relative shadow-md mb-4 after:content-[''] after:absolute after:left-0 after:bottom-[-4px] after:w-full after:h-[4px] after:bg-brand-red">
+                    <div className="bg-black text-white px-4 py-2 font-bold text-lg w-fit relative
+                    shadow-md mb-4 after:content-['']
+                    after:absolute after:left-0 after:bottom-[-4px] after:w-full after:h-[4px] after:bg-brand-red">
                         آخر الأخبار
                     </div>
                     <div className="flex flex-col gap-2 flex-1 min-h-0">

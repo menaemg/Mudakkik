@@ -1,8 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, {
+  useEffect,
+  useState
+} from 'react';
 import { Button } from "@/components/ui/button";
 import AOS from 'aos';
 import 'aos/dist/aos.css';
-import { FaBolt, FaStar, FaExternalLinkAlt } from 'react-icons/fa';
+import { FaBolt,
+  FaStar,
+  FaExternalLinkAlt
+} from 'react-icons/fa';
 import { getImagePath } from '@/utils/imagePaths';
 import AdRotator from '@/Components/AdRotator';
 import { motion } from 'framer-motion';
@@ -53,7 +59,9 @@ export default function BannerSection({ data, type = 'news', post, ad }) {
                             transition={{ duration: 0.6 }}
                             className="inline-block"
                         >
-                            <span className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500/10 to-red-500/10 text-amber-700 px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-wider border border-amber-200/50">
+                            <span className="inline-flex items-center gap-2
+                            bg-gradient-to-r from-amber-500/10
+                            to-red-500/10 text-amber-700 px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-wider border border-amber-200/50">
                                 <motion.div animate={{ rotate: 360 }} transition={{ duration: 3, repeat: Infinity }}>
                                     <FaStar size={12} />
                                 </motion.div>
@@ -78,11 +86,29 @@ export default function BannerSection({ data, type = 'news', post, ad }) {
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8 }}
-                            className="relative bg-white/80 backdrop-blur-2xl rounded-3xl overflow-hidden shadow-2xl border border-white/60 hover:border-white/80 transition-all duration-500 group"
+                            className="relative bg-white/80
+                            backdrop-blur-2xl
+                            rounded-3xl
+                            overflow-hidden
+                            shadow-2xl border
+                            border-white/60
+                            hover:border-white/80
+                            transition-all
+                            duration-500 group"
                         >
-                            <div className="absolute inset-0 bg-gradient-to-r from-amber-500/0 via-transparent to-red-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+                            <div className="absolute inset-0 bg-gradient-to-r
+                            from-amber-500/0
+                            via-transparent
+                            to-red-500/0
+                            opacity-0
+                            group-hover:opacity-100
+                            transition-opacity duration-500 pointer-events-none"></div>
 
-                            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gradient-to-r from-amber-500 via-red-500 to-amber-500 to-transparent opacity-60"></div>
+                            <div className="absolute
+                            top-0 left-0
+                            right-0 h-1 bg-gradient-to-r
+                            from-transparent via-gradient-to-r
+                            from-amber-500 via-red-500 to-amber-500 to-transparent opacity-60"></div>
 
                             <div className="relative">
                                 <AdRotator
@@ -132,7 +158,9 @@ export default function BannerSection({ data, type = 'news', post, ad }) {
                     </div>
                 )}
 
-                <div className="absolute inset-0 flex flex-col justify-center px-8 md:px-16 w-full md:w-2/3 lg:w-1/2 z-10">
+                <div className="absolute inset-0
+                flex flex-col
+                justify-center px-8 md:px-16 w-full md:w-2/3 lg:w-1/2 z-10">
                     <div className="flex items-center gap-2 mb-4">
                         <span className={`text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider flex items-center gap-1
                             ${isAd ? 'bg-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.4)]' : 'bg-brand-red animate-pulse'}
@@ -142,18 +170,22 @@ export default function BannerSection({ data, type = 'news', post, ad }) {
                         </span>
                     </div>
 
-                    <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-white leading-tight mb-6 drop-shadow-xl group-hover:text-gray-100 transition-colors">
+                    <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-white
+                    leading-tight mb-6 drop-shadow-xl group-hover:text-gray-100 transition-colors">
                         {content.title}
                     </h2>
 
-                    <p className="text-gray-200 text-sm md:text-base mb-8 line-clamp-2 leading-relaxed opacity-90 max-w-lg">
+                    <p className="text-gray-200 text-sm md:text-base mb-8 line-clamp-2
+                    leading-relaxed opacity-90 max-w-lg">
                         {content.description}
                     </p>
 
                     <div className="flex gap-4">
                         <a href={content.link} target={isAd ? "_blank" : "_self"} rel={isAd ? "noopener noreferrer" : undefined}>
-                            <Button className={`rounded-full px-8 py-6 text-base font-bold shadow-lg hover:-translate-y-1 transition-all
-                                ${isAd ? 'bg-amber-500 hover:bg-amber-600 text-black shadow-amber-900/20' : 'bg-brand-red hover:bg-red-700 text-white shadow-red-900/50'}
+                            <Button className={`rounded-full px-8 py-6 text-base
+                            font-bold shadow-lg hover:-translate-y-1 transition-all
+                                ${isAd ? 'bg-amber-500 hover:bg-amber-600 text-black shadow-amber-900/20' :
+                                  'bg-brand-red hover:bg-red-700 text-white shadow-red-900/50'}
                             `}>
                                 {isAd ? (
                                     <span className="flex items-center gap-2">زيارة الموقع <FaExternalLinkAlt size={12} /></span>

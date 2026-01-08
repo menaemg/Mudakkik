@@ -22,7 +22,10 @@ const getImagePath = (path) => {
 };
 
 const TopicCard = ({ topic }) => (
-    <Link href={route('posts.index', { category: topic.slug })} className="group cursor-pointer bg-white rounded-xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full overflow-hidden border border-gray-100 block">
+    <Link href={route('posts.index', { category: topic.slug })}
+    className="group cursor-pointer bg-white
+    rounded-xl shadow-sm hover:shadow-xl hover:-translate-y-1
+    transition-all duration-300 h-full overflow-hidden border border-gray-100 block">
         <div className="h-28 overflow-hidden relative">
             <img
                 src={getImagePath(topic.representative_image)}
@@ -46,7 +49,9 @@ const TopicCard = ({ topic }) => (
 const AlertCard = ({ post, delay }) => {
     if (!post) return null;
     return (
-        <Link href={route('posts.show', post.slug)} className="flex flex-col md:flex-row bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg border border-gray-100 hover:border-brand-red/30 transition-all duration-300 h-full group block text-right" data-aos="fade-up" data-aos-delay={delay}>
+        <Link href={route('posts.show', post.slug)} className="flex flex-col md:flex-row bg-white rounded-xl
+        overflow-hidden shadow-sm hover:shadow-lg border border-gray-100 hover:border-brand-red/30 transition-all
+        duration-300 h-full group block text-right" data-aos="fade-up" data-aos-delay={delay}>
             <div className="w-full md:w-48 h-48 md:h-auto shrink-0 relative overflow-hidden">
                 <img src={getImagePath(post.image)} alt={post.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                 <div className="absolute top-2 right-2 md:hidden">

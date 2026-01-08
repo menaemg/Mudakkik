@@ -58,14 +58,20 @@ export default function TopStories({ slots }) {
                         placeholder={isLarge ? "اختر خبراً رئيسياً..." : "اختر خبراً..."}
                         menuPortalTarget={document.body}
                         styles={{
-                            control: (base) => ({ ...base, borderRadius: "0.5rem", fontSize: '0.75rem', minHeight: '32px', border: 'none', boxShadow: 'none', backgroundColor: 'transparent' }),
+                            control: (base) => ({ ...base, borderRadius: "0.5rem", fontSize:
+                              '0.75rem', minHeight: '32px', border: 'none',
+                              boxShadow: 'none',
+                              backgroundColor: 'transparent' }),
                             menu: (base) => ({ ...base, zIndex: 999999, width: '280px' }),
                             menuPortal: base => ({ ...base, zIndex: 999999 }),
-                            option: (base, state) => ({ ...base, backgroundColor: state.isFocused ? "#f1f5f9" : "white", color: "#0f172a", fontSize: "0.8rem", cursor: "pointer" })
+                            option: (base, state) => ({ ...base,
+                              backgroundColor: state.isFocused ?
+                              "#f1f5f9" : "white", color: "#0f172a", fontSize: "0.8rem", cursor: "pointer" })
                         }}
                         formatOptionLabel={({ label, image }) => (
                             <div className="flex items-center gap-2">
-                                <img src={image} className="w-5 h-5 rounded-md object-cover border border-slate-100"/>
+                                <img src={image} className="w-5 h-5
+                                rounded-md object-cover border border-slate-100"/>
                                 <span className="text-xs font-bold truncate">{label}</span>
                             </div>
                         )}
@@ -153,7 +159,8 @@ export default function TopStories({ slots }) {
                     </>
                 ) : (
                     <div className="flex flex-col items-center justify-center h-full text-slate-400 gap-3 p-4 text-center">
-                        <div className="w-14 h-14 rounded-full bg-white shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <div className="w-14 h-14 rounded-full bg-white shadow-sm flex items-center justify-center
+                        group-hover:scale-110 transition-transform">
                             <Plus size={28} className="text-slate-300 group-hover:text-blue-500 transition-colors" />
                         </div>
                         <div>
@@ -206,7 +213,10 @@ export default function TopStories({ slots }) {
                                 <h3 className="font-black text-[#001246] text-lg flex items-center gap-2">
                                     <Eye size={18} className="text-blue-500"/> معاينة سريعة
                                 </h3>
-                                <button onClick={() => setPreviewPost(null)} className="w-8 h-8 flex items-center justify-center bg-slate-50 hover:bg-red-50 hover:text-red-500 rounded-full transition-colors">
+                                <button onClick={() => setPreviewPost(null)} className="w-8 h-8 flex
+                                items-center justify-center
+                                bg-slate-50 hover:bg-red-50
+                                hover:text-red-500 rounded-full transition-colors">
                                     <X size={18} />
                                 </button>
                             </div>
