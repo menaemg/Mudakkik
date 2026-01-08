@@ -49,8 +49,11 @@ export default function Business({ slots }) {
     };
 
     const EditControl = ({ slotName, hasPost }) => (
-        <div className="absolute top-2 left-2 z-50 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-y-2 group-hover:translate-y-0 w-[calc(100%-1rem)]">
-            <div className="bg-white/95 backdrop-blur-sm rounded-lg shadow-2xl p-1 border border-slate-200 flex gap-1 items-center flex-1">
+        <div className="absolute top-2 left-2 z-50 flex gap-2 opacity-0 group-hover:opacity-100 transition-all
+        duration-200 translate-y-2 group-hover:translate-y-0 w-[calc(100%-1rem)]">
+            <div className="bg-white/95 backdrop-blur-sm rounded-lg
+            shadow-2xl p-1 border border-slate-200
+            flex gap-1 items-center flex-1">
                 <div className="flex-1 min-w-0">
                     <AsyncSelect
                         loadOptions={loadOptions}
@@ -83,7 +86,9 @@ export default function Business({ slots }) {
                     </button>
                     <button
                         onClick={() => handleReset(slotName)}
-                        className="bg-red-50 hover:bg-red-100 text-red-600 p-2 rounded-lg border border-red-200 shadow-sm flex items-center justify-center h-[42px] w-[42px]"
+                        className="bg-red-50 hover:bg-red-100 text-red-600
+                        p-2 rounded-lg border border-red-200 shadow-sm
+                        flex items-center justify-center h-[42px] w-[42px]"
                         title="إزالة التثبيت"
                     >
                         <Trash2 size={18} />
@@ -97,7 +102,8 @@ export default function Business({ slots }) {
         const { post, slot_name } = slot;
 
         return (
-            <div className={`group relative bg-white rounded-xl overflow-hidden shadow-sm transition-all duration-300 border h-full flex flex-col
+            <div className={`group relative bg-white rounded-xl
+              overflow-hidden shadow-sm transition-all duration-300 border h-full flex flex-col
                 ${post ? 'hover:shadow-xl border-gray-100' : 'border-dashed border-slate-300 bg-slate-50'}`}>
 
                 <EditControl slotName={slot_name} hasPost={!!post} />

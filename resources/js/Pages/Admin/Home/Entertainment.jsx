@@ -53,8 +53,10 @@ export default function Entertainment({ slots, agendaAd }) {
     };
 
     const EditControl = ({ slotName, hasPost }) => (
-        <div className="absolute top-2 left-2 z-50 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-y-2 group-hover:translate-y-0 w-[calc(100%-1rem)]">
-            <div className="bg-white/95 backdrop-blur-sm rounded-lg shadow-2xl p-1 border border-slate-200 flex gap-1 items-center flex-1">
+        <div className="absolute top-2 left-2 z-50 flex gap-2 opacity-0 group-hover:opacity-100
+        transition-all duration-200 translate-y-2 group-hover:translate-y-0 w-[calc(100%-1rem)]">
+            <div className="bg-white/95 backdrop-blur-sm rounded-lg shadow-2xl p-1
+            border border-slate-200 flex gap-1 items-center flex-1">
                 <div className="flex-1 min-w-0">
                     <AsyncSelect
                         loadOptions={loadOptions}
@@ -105,7 +107,9 @@ export default function Entertainment({ slots, agendaAd }) {
     const RenderSlot = ({ name }) => {
         if (name === 'agenda') {
             return (
-                <div className="h-[200px] bg-gradient-to-br from-pink-600 to-rose-700 mb-6 flex flex-col items-center justify-center text-white text-center p-6 rounded-xl shadow-xl relative overflow-hidden group border border-pink-500/30">
+                <div className="h-[200px] bg-gradient-to-br from-pink-600 to-rose-700 mb-6 flex
+                flex-col items-center justify-center text-white text-center p-6 rounded-xl shadow-xl
+                relative overflow-hidden group border border-pink-500/30">
 
                     <div className="absolute top-2 left-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
                         <Badge className="bg-black/50 hover:bg-black/70 text-white text-[10px] gap-1 backdrop-blur-md border-0 px-2 py-1">
