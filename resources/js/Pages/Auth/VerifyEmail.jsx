@@ -1,7 +1,5 @@
 import React from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
-import Header from '@/Components/Header';
-import Footer from '@/Components/Footer';
 import { Mail, RefreshCw, LogOut, CheckCircle } from 'lucide-react';
 
 export default function VerifyEmail({ auth, status }) {
@@ -13,32 +11,54 @@ export default function VerifyEmail({ auth, status }) {
     };
 
     return (
-        <div className="min-h-screen bg-[#f8fafc] flex flex-col font-sans" dir="rtl">
+        <>
             <Head title="تأكيد البريد الإلكتروني" />
-            <Header auth={auth} />
 
-            <main className="flex-grow flex items-center justify-center py-20 px-4">
-                <div className="max-w-xl w-full">
+            <div className="min-h-screen flex items-center justify-center bg-[#000a2e] p-4 overflow-hidden" dir="rtl">
+                {/* Background Pattern */}
+                <div className="absolute inset-0 opacity-5">
+                    <div className="absolute inset-0" style={{
+                        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+                    }} />
+                </div>
 
-                    <div className="bg-white rounded-[2.5rem] shadow-xl border border-gray-100 p-8 md:p-12 text-center relative overflow-hidden">
-                        {/* Decorative Background */}
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50 rounded-full blur-3xl -z-10 opacity-60 translate-x-1/2 -translate-y-1/2"></div>
-                        <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-50 rounded-full blur-3xl -z-10 opacity-60 -translate-x-1/2 translate-y-1/2"></div>
+                {/* Decorative blurs */}
+                <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-brand-red/20 rounded-full blur-3xl" />
+                <div className="absolute -top-20 -left-20 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl" />
 
-                        <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-indigo-500 to-blue-600 shadow-lg shadow-blue-500/20 mb-8 rotate-3 transition-transform hover:rotate-6">
-                            <Mail className="w-10 h-10 text-white" />
+                <div className="w-full max-w-lg relative z-10">
+                    {/* Logo */}
+                    <div className="text-center mb-8">
+                        <Link href="/" className="inline-flex items-center gap-2">
+                            <div className="w-12 h-12 bg-gradient-to-br from-brand-red to-red-700 rounded-xl flex items-center justify-center shadow-lg border border-white/10">
+                                <span className="font-black text-2xl text-white pb-0.5">مـ</span>
+                            </div>
+                            <div className="flex flex-col items-start">
+                                <span className="text-2xl font-black text-white">
+                                    مدقق <span className="text-brand-red">.</span>
+                                </span>
+                                <span className="text-[10px] font-bold text-gray-400 tracking-[0.2em]">نيوز</span>
+                            </div>
+                        </Link>
+                    </div>
+
+                    {/* Card */}
+                    <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-10 border border-slate-100 text-center">
+                        {/* Icon */}
+                        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg mb-6">
+                            <Mail className="w-8 h-8 text-white" />
                         </div>
 
-                        <h1 className="text-3xl font-black text-[#020617] mb-3">
+                        <h1 className="text-2xl font-bold text-[#000a2e] mb-2">
                             تأكيد البريد الإلكتروني
                         </h1>
-                        <p className="text-lg text-gray-500 font-medium mb-8">
+                        <p className="text-slate-500 mb-6">
                             خطوة أخيرة لتفعيل حسابك بالكامل
                         </p>
 
                         {/* Success Message */}
                         {status === 'verification-link-sent' && (
-                            <div className="mb-8 p-4 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center gap-3 animate-in fade-in zoom-in duration-300">
+                            <div className="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center gap-3">
                                 <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center shrink-0">
                                     <CheckCircle className="w-5 h-5 text-emerald-600" />
                                 </div>
@@ -48,8 +68,8 @@ export default function VerifyEmail({ auth, status }) {
                             </div>
                         )}
 
-                        <div className="bg-gray-50 rounded-2xl p-6 mb-8 border border-gray-100">
-                            <p className="text-gray-700 leading-relaxed font-medium">
+                        <div className="bg-slate-50 rounded-xl p-5 mb-6 border border-slate-100">
+                            <p className="text-slate-600 leading-relaxed">
                                 شكراً لتسجيلك! قبل البدء، يرجى تأكيد بريدك الإلكتروني
                                 من خلال النقر على الرابط الذي أرسلناه إليك.
                             </p>
@@ -59,7 +79,7 @@ export default function VerifyEmail({ auth, status }) {
                             <button
                                 type="submit"
                                 disabled={processing}
-                                className="w-full py-4 bg-[#020617] hover:bg-black text-white font-bold rounded-2xl shadow-lg transition-all transform active:scale-95 disabled:opacity-70 disabled:cursor-wait flex items-center justify-center gap-2"
+                                className="w-full py-3 bg-[#000a2e] text-white font-bold rounded-xl hover:bg-[#001246] transition-all disabled:opacity-50 shadow-lg flex items-center justify-center gap-2"
                             >
                                 <RefreshCw className={`w-5 h-5 ${processing ? 'animate-spin' : ''}`} />
                                 {processing ? 'جاري الإرسال...' : 'إعادة إرسال رابط التحقق'}
@@ -69,20 +89,26 @@ export default function VerifyEmail({ auth, status }) {
                                 href={route('logout')}
                                 method="post"
                                 as="button"
-                                className="w-full py-4 text-gray-500 font-bold hover:text-[#b20e1e] transition-colors flex items-center justify-center gap-2"
+                                className="w-full py-3 text-slate-500 font-bold hover:text-brand-red transition-colors flex items-center justify-center gap-2 rounded-xl hover:bg-slate-50"
                             >
                                 <LogOut className="w-4 h-4" />
                                 تسجيل الخروج
                             </Link>
                         </form>
 
-                        <p className="mt-8 text-xs font-bold text-gray-400">
-                            لم يصلك البريد؟ تحقق من مجلد الرسائل غير المرغوب فيها (Spam).
+                        <p className="mt-6 text-xs font-medium text-slate-400">
+                            لم يصلك البريد؟ تحقق من مجلد الرسائل غير المرغوب فيها (Spam)
                         </p>
                     </div>
+
+                    {/* Back to Home */}
+                    <p className="mt-6 text-center">
+                        <Link href="/" className="text-sm text-gray-400 hover:text-white transition-colors">
+                            ← العودة للصفحة الرئيسية
+                        </Link>
+                    </p>
                 </div>
-            </main>
-            <Footer />
-        </div>
+            </div>
+        </>
     );
 }
