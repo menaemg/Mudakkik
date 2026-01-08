@@ -1,7 +1,9 @@
 import React from "react";
 import { EyeIcon, Edit2, Trash2, Calendar } from "lucide-react";
 
-export default function CategoryTable({ categories,onEdit ,onDelete,onView}) {
+export default function CategoryTable({ categories, onEditClick, onDeleteClick, onViewClick }) {
+    const categoriesData = categories?.data || [];
+
     return (
         <div className="overflow-x-auto">
             <table className="w-full text-right border-collapse min-w-[900px]">
@@ -14,7 +16,7 @@ export default function CategoryTable({ categories,onEdit ,onDelete,onView}) {
                             الرابط المختصر
                         </th>
                         <th className="px-10 py-7 font-black text-sm uppercase">
-                       تاريخ الإنشاء
+                            تاريخ الإنشاء
                         </th>
                         <th className="px-10 py-7 font-black text-sm text-center">
                             الإجراءات
@@ -22,7 +24,7 @@ export default function CategoryTable({ categories,onEdit ,onDelete,onView}) {
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
-                    {categories.map((category) => (
+                    {categoriesData.map((category) => (
                         <tr
                             key={category.id}
                             className="hover:bg-slate-50/50 transition-all group"
@@ -36,7 +38,7 @@ export default function CategoryTable({ categories,onEdit ,onDelete,onView}) {
                                     </div>
                                 </div>
                             </td>
-                           
+
                             <td className="px-10 py-7">
                                 <div className="flex items-center gap-5">
                                     <div className="text-right">
@@ -60,19 +62,19 @@ export default function CategoryTable({ categories,onEdit ,onDelete,onView}) {
                             <td className="px-10 py-7 text-center">
                                 <div className="flex justify-center items-center gap-3">
                                     <button
-                                       onClick={()=>onView(category)}
+                                        onClick={() => onViewClick(category)}
                                         className="p-3 text-blue-600 bg-blue-50 hover:bg-blue-600 hover:text-white rounded-[1rem] transition-all"
                                     >
                                         <EyeIcon size={18} />
                                     </button>
                                     <button
-                                      onClick={()=>onEdit(category)}
+                                        onClick={() => onEditClick(category)}
                                         className="p-3 text-amber-600 bg-amber-50 hover:bg-amber-600 hover:text-white rounded-[1rem] transition-all"
                                     >
                                         <Edit2 size={18} />
                                     </button>
                                     <button
-                                       onClick={()=>onDelete(category)}
+                                        onClick={() => onDeleteClick(category)}
                                         className="p-3 text-red-600 bg-red-50 hover:bg-red-600 hover:text-white rounded-[1rem] transition-all"
                                     >
                                         <Trash2 size={18} />

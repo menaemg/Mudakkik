@@ -3,9 +3,10 @@ import { Link, usePage } from "@inertiajs/react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard, WholeWord, Users, CreditCard, Megaphone, Hash,
-  Newspaper, Menu, X, Bell, ChevronLeft, Search, ShieldCheck,
+  Newspaper, Menu, X, Bell, ChevronLeft, ShieldCheck,
   UserRoundCheck, Package, Layers, FolderTree, LogOut,
-  Monitor, ScrollText, LayoutTemplate, House,
+  Monitor, ScrollText, LayoutTemplate, House, Settings, 
+  ShieldAlert, CreditCard as PaymentIcon
 } from "lucide-react";
 import Swal from "sweetalert2";
 
@@ -17,8 +18,15 @@ export default function AdminLayout({ children }) {
 
   const menuItems = [
     { label: "الرئيسية", icon: LayoutDashboard, url: "/admin/dashboard" },
-    { label: "المستخدمين", icon: Users, url: "/admin/users" },
-    { label: "المقالات", icon: Newspaper, url: "/admin/posts" },
+    {
+      label: "إدارة المحتوى",
+      icon: Newspaper,
+      list: [
+        { label: "المقالات", icon: Newspaper, url: "/admin/posts" },
+        { label: "الفئات", icon: FolderTree, url: "/admin/categories" },
+        { label: "الأوسمة", icon: Hash, url: "/admin/tags" },
+      ],
+    },
     {
       label: "إدارة الواجهة",
       icon: Monitor,
@@ -33,21 +41,32 @@ export default function AdminLayout({ children }) {
         { label: "قسم البانر", icon: LayoutTemplate, url: "/admin/home/banner" },
       ],
     },
-    { label: "البلاغات", icon: Bell, url: "/admin/reports", badge: pendingReports },
     {
-      label: "طلبات",
-      icon: ShieldCheck,
+      label: "المستخدمين والطلبات",
+      icon: Users,
       list: [
-        { label: "الانضمام للمجتمع", icon: UserRoundCheck, url: "/admin/requests/join" },
+        { label: "قائمة المستخدمين", icon: Users, url: "/admin/users" },
+        { label: "طلبات الانضمام", icon: UserRoundCheck, url: "/admin/requests/join" },
         { label: "إعلانات مدقق", icon: Megaphone, url: "/admin/requests/ads" },
+        { label: "البلاغات", icon: ShieldAlert, url: "/admin/reports", badge: pendingReports },
       ],
     },
-    { label: "الخطط", icon: Package, url: "/admin/plans" },
-    { label: "الاشتراكات", icon: Layers, url: "/admin/subscriptions" },
-    { label: "المدفوعات", icon: CreditCard, url: "/admin/payments" },
-    { label: "الفئات", icon: FolderTree, url: "/admin/categories" },
-    { label: "الأوسمة", icon: Hash, url: "/admin/tags" },
-    { label: "المواقع الموثوقة", icon: WholeWord, url: "/admin/trusted-domains" },
+    {
+      label: "المالية والاشتراكات",
+      icon: PaymentIcon,
+      list: [
+        { label: "الخطط", icon: Package, url: "/admin/plans" },
+        { label: "الاشتراكات", icon: Layers, url: "/admin/subscriptions" },
+        { label: "المدفوعات", icon: CreditCard, url: "/admin/payments" },
+      ],
+    },
+    {
+      label: "إعدادات النظام",
+      icon: Settings,
+      list: [
+        { label: "المواقع الموثوقة", icon: WholeWord, url: "/admin/trusted-domains" },
+      ],
+    },
   ];
 
   useEffect(() => {
@@ -82,7 +101,7 @@ export default function AdminLayout({ children }) {
         </div>
 
         <nav className="flex-1 overflow-y-auto px-4 py-6 space-y-2 custom-scrollbar">
-          <p className="text-[10px] font-black text-slate-500 uppercase tracking-[3px] mb-4 pr-4">القائمة الرئيسية</p>
+          <p className="text-[10px] font-black text-slate-500 uppercase tracking-[3px] mb-4 pr-4">لوحة التحكم</p>
 
           {menuItems.map((item) => {
             const hasSubmenu = !!item.list;
@@ -127,10 +146,13 @@ export default function AdminLayout({ children }) {
                           <Link
                             key={sub.url}
                             href={sub.url}
-                            className="flex items-center gap-3 p-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all"
+                            className={`flex items-center justify-between p-2.5 rounded-lg transition-all ${currentUrl === sub.url ? 'text-white bg-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
                           >
-                            <sub.icon size={14} />
-                            <span className="text-xs font-medium">{sub.label}</span>
+                            <div className="flex items-center gap-3">
+                              <sub.icon size={14} />
+                              <span className="text-xs font-medium">{sub.label}</span>
+                            </div>
+                            {sub.badge > 0 && <span className="bg-red-600 text-[8px] px-1.5 py-0.5 rounded-full">{sub.badge}</span>}
                           </Link>
                         ))}
                       </div>
@@ -156,9 +178,8 @@ export default function AdminLayout({ children }) {
             <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden text-[#001246] p-2 hover:bg-slate-100 rounded-xl transition-all">
               <Menu size={28} />
             </button>
-            <div className="hidden md:flex items-center bg-slate-100 rounded-2xl px-4 py-2 gap-3 border border-transparent focus-within:border-blue-500 focus-within:bg-white transition-all w-80 group">
-              <Search size={18} className="text-slate-400" />
-              <input type="text" placeholder="ابحث في النظام..." className="bg-transparent border-none text-sm outline-none w-full text-right" />
+            <div className="hidden lg:block">
+               <h1 className="text-sm font-bold text-slate-500">لوحة التحكم / <span className="text-[#001246]">نظرة عامة</span></h1>
             </div>
           </div>
 

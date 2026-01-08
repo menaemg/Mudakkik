@@ -14,6 +14,9 @@ KEEP_RELEASES=5
 RELEASE_NAME="${1:-$(date +%Y%m%d_%H%M%S)}"
 RELEASE_DIR="$RELEASES_DIR/$RELEASE_NAME"
 
+# Capture previous release for rollback
+PREVIOUS=$(readlink -f "$APP_DIR/current" 2>/dev/null || true)
+
 echo "🚀 Starting deployment: $RELEASE_NAME"
 
 # Verify release directory exists (created by rsync in GitHub Actions)
@@ -32,16 +35,17 @@ ln -nfs "$SHARED_DIR/.env" "$RELEASE_DIR/.env"
 rm -rf "$RELEASE_DIR/storage"
 ln -nfs "$SHARED_DIR/storage" "$RELEASE_DIR/storage"
 
+# Create public storage symlink
+php artisan storage:link || true
+
 # Install Composer dependencies (production)
 echo "📦 Installing Composer dependencies..."
 composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
 
 # Laravel optimizations
 echo "⚡ Optimizing Laravel..."
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
-php artisan event:cache
+php artisan optimize:clear
+php artisan optimize
 
 # Run database migrations
 echo "🗃️ Running migrations..."
