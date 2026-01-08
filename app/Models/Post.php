@@ -109,11 +109,20 @@ class Post extends Model
     public function getImageUrlAttribute()
     {
         $rawImage = $this->getOriginal('image');
-        
+
         if (!$rawImage) {
             return 'https://via.placeholder.com/800x600';
         }
-        
+
         return str_starts_with($rawImage, 'http') ? $rawImage : asset('storage/' . $rawImage);
+    }
+
+    public function scopePublishedTrusted($query)
+    {
+        return $query->where('status', 'published')
+                    ->where(function($q) {
+                        $q->where('ai_verdict', '!=', 'fake')
+                          ->orWhereNull('ai_verdict');
+                    });
     }
 }

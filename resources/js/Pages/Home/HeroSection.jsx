@@ -5,6 +5,7 @@ import 'aos/dist/aos.css';
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Link } from '@inertiajs/react';
+import AdRotator from '@/Components/AdRotator';
 
 const getImagePath = (path) => {
     if (!path) return '/assets/images/post.webp';
@@ -27,12 +28,9 @@ const LatestNewsCard = ({ category, date, title, image, delay, slug }) => (
         data-aos="fade-up"
         data-aos-delay={delay}
     >
-        <div className="w-20 h-20 shrink-0 overflow-hidden
-        rounded-lg relative shadow-sm border border-slate-100">
-            <img src={getImagePath(image)} alt={title} className="w-full h-full object-cover transition-transform
-            duration-500 group-hover:scale-110" onError={handleImageError} />
+        <div className="w-20 h-20 shrink-0 overflow-hidden rounded-lg relative shadow-sm border border-slate-100">
+            <img src={getImagePath(image)} alt={title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" onError={handleImageError} />
         </div>
-
         <div className="flex flex-col justify-center flex-1 min-w-0 py-1">
             <div className="flex items-center gap-2 text-[10px] text-gray-400 mb-1">
                 <span className="text-brand-blue font-bold truncate">{category}</span>
@@ -52,11 +50,8 @@ const MainFeatureCard = ({ story }) => (
         className="relative h-[400px] lg:h-full w-full rounded-[2rem] overflow-hidden group block shadow-xl border border-slate-100"
         data-aos="zoom-in"
     >
-        <img src={getImagePath(story?.image)} alt={story?.title} className="w-full h-full object-cover transition-transform
-        duration-1000 group-hover:scale-105" onError={handleImageError} />
-
+        <img src={getImagePath(story?.image)} alt={story?.title} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" onError={handleImageError} />
         <div className="absolute inset-0 bg-gradient-to-t from-[#001246] via-transparent to-transparent opacity-90"></div>
-
         <div className="absolute bottom-0 right-0 p-6 lg:p-8 w-full text-white z-10">
             <Badge className="bg-[#D00000] hover:bg-red-700 text-white border-0 mb-3 px-3 py-1 rounded-lg shadow-sm font-bold">
                 {story?.category?.name || 'عام'}
@@ -82,16 +77,14 @@ const MainFeatureCard = ({ story }) => (
 const TrendingCard = ({ category, title, image, index, delay, slug, views }) => (
     <Link
         href={route('posts.show', slug || '#')}
-        className="flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-all
-        group border border-transparent hover:border-slate-100 flex-1 min-h-0"
+        className="flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-all group border border-transparent hover:border-slate-100 flex-1 min-h-0"
         data-aos="fade-left"
         data-aos-delay={delay}
     >
         <div className="flex items-center gap-4 flex-1 min-w-0">
             <span className="text-2xl font-black text-slate-200 group-hover:text-[#D00000] italic w-6 text-center shrink-0">{index}</span>
               <div className="w-20 h-20 shrink-0 overflow-hidden rounded-lg relative shadow-sm border border-slate-100">
-            <img src={getImagePath(image)} alt={title} className="w-full h-full object-cover
-            transition-transform duration-500 group-hover:scale-110" onError={handleImageError} />
+            <img src={getImagePath(image)} alt={title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" onError={handleImageError} />
         </div>
             <div className="flex flex-col min-w-0">
                 <span className="text-[10px] text-brand-blue font-bold mb-0.5 truncate">{category}</span>
@@ -102,19 +95,6 @@ const TrendingCard = ({ category, title, image, index, delay, slug, views }) => 
             <FaChartLine /> {views}
         </div>
     </Link>
-);
-
-const AdStripItem = ({ ad, delay }) => (
-    <a href={ad?.target_link || '#'} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 h-28 bg-gradient-to-br from-purple-50 to-white rounded-2xl border border-purple-100 hover:shadow-md transition-all group relative overflow-hidden" data-aos="fade-up" data-aos-delay={delay}>
-        <div className="absolute top-2 left-2 bg-white/80 backdrop-blur px-1.5 py-0.5 rounded text-[8px] font-bold text-purple-400 border border-purple-100">AD</div>
-        <div className="w-24 h-full shrink-0 overflow-hidden rounded-xl border border-purple-100">
-             <img src={getImagePath(ad?.image || ad?.image_url)} alt={ad?.title} className="w-full h-full object-cover" onError={handleImageError} />
-        </div>
-        <div className="flex-1 flex flex-col justify-center min-w-0">
-            <h3 className="font-bold text-sm text-purple-900 leading-snug mb-1 line-clamp-2">{ad?.title}</h3>
-            <span className="text-[10px] text-purple-400 flex items-center gap-1">محتوى مروج <FaChartLine size={10} /></span>
-        </div>
-    </a>
 );
 
 const BottomStripItem = ({ title, date, image, slug, delay }) => (
@@ -136,22 +116,30 @@ export default function HeroSection({ hero, ads }) {
     useEffect(() => { AOS.init({ duration: 800, once: true, offset: 50 }); }, []);
 
     const { main, side, strip, trending } = hero || {};
+
     const stripAds = ads?.['home_strip'] || [];
-    const bottomBigAd = ads?.['hero_bottom_strip']?.[0];
+    const bottomBigAds = ads?.['hero_bottom'] || [];
+
+    const half = Math.ceil(stripAds.length / 2);
+    const stripAdsGroup1 = stripAds.slice(0, half);
+    const stripAdsGroup2 = stripAds.slice(half, stripAds.length);
+
     const safePosts = strip?.slice(0, 2) || [];
 
     const finalStrip = [
         { type: 'post', data: safePosts[0] },
-        { type: 'ad', data: stripAds[0] },
+        { type: 'ad', data: stripAdsGroup1 },
         { type: 'post', data: safePosts[1] },
-        { type: 'ad', data: stripAds[1] }
+        { type: 'ad', data: stripAdsGroup2 }
     ];
 
+    console.log("All Ads From Backend:", ads);
+    console.log("Strip Ads:", ads?.['home_strip']);
+    console.log("Bottom Ad:", ads?.['hero_bottom']);
     return (
         <section className="container mx-auto px-4 py-8 lg:py-12 font-sans" dir="rtl">
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-12 items-stretch lg:h-[550px]">
-
                 <div className="lg:col-span-3 order-2 lg:order-1 flex flex-col h-full">
                     <div className="bg-black text-white px-4 py-2 font-bold text-lg w-fit relative shadow-md mb-4 after:content-[''] after:absolute after:left-0 after:bottom-[-4px] after:w-full after:h-[4px] after:bg-brand-red">
                         آخر الأخبار
@@ -217,11 +205,13 @@ export default function HeroSection({ hero, ads }) {
                                     />
                                 ) : <div key={index} className="h-28 bg-gray-100 rounded-2xl animate-pulse"></div>;
                             } else {
-                                return item.data ? (
-                                    <AdStripItem key={`ad-${index}`} ad={item.data} delay={100 * (index + 1)} />
-                                ) : (
-                                    <div key={index} className="h-28 bg-slate-100 border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center text-slate-400">
-                                        <span className="text-xs font-bold">مساحة إعلانية</span>
+                                return (
+                                    <div key={`ad-${index}`} data-aos="fade-up" data-aos-delay={100 * (index + 1)}>
+                                        <AdRotator
+                                            ads={item.data}
+                                            heightClass="h-28"
+                                            interval={6000 + (index * 1000)}
+                                        />
                                     </div>
                                 );
                             }
@@ -230,16 +220,12 @@ export default function HeroSection({ hero, ads }) {
                 </div>
             </div>
 
-            <div className="mt-12 h-28 w-full" data-aos="fade-up">
-                {bottomBigAd ? (
-                    <a href={bottomBigAd.target_link} target="_blank" rel="noopener noreferrer" className="block w-full h-full rounded-lg overflow-hidden relative shadow-sm border border-gray-200 hover:shadow-md transition-all">
-                        <img src={getImagePath(bottomBigAd.image || bottomBigAd.image_url)} alt={bottomBigAd.title} className="w-full h-full object-cover" onError={handleImageError} />
-                    </a>
-                ) : (
-                    <div className="h-full bg-gray-50 border-2 border-dashed border-gray-200 flex flex-col items-center justify-center text-gray-400 text-sm rounded-lg">
-                        <span className="font-bold">مساحة إعلانية</span>
-                    </div>
-                )}
+            <div className="mt-12 w-full" data-aos="fade-up">
+                <AdRotator
+                    ads={bottomBigAds}
+                    heightClass="h-28 md:h-40"
+                    placeholderText="بانر إعلاني عريض"
+                />
             </div>
         </section>
     );

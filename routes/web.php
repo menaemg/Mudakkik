@@ -8,6 +8,9 @@ use App\Http\Controllers\Admin\Home\HeroController;
 use App\Http\Controllers\Admin\Home\TickerController;
 use App\Http\Controllers\Admin\Home\TopStoriesController;
 use App\Http\Controllers\Admin\Home\TopicsSectionController;
+use App\Http\Controllers\Admin\Home\BannerController;
+use App\Http\Controllers\Admin\Home\BusinessController;
+use App\Http\Controllers\Admin\Home\EntertainmentController;
 use App\Http\Controllers\Admin\JoinRequestController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
 use App\Http\Controllers\Admin\PlanController as AdminPlanController;
@@ -110,6 +113,21 @@ Route::middleware(['auth', 'verified', 'can:admin-access'])
                   Route::get('/top-topics', [TopicsSectionController::class, 'index'])->name('topics.index');
                   Route::post('/top-topics/update', [TopicsSectionController::class, 'update'])->name('topics.update');
               });
+
+              Route::controller(BannerController::class)->group(function () {
+                        Route::get('/banner', 'index')->name('banner.index');
+                        Route::post('/banner/update', 'update')->name('banner.update');
+                    });
+
+              Route::controller(EntertainmentController::class)->group(function () {
+                  Route::get('/entertainment', 'index')->name('entertainment.index');
+                  Route::post('/entertainment/update', 'update')->name('entertainment.update');
+              });
+
+              Route::controller(BusinessController::class)->group(function () {
+                  Route::get('/business', 'index')->name('business.index');
+                  Route::post('/business/update', 'update')->name('business.update');
+              });
         });
 
         /* Reports */
@@ -148,6 +166,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/upgrade-requests', [UpgradeRequestController::class, 'store'])->name('upgrade-requests.store');
 
     Route::post('/posts/{post}/like', [LikeController::class, 'toggle'])->name('posts.like');
+
+
+    Route::post('/ads', [App\Http\Controllers\UserAdController::class, 'store'])->name('ads.store');
+
+    Route::put('/ads/{advertisment}', [App\Http\Controllers\UserAdController::class, 'update'])->name('ads.update');
+    Route::delete('/ads/{advertisment}', [App\Http\Controllers\UserAdController::class, 'destroy'])->name('ads.destroy');
 });
 
 Route::middleware(['auth'])->group(function () {

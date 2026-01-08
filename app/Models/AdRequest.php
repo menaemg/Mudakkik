@@ -17,7 +17,7 @@ class AdRequest extends Model
     protected $fillable = [
         'user_id',
         'title',
-        'image_path',
+        'image_url',
         'target_url',
         'requested_start_date',
         'requested_end_date',

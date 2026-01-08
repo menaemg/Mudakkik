@@ -23,6 +23,7 @@ return new class extends Migration
             $table->integer('number_of_days');
             $table->text('admin_notes')->nullable();
             $table->string('status', 20)->default('pending');
+            $table->string('position')->index()->after('target_link');
             $table->timestamps();
         });
     }
