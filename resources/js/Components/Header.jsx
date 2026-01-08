@@ -323,7 +323,7 @@ const Header = ({ auth, ticker }) => {
                                 <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center text-white shadow-sm">
                                     <FaCheckDouble className="text-xs" />
                                 </div>
-                                <span className="font-bold text-gray-800">كاشف الحقائق AI</span>
+                                <span className="font-bold text-gray-800">مختبر الحقيقة</span>
                             </div>
                             <FaAngleLeft className="text-green-500 text-sm" />
                         </Link>
