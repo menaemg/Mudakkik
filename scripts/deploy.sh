@@ -14,6 +14,9 @@ KEEP_RELEASES=5
 RELEASE_NAME="${1:-$(date +%Y%m%d_%H%M%S)}"
 RELEASE_DIR="$RELEASES_DIR/$RELEASE_NAME"
 
+# Capture previous release for rollback
+PREVIOUS=$(readlink -f "$APP_DIR/current" 2>/dev/null || true)
+
 echo "🚀 Starting deployment: $RELEASE_NAME"
 
 # Verify release directory exists (created by rsync in GitHub Actions)
@@ -32,16 +35,17 @@ ln -nfs "$SHARED_DIR/.env" "$RELEASE_DIR/.env"
 rm -rf "$RELEASE_DIR/storage"
 ln -nfs "$SHARED_DIR/storage" "$RELEASE_DIR/storage"
 
+# Create public storage symlink
+php artisan storage:link || true
+
 # Install Composer dependencies (production)
 echo "📦 Installing Composer dependencies..."
 composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
 
 # Laravel optimizations
 echo "⚡ Optimizing Laravel..."
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
-php artisan event:cache
+php artisan optimize:clear
+php artisan optimize
 
 # Run database migrations
 echo "🗃️ Running migrations..."
@@ -64,14 +68,29 @@ sudo systemctl reload php8.3-fpm
 php artisan horizon:terminate
 sudo supervisorctl restart mudakkik-horizon || true
 
-# Health check
+# Health check with automatic rollback
 echo "🏥 Running health check..."
 sleep 2
 HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost || echo "000")
 if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 400 ]; then
     echo "✅ Health check passed (HTTP $HTTP_CODE)"
 else
-    echo "⚠️ Health check returned HTTP $HTTP_CODE (may need manual verification)"
+    echo "❌ Health check failed (HTTP $HTTP_CODE)"
+    
+    # Automatic rollback if previous release exists
+    if [ -n "$PREVIOUS" ] && [ -d "$PREVIOUS" ]; then
+        echo "⏪ Rolling back to previous release: $(basename $PREVIOUS)"
+        ln -nfs "$PREVIOUS" "$APP_DIR/current"
+        sudo systemctl reload php8.3-fpm
+        cd "$PREVIOUS"
+        php artisan horizon:terminate || true
+        sudo supervisorctl restart mudakkik-horizon || true
+        echo "✅ Rollback completed"
+        exit 1
+    else
+        echo "⚠️ No previous release available for rollback"
+        exit 1
+    fi
 fi
 
 # Cleanup old releases
