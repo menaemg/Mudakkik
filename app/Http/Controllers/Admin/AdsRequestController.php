@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Advertisment as AdRequest;
+use App\Models\Advertisment;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
@@ -13,7 +13,7 @@ class AdsRequestController extends Controller
     //
 public function index(Request $request)
     {
-        $requests = AdRequest::latest()
+        $requests = Advertisment::latest()
             ->with('user')
             ->with('subscription')
             ->filter($request)
@@ -47,12 +47,12 @@ public function index(Request $request)
                 ];
             });
 
-        $pendingCount = AdRequest::where('status', 'pending')->count();
-        $acceptedCount = AdRequest::where('status', 'approved')->count();
-        $rejectedCount = AdRequest::where('status', 'rejected')->count();
-        $totalCount = AdRequest::count();
+        $pendingCount = Advertisment::where('status', 'pending')->count();
+        $acceptedCount = Advertisment::where('status', 'approved')->count();
+        $rejectedCount = Advertisment::where('status', 'rejected')->count();
+        $totalCount = Advertisment::count();
 
-        $oldPendingCount = AdRequest::where('status', 'pending')
+        $oldPendingCount = Advertisment::where('status', 'pending')
             ->where('created_at', '<', now()->subDays(3))
             ->count();
 
@@ -69,7 +69,7 @@ public function index(Request $request)
         ]);
     }
 
-public function update(Request $request, AdRequest $adRequest)
+public function update(Request $request, Advertisment $advertisment)
     {
         $data = $request->validate([
             'status' => 'required|in:approved,rejected',
@@ -77,10 +77,10 @@ public function update(Request $request, AdRequest $adRequest)
         ]);
 
         try {
-            DB::transaction(function () use ($data, $adRequest) {
+            DB::transaction(function () use ($data, $advertisment) {
               // refunding the user in case of rejection
-                if ($data['status'] === 'rejected' && $adRequest->status !== 'rejected') {
-                    $adRequest->user->refundAdCredit($adRequest->number_of_days);
+                if ($data['status'] === 'rejected' && $advertisment->status !== 'rejected') {
+                    $advertisment->user->refundAdCredit($advertisment->number_of_days);
                 }
 
                 $updateData = [
@@ -90,29 +90,33 @@ public function update(Request $request, AdRequest $adRequest)
                 // approving the ad from the date of its approval
                 if ($data['status'] === 'approved') {
                     $updateData['start_date'] = now();
-                    $updateData['end_date'] = now()->addDays($adRequest->number_of_days);
+                    $updateData['end_date'] = now()->addDays($advertisment->number_of_days);
                 }
 
-                $adRequest->update($updateData);
+                $advertisment->update($updateData);
             });
 
             return back()->with('success', 'تم تحديث حالة الطلب بنجاح');
 
         } catch (\Exception $e) {
-            return back()->with('error', 'حدث خطأ أثناء التحديث: ' . $e->getMessage());
+            \Log::error('Ad request update failed', [
+                'ad_request_id' => $advertisment->id,
+                'user_id' => $advertisment->user_id,
+                'attempted_status' => $data['status'] ?? null,
+                'error' => $e->getMessage(),
+            ]);
+            return back()->with('error', 'حدث خطأ أثناء التحديث. حاول مرة أخرى لاحقاً.');
         }
     }
 
-    public function destroy(AdRequest $AdRequest)
+    public function destroy(Advertisment $advertisment)
     {
-        /*Reterving Credit in case of deleting a pending ad */
-        if ($AdRequest->status === 'pending') {
-             $AdRequest->user->refundAdCredit($AdRequest->number_of_days);
+        // Only admins can access this controller, so we just check ownership isn't required
+        // Refund credit only for pending ads
+        if ($advertisment->status === 'pending') {
+             $advertisment->user->refundAdCredit($advertisment->number_of_days);
         }
-
-
-        $this->authorize('delete', $AdRequest);
-        $AdRequest->delete();
+        $advertisment->delete();
 
         return back()->with('success', 'تم حذف الطلب بنجاح');
     }

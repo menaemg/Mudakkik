@@ -25,6 +25,9 @@ const BannerSkeleton = () => (
 );
 
 export default function BannerSection({ data, type = 'news' }) {
+    useEffect(() => {
+        AOS.init({ duration: 800, once: true });
+    }, []);
     if (!data) return <BannerSkeleton />;
 
     const isAd = type === 'ad';
@@ -42,10 +45,6 @@ export default function BannerSection({ data, type = 'news' }) {
 
         link: isAd ? data?.link : route('posts.show', data?.slug || '#')
     };
-
-    useEffect(() => {
-        AOS.init({ duration: 800, once: true });
-    }, []);
 
     return (
         <section className="container mx-auto px-4 py-8 md:py-12 mb-8" data-aos="fade-up">
@@ -92,7 +91,7 @@ export default function BannerSection({ data, type = 'news' }) {
                                 ${isAd ? 'bg-amber-500 hover:bg-amber-600 text-black shadow-amber-900/20' : 'bg-brand-red hover:bg-red-700 text-white shadow-red-900/50'}
                             `}>
                                 {isAd ? (
-                                    <span className="flex items-center gap-2">زيارة الموقع <FaExternalLinkAlt size={12}/></span>
+                                    <span className="flex items-center gap-2">زيارة الموقع <FaExternalLinkAlt size={12} /></span>
                                 ) : "استكشف التغطية الكاملة"}
                             </Button>
                         </a>

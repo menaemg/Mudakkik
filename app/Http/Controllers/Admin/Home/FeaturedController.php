@@ -7,33 +7,11 @@ use App\Models\HomeSlot;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
-use App\Services\HomePageService;
 
 class FeaturedController extends Controller
 {
-public function index(HomePageService $homeService)
+    public function index()
     {
-        $data = $homeService->getFeaturedManual();
-
-        $format = function($post, $section, $slotName) {
-            return [
-                'section' => $section,
-                'slot_name' => $slotName,
-                'post' => $post,
-                'post_id' => $post?->id
-            ];
-        };
-
-        $featuredData = [
-            'main' => $format($data['main'], 'featured', 'main'),
-            'subs' => [],
-            'editors' => []
-        ];
-
-        foreach($data['subs'] as $index => $post) {
-        }
-
-
         $rawSlots = HomeSlot::whereIn('section', ['featured', 'editors_choice'])->get();
         $getSlot = fn($sec, $name) => $rawSlots->where('section', $sec)->where('slot_name', $name)->first();
 

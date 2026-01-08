@@ -254,10 +254,10 @@ $strips = [];
       ->where(function ($q) {
         $q->where('posts.ai_verdict', '!=', 'fake')->orWhereNull('posts.ai_verdict');
       })
-      ->select('categories.*')
+      ->select('categories.id', 'categories.name', 'categories.slug')
       ->selectRaw('COUNT(posts.id) as posts_count')
       ->selectRaw('MAX(posts.image) as representative_image')
-      ->groupBy('categories.id')
+      ->groupBy('categories.id', 'categories.name', 'categories.slug')
       ->havingRaw('COUNT(posts.id) > 0')
       ->orderByDesc('posts_count')
       ->take(8)
@@ -338,6 +338,10 @@ $strips = [];
     $type = $slot?->type ?? 'post';
 
     if ($type === 'post') {
+      // Null check: if slot doesn't exist, return safe default
+      if ($slot === null) {
+        return ['type' => 'post', 'data' => null];
+      }
       $slot = $slot->load(['post.category', 'post.user']);
       return [
         'type' => 'post',
@@ -392,16 +396,16 @@ $strips = [];
 public function getAds()
 {
     try {
-return Advertisment::whereIn('status', ['run', 'approved'])
-        ->where(function($q) {
-            $q->whereNull('start_date')->orWhere('start_date', '<=', now());
-        })
-        ->where(function($q) {
-            $q->whereNull('end_date')->orWhere('end_date', '>=', now());
-        })
-        ->inRandomOrder()
-        ->get()
-        ->groupBy('position');
+        // Return flat list of active ads - they rotate randomly across all slots
+        return Advertisment::where('status', 'approved')
+            ->where(function($q) {
+                $q->whereNull('start_date')->orWhere('start_date', '<=', now());
+            })
+            ->where(function($q) {
+                $q->whereNull('end_date')->orWhere('end_date', '>=', now());
+            })
+            ->inRandomOrder()
+            ->get();
     } catch (\Exception $e) {
         return collect();
     }

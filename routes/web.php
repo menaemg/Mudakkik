@@ -85,8 +85,8 @@ Route::middleware(['auth', 'verified', 'can:admin-access'])
             Route::delete('/join/{upgradeRequest}', [JoinRequestController::class, 'destroy'])->name('requests.join.destroy');
 
             Route::get('/ads', [AdsRequestController::class, 'index'])->name('requests.ads');
-            Route::patch('/ads/{adRequest}', [AdsRequestController::class, 'update'])->name('requests.ads.update');
-            Route::delete('/ads/{adRequest}', [AdsRequestController::class, 'destroy'])->name('requests.ads.destroy');
+            Route::patch('/ads/{advertisment}', [AdsRequestController::class, 'update'])->name('requests.ads.update');
+            Route::delete('/ads/{advertisment}', [AdsRequestController::class, 'destroy'])->name('requests.ads.destroy');
         });
 
         Route::prefix('home')->name('home.')->group(function () {
@@ -167,9 +167,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/upgrade-requests', [UpgradeRequestController::class, 'store'])->name('upgrade-requests.store');
 
     Route::post('/posts/{post}/like', [LikeController::class, 'toggle'])->name('posts.like');
-
-
-    Route::post('/ads', [App\Http\Controllers\UserAdController::class, 'store'])->name('ads.store');
 
     Route::put('/ads/{advertisment}', [App\Http\Controllers\UserAdController::class, 'update'])->name('ads.update');
     Route::delete('/ads/{advertisment}', [App\Http\Controllers\UserAdController::class, 'destroy'])->name('ads.destroy');

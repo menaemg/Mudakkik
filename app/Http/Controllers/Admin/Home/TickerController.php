@@ -26,6 +26,9 @@ public function index(HomePageService $homeService)
             ['section' => 'ticker', 'slot_name' => $request->slot_name],
             ['post_id' => $request->post_id]
         );
+
+        \Cache::forget('global.ticker_posts');
+
         return back()->with('success', 'تم التحديث');
     }
 }

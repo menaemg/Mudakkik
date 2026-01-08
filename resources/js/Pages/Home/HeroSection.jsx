@@ -83,9 +83,9 @@ const TrendingCard = ({ category, title, image, index, delay, slug, views }) => 
     >
         <div className="flex items-center gap-4 flex-1 min-w-0">
             <span className="text-2xl font-black text-slate-200 group-hover:text-[#D00000] italic w-6 text-center shrink-0">{index}</span>
-              <div className="w-20 h-20 shrink-0 overflow-hidden rounded-lg relative shadow-sm border border-slate-100">
-            <img src={getImagePath(image)} alt={title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" onError={handleImageError} />
-        </div>
+            <div className="w-20 h-20 shrink-0 overflow-hidden rounded-lg relative shadow-sm border border-slate-100">
+                <img src={getImagePath(image)} alt={title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" onError={handleImageError} />
+            </div>
             <div className="flex flex-col min-w-0">
                 <span className="text-[10px] text-brand-blue font-bold mb-0.5 truncate">{category}</span>
                 <h4 className="font-bold text-sm text-[#001246] line-clamp-2 group-hover:text-brand-blue transition-colors leading-snug">{title}</h4>
@@ -100,9 +100,9 @@ const TrendingCard = ({ category, title, image, index, delay, slug, views }) => 
 const BottomStripItem = ({ title, date, image, slug, delay }) => (
     <Link href={route('posts.show', slug || '#')} className="flex items-center gap-3 p-3 h-28 bg-white rounded-2xl border border-slate-100 hover:border-brand-blue/20 hover:shadow-md transition-all cursor-pointer group" data-aos="fade-up" data-aos-delay={delay}>
         <div className="w-24 h-full shrink-0 overflow-hidden rounded-xl border border-slate-100 relative">
-             <img src={getImagePath(image)} alt={title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" onError={handleImageError} />
+            <img src={getImagePath(image)} alt={title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" onError={handleImageError} />
         </div>
-         <div className="flex-1 flex flex-col justify-center min-w-0">
+        <div className="flex-1 flex flex-col justify-center min-w-0">
             <h3 className="font-bold text-sm text-[#001246] leading-snug mb-2 group-hover:text-brand-blue transition-colors line-clamp-2">{title}</h3>
             <div className="text-[10px] text-gray-400 font-bold uppercase flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-brand-red group-hover:scale-150 transition-transform"></span>
@@ -117,25 +117,19 @@ export default function HeroSection({ hero, ads }) {
 
     const { main, side, strip, trending } = hero || {};
 
-    const stripAds = ads?.['home_strip'] || [];
-    const bottomBigAds = ads?.['hero_bottom'] || [];
-
-    const half = Math.ceil(stripAds.length / 2);
-    const stripAdsGroup1 = stripAds.slice(0, half);
-    const stripAdsGroup2 = stripAds.slice(half, stripAds.length);
+    // All ads now come as a flat array - they rotate randomly across all slots
+    const allAds = ads || [];
 
     const safePosts = strip?.slice(0, 2) || [];
 
+    // Mix posts and ads in the strip - ads rotate in their slots
     const finalStrip = [
         { type: 'post', data: safePosts[0] },
-        { type: 'ad', data: stripAdsGroup1 },
+        { type: 'ad', data: allAds },
         { type: 'post', data: safePosts[1] },
-        { type: 'ad', data: stripAdsGroup2 }
+        { type: 'ad', data: allAds }
     ];
 
-    console.log("All Ads From Backend:", ads);
-    console.log("Strip Ads:", ads?.['home_strip']);
-    console.log("Bottom Ad:", ads?.['hero_bottom']);
     return (
         <section className="container mx-auto px-4 py-8 lg:py-12 font-sans" dir="rtl">
 
@@ -153,11 +147,11 @@ export default function HeroSection({ hero, ads }) {
                                     slug={story.slug}
                                     title={story.title}
                                     category={story.category?.name}
-                                    date={new Date(story.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                                    date={new Date(story.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                     image={story.image}
                                 />
                             ))
-                        ) : [1,2,3,4].map((i) => <div key={i} className="flex-1 bg-gray-100 rounded-xl animate-pulse"></div>)}
+                        ) : [1, 2, 3, 4].map((i) => <div key={i} className="flex-1 bg-gray-100 rounded-xl animate-pulse"></div>)}
                     </div>
                 </div>
 
@@ -184,7 +178,7 @@ export default function HeroSection({ hero, ads }) {
                                     image={story.image}
                                 />
                             ))
-                        ) : [1,2,3,4,5].map((i) => <div key={i} className="flex-1 bg-gray-100 rounded-xl animate-pulse"></div>)}
+                        ) : [1, 2, 3, 4, 5].map((i) => <div key={i} className="flex-1 bg-gray-100 rounded-xl animate-pulse"></div>)}
                     </div>
                 </div>
             </div>
@@ -209,7 +203,7 @@ export default function HeroSection({ hero, ads }) {
                                     <div key={`ad-${index}`} data-aos="fade-up" data-aos-delay={100 * (index + 1)}>
                                         <AdRotator
                                             ads={item.data}
-                                            heightClass="h-28"
+                                            variant="default"
                                             interval={6000 + (index * 1000)}
                                         />
                                     </div>
@@ -221,7 +215,7 @@ export default function HeroSection({ hero, ads }) {
             </div>
 
             <div className="mt-12 w-full" data-aos="fade-up">
-                {(!bottomBigAds || bottomBigAds.length === 0) ? (
+                {(!allAds || allAds.length === 0) ? (
                     <div className="w-full h-28 md:h-40 flex items-center justify-center bg-gray-100 border rounded">
                         <div className="text-center">
                             <span className="font-bold text-gray-500 block">مساحة إعلانية متوفرة</span>
@@ -230,9 +224,8 @@ export default function HeroSection({ hero, ads }) {
                     </div>
                 ) : (
                     <AdRotator
-                        ads={bottomBigAds}
-                        heightClass="h-28 md:h-40"
-                        placeholderText="بانر إعلاني عريض"
+                        ads={allAds}
+                        variant="wide"
                     />
                 )}
             </div>

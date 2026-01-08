@@ -64,15 +64,27 @@ sudo systemctl reload php8.3-fpm
 php artisan horizon:terminate
 sudo supervisorctl restart mudakkik-horizon || true
 
-# Health check
+# Clear OPcache to ensure new code is loaded
+echo "🧹 Clearing caches..."
+php artisan optimize:clear 2>/dev/null || true
+
+# Health check with retry logic
 echo "🏥 Running health check..."
-sleep 2
-HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost || echo "000")
-if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 400 ]; then
-    echo "✅ Health check passed (HTTP $HTTP_CODE)"
-else
-    echo "⚠️ Health check returned HTTP $HTTP_CODE (may need manual verification)"
-fi
+MAX_RETRIES=3
+RETRY_DELAY=3
+
+for i in $(seq 1 $MAX_RETRIES); do
+    sleep $RETRY_DELAY
+    HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost || echo "000")
+    if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 400 ]; then
+        echo "✅ Health check passed (HTTP $HTTP_CODE)"
+        break
+    elif [ "$i" -eq "$MAX_RETRIES" ]; then
+        echo "⚠️ Health check returned HTTP $HTTP_CODE after $MAX_RETRIES attempts (may need manual verification)"
+    else
+        echo "⏳ Retry $i/$MAX_RETRIES - waiting for server..."
+    fi
+done
 
 # Cleanup old releases
 echo "🧹 Cleaning up old releases..."

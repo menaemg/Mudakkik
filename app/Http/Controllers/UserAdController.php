@@ -20,7 +20,7 @@ class UserAdController extends Controller
 
         $hasActiveSubscription = $user->subscriptions()
             ->where('status', 'active')
-            ->where('end_date', '>', now())
+            ->where('ends_at', '>', now())
             ->exists();
 
         $requests = Advertisment::where('user_id', $user->id)
@@ -52,7 +52,7 @@ class UserAdController extends Controller
 
         $activeSubscription = $user->subscriptions()
             ->where('status', 'active')
-            ->where('end_date', '>', now())
+            ->where('ends_at', '>', now())
             ->latest()
             ->first();
 
@@ -162,7 +162,12 @@ class UserAdController extends Controller
             if ($request->hasFile('image') && isset($imagePath)) {
                  Storage::disk('public')->delete($imagePath);
             }
-            return back()->withErrors(['general' => $e->getMessage()]);
+            \Log::error('Ad update failed', [
+                'advertisment_id' => $advertisment->id,
+                'user_id' => Auth::id(),
+                'error' => $e->getMessage(),
+            ]);
+            return back()->withErrors(['general' => 'حدث خطأ أثناء تعديل الإعلان. حاول مرة أخرى لاحقاً.']);
         }
     }
 

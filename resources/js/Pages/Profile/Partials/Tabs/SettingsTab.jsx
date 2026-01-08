@@ -13,6 +13,18 @@ export default function SettingsTab({ mustVerifyEmail, status }) {
     const isNormalUser = user.role === 'user';
     const [isModalOpen, setIsModalOpen] = useState(false);
 
+    const { data, setData, post, processing, errors } = useForm({
+        message: '',
+        document: null,
+    });
+
+    const submitUpgradeRequest = (e) => {
+        e.preventDefault();
+        post(route('upgrade-requests.store'), {
+            forceFormData: true, // Required for file uploads
+        });
+    };
+
     return (
         <div className="space-y-8 animate-in fade-in duration-700 slide-in-from-bottom-4 flex flex-col min-h-[calc(100vh-16rem)] h-full">
 

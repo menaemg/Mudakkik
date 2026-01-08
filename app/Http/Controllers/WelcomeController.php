@@ -27,9 +27,6 @@ class WelcomeController extends Controller
         return Inertia::render('Welcome', [
             'canLogin'    => Route::has('login'),
             'canRegister' => Route::has('register'),
-            'auth'        => [
-                'user' => Auth::user() ? Auth::user()->load(['subscriptions.plan']) : null
-            ],
             'ticker'        => $ticker,
             'hero'          => $hero,
             'featured'      => $featured,

@@ -13,6 +13,8 @@ class HomeSlot extends Model
         'section',
         'slot_name',
         'post_id',
+        'type',
+        'custom_data',
     ];
 
     public function post()

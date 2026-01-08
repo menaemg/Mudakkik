@@ -126,11 +126,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->likes();
     }
 
-    public function adRequests()
+    public function advertisements()
     {
         return $this->hasMany(Advertisment::class, 'user_id');
     }
-      public function refundAdCredit(int $days): void
+    public function refundAdCredit(int $days): void
       {
           $this->increment('ad_credits', $days);
       }

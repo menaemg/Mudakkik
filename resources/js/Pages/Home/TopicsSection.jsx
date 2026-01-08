@@ -1,14 +1,15 @@
 import React, { useEffect } from 'react';
+import AdRotator from '@/Components/AdRotator';
 import { FaArrowLeft, FaBell, FaBolt, FaClock } from 'react-icons/fa';
 import Autoplay from "embla-carousel-autoplay"
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
+    Carousel,
+    CarouselContent,
+    CarouselItem,
+    CarouselNext,
+    CarouselPrevious,
 } from "@/components/ui/carousel";
 import { Link } from '@inertiajs/react';
 import AOS from 'aos';
@@ -36,7 +37,7 @@ const TopicCard = ({ topic }) => (
                 <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{topic.posts_count || 0} مقال</span>
             </div>
             <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-brand-blue group-hover:text-white transition-all">
-                 <FaArrowLeft className="text-[10px]" />
+                <FaArrowLeft className="text-[10px]" />
             </div>
         </div>
     </Link>
@@ -47,24 +48,24 @@ const AlertCard = ({ post, delay }) => {
     return (
         <Link href={route('posts.show', post.slug)} className="flex flex-col md:flex-row bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg border border-gray-100 hover:border-brand-red/30 transition-all duration-300 h-full group block text-right" data-aos="fade-up" data-aos-delay={delay}>
             <div className="w-full md:w-48 h-48 md:h-auto shrink-0 relative overflow-hidden">
-                 <img src={getImagePath(post.image)} alt={post.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                 <div className="absolute top-2 right-2 md:hidden">
+                <img src={getImagePath(post.image)} alt={post.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                <div className="absolute top-2 right-2 md:hidden">
                     <Badge className="bg-red-600">{post.category?.name}</Badge>
-                 </div>
+                </div>
             </div>
             <div className="p-5 flex flex-col justify-center flex-1">
-                 <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center justify-between mb-2">
                     <Badge variant="outline" className="hidden md:flex text-[#b20e1e] border-[#b20e1e]/20 bg-red-50 hover:bg-red-100 text-[10px] font-bold">
                         {post.category?.name}
                     </Badge>
                     <span className="flex items-center gap-1 text-[10px] text-gray-400 font-bold">
                         <FaBolt size={10} className="text-yellow-500" /> تنبيه المحرر
                     </span>
-                 </div>
+                </div>
                 <h3 className="text-lg font-bold leading-snug text-gray-900 mb-3 group-hover:text-[#b20e1e] transition-colors line-clamp-2">
                     {post.title}
                 </h3>
-                 <div className="flex items-center gap-2 text-xs text-gray-500 mt-auto justify-end">
+                <div className="flex items-center gap-2 text-xs text-gray-500 mt-auto justify-end">
                     <span>{new Date(post.created_at).toLocaleDateString('ar-EG')}</span>
                     <span className="text-gray-300">|</span>
                     <span className="font-medium text-gray-700">{post.user?.name}</span>
@@ -83,7 +84,7 @@ export default function TopicsSection({ topics = [], editorAlerts = [], ads }) {
         AOS.init({ duration: 800, once: true });
     }, []);
 
-    const sectionAd = ads?.['home_topics_bottom']?.[0];
+    const sectionAd = Array.isArray(ads) && ads.length > 0 ? ads[0] : null;
 
     return (
         <section className="container mx-auto px-4 py-16 bg-gray-50/30" dir="rtl">
@@ -133,20 +134,16 @@ export default function TopicsSection({ topics = [], editorAlerts = [], ads }) {
                 )}
             </div>
 
-            <div className="mt-12 h-28 bg-white border-2 border-dashed border-gray-200 flex flex-col items-center justify-center text-gray-400 text-sm rounded-xl cursor-pointer hover:border-[#b20e1e]/30 hover:bg-red-50 transition-all duration-300 overflow-hidden" data-aos="fade-up">
+            <div className="mt-12" data-aos="fade-up">
                 {sectionAd ? (
-                    <a href={sectionAd.target_link} target="_blank" rel="noopener noreferrer" className="w-full h-full block">
-                        <img
-                            src={`/storage/${sectionAd.image}`}
-                            alt={sectionAd.title}
-                            className="w-full h-full object-cover rounded-xl shadow-inner"
-                            onError={(e) => e.target.style.display = 'none'}
-                        />
-                    </a>
+                    <AdRotator
+                        ads={[sectionAd]}
+                        variant="wide"
+                    />
                 ) : (
-                    <div className="text-center">
-                         <span className="font-bold text-gray-500 block">مساحة إعلانية متوفرة</span>
-                         <span className="text-[10px]">تواصل مع الإدارة للإعلان هنا</span>
+                    <div className="h-24 bg-white border-2 border-dashed border-gray-200 flex flex-col items-center justify-center text-gray-400 text-sm rounded-xl hover:border-brand-red/30 hover:bg-red-50/50 transition-all duration-300">
+                        <span className="font-bold text-gray-500 block">مساحة إعلانية متوفرة</span>
+                        <span className="text-[10px]">تواصل مع الإدارة للإعلان هنا</span>
                     </div>
                 )}
             </div>

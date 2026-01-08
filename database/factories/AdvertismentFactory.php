@@ -19,8 +19,7 @@ class AdvertismentFactory extends Factory
 public function definition(): array
 {
     $startDate = fake()->dateTimeBetween('-1 month', 'now');
-
-    $endDate = fake()->dateTimeBetween('+1 week', '+2 months');
+    $endDate = fake()->dateTimeBetween($startDate, (clone \Carbon\Carbon::instance($startDate))->addMonths(2));
 
     $user = User::inRandomOrder()->first() ?? User::factory();
 
@@ -30,7 +29,8 @@ public function definition(): array
             ->inRandomOrder()
             ->first()?->id ?? Subscription::factory()->for($user),
         'title' => fake()->words(3, true),
-        'image_url' => 'https://placehold.co/800x400/2a2a2a/FFF',
+
+        'image_url' => 'https://picsum.photos/seed/' . fake()->randomNumber(5) . '/800/400',
         'target_link' => fake()->url(),
         'number_of_days' => fake()->numberBetween(1, 60),
         'admin_notes' => fake()->optional()->sentence(),
@@ -40,11 +40,6 @@ public function definition(): array
 
         'status' => fake()->randomElement(['pending', 'approved', 'rejected']),
 
-        'position' => $this->faker->randomElement([
-            'home_strip',
-            'hero_bottom',
-            'entertainment_agenda',
-            'topics_bottom'
-        ]),
+        'position' => 'general',
     ];
 }}

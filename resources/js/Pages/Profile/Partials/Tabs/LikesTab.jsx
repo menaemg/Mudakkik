@@ -1,7 +1,7 @@
 import React from 'react';
 import Pagination from '@/Components/Pagination';
 import ArticleListItem from '../ArticleListItem';
-import { FaHeart, FaBookmark, FaLayerGroup } from 'react-icons/fa';
+import { FaHeart, FaBookmark } from 'react-icons/fa';
 
 export default function LikesTab({ likedPosts }) {
     return (

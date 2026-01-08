@@ -92,7 +92,7 @@ class ProfileController extends Controller
         ->take(3)
         ->get();
 
-          $adRequests = $user->adRequests()
+          $adRequests = $user->advertisements()
              ->latest()
              ->paginate(5, ['*'], 'ads_page')
              ->through(function ($ad) {
