@@ -111,15 +111,24 @@ public function update(Request $request, Advertisment $advertisment)
 
     public function destroy(Advertisment $advertisment)
     {
-        $this->authorize('delete', $advertisment);
+        try {
+            DB::transaction(function () use ($advertisment) {
+                // Refund credit only for pending ads
+                if ($advertisment->status === 'pending') {
+                    $advertisment->user->refundAdCredit($advertisment->number_of_days);
+                }
+                $advertisment->delete();
+            });
 
-        // Refund credit only for pending ads
-        if ($advertisment->status === 'pending') {
-             $advertisment->user->refundAdCredit($advertisment->number_of_days);
+            return back()->with('success', 'تم حذف الطلب بنجاح');
+        } catch (\Exception $e) {
+            \Log::error('Ad deletion failed', [
+                'advertisment_id' => $advertisment->id,
+                'user_id' => $advertisment->user_id,
+                'error' => $e->getMessage(),
+            ]);
+            return back()->with('error', 'حدث خطأ أثناء الحذف. حاول مرة أخرى لاحقاً.');
         }
-        $advertisment->delete();
-
-        return back()->with('success', 'تم حذف الطلب بنجاح');
     }
 }
 

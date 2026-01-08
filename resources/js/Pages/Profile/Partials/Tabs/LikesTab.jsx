@@ -24,7 +24,7 @@ export default function LikesTab({ likedPosts }) {
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-pink-500/20 via-pink-500/40 to-pink-500/20"></div>
 
                 <div className="flex-1 w-full flex flex-col">
-                    {likedPosts && likedPosts.data.length > 0 ? (
+                    {likedPosts?.data?.length > 0 ? (
                         <div className="flex flex-col h-full">
                             <div className="divide-y divide-gray-50 w-full flex-grow">
                                 {likedPosts.data.map((post) => (
@@ -50,7 +50,7 @@ export default function LikesTab({ likedPosts }) {
                     )}
                 </div>
 
-                {likedPosts && likedPosts.data.length > 0 && (
+                {likedPosts?.data?.length > 0 && (
                     <div className="p-6 border-t border-gray-100 bg-gray-50/50 flex justify-center backdrop-blur-sm mt-auto shrink-0">
                         <Pagination links={likedPosts.links} />
                     </div>

@@ -42,7 +42,7 @@ export default function BannerSection({ data, type = 'news' }) {
 
         category: isAd ? "شريك استراتيجي" : (data?.category?.name || "تغطية حصرية"),
 
-        link: isAd ? data?.link : route('posts.show', data?.slug || '#')
+        link: isAd ? data?.link : (data?.slug ? route('posts.show', data.slug) : '#')
     };
 
     return (
@@ -52,7 +52,7 @@ export default function BannerSection({ data, type = 'news' }) {
             `}>
                 <img
                     src={content.image}
-                    alt="Banner"
+                    alt={content.title || content.description || (isAd ? 'إعلان' : 'Banner')}
                     className="w-full h-full object-cover transition-transform duration-[2000ms] group-hover:scale-110 will-change-transform"
                 />
 

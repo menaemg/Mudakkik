@@ -12,7 +12,7 @@ class WelcomeController extends Controller
     public function index(HomePageService $homeService)
     {
 
-        $ticker        = $homeService->getTickerWithSlots()->pluck('post')->filter()->values();;
+        $ticker        = $homeService->getTickerWithSlots()->pluck('post')->filter()->values();
         $hero          = $homeService->getHeroWithSlots();
         $featured      = $homeService->getFeaturedManual();
         $topStories    = $homeService->getTopStoriesWithSlots();
