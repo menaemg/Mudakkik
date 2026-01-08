@@ -74,30 +74,28 @@ if ! php artisan optimize:clear 2>&1; then
     echo "⚠️ Cache clear reported errors (continuing deployment)"
 fi
 
-# Health check with retry logic
 echo "🏥 Running health check..."
-MAX_RETRIES=3
+MAX_RETRIES=5
 RETRY_DELAY=3
+HEALTH_URL="http://localhost/up"
 
 for i in $(seq 1 $MAX_RETRIES); do
     sleep $RETRY_DELAY
-    # Source .env to get APP_URL
-    if [ -f .env ]; then
-        source .env
-    fi
-    HEALTH_URL="${APP_URL:-http://localhost}/up"
 
     HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$HEALTH_URL" || echo "000")
+    echo "Attempt $i → HTTP $HTTP_CODE"
+
     if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 400 ]; then
-        echo "✅ Health check passed (HTTP $HTTP_CODE)"
+        echo "✅ Health check passed"
         break
-    elif [ "$i" -eq "$MAX_RETRIES" ]; then
-        echo "❌ Health check failed after $MAX_RETRIES attempts (HTTP $HTTP_CODE)"
+    fi
+
+    if [ "$i" -eq "$MAX_RETRIES" ]; then
+        echo "❌ Health check failed after $MAX_RETRIES attempts"
         exit 1
-    else
-        echo "⏳ Retry $i/$MAX_RETRIES - waiting for server..."
     fi
 done
+
 
 # Cleanup old releases
 echo "🧹 Cleaning up old releases..."
