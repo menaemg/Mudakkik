@@ -81,7 +81,13 @@ RETRY_DELAY=3
 
 for i in $(seq 1 $MAX_RETRIES); do
     sleep $RETRY_DELAY
-    HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost || echo "000")
+    # Source .env to get APP_URL
+    if [ -f .env ]; then
+        source .env
+    fi
+    HEALTH_URL="${APP_URL:-http://localhost}/up"
+
+    HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$HEALTH_URL" || echo "000")
     if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 400 ]; then
         echo "✅ Health check passed (HTTP $HTTP_CODE)"
         break
