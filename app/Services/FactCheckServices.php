@@ -11,6 +11,8 @@ class FactCheckServices
 {
     private const PRIMARY_MODEL = 'llama-3.3-70b-versatile'; 
     private const FAST_MODEL = 'llama-3.1-8b-instant';
+    private const VERIFY_SOURCE_LIMIT = 5;
+    private const SEARCH_SOURCE_LIMIT = 10;
 
     private function fetchUrlContent(string $url): string
     {
@@ -97,7 +99,7 @@ class FactCheckServices
         }
     }
 
-    private function searchInTrustedSources(array $data, ?int $days = null): array
+    private function searchInTrustedSources(array $data, ?int $days = null, int $limit = 7): array
     {
         if (!isset($data['title']) || mb_strlen($data['title']) < 10) {
             return [];
@@ -121,7 +123,7 @@ class FactCheckServices
                 'query' => mb_substr($searchQuery, 0, 400),
                 'search_depth' => 'advanced',
                 'include_domains' => $domains,
-                'max_results' => 7,
+                'max_results' => $limit,
             ];
 
             if ($days) {
@@ -297,6 +299,84 @@ PROMPT;
             'evidence' => $searchResults[0]['title'] ?? ''
         ];
     }
+
+    /**
+     * Summarize the search results to provide a comprehensive overview.
+     */
+    private function summarizeResults(array $originalNews, array $searchResults): array
+    {
+        if (empty($searchResults)) {
+            return [
+                'summary' => 'لم نعثر على مصادر موثوقة حول هذا الموضوع. يُنصح بالبحث باستخدام كلمات مفتاحية مختلفة.',
+            ];
+        }
+
+        try {
+            $snippets = collect($searchResults)
+                ->take(7)
+                ->map(fn($item) => [
+                    'title' => $item['title'] ?? '',
+                    'url' => $item['url'] ?? '',
+                    'content' => mb_substr($item['content'] ?? '', 0, 800)
+                ])
+                ->toArray();
+
+            $systemPrompt = <<<PROMPT
+You are an expert news analyst specializing in Arabic media. Your task is to provide a comprehensive, detailed research report on the topic based on the provided search results from trusted sources.
+
+RULES:
+1. Synthesize information from multiple sources into a rich, coherent narrative.
+2. **Structure the report** with clear paragraphs.
+3. **Detail is key**: cover key events, context, different perspectives, and timelines.
+4. **Citations**: When stating a specific fact, try to mention the source name in brackets e.g. [Al Jazeera].
+5. Do NOT judge true/false or give a verdict.
+6. Use clear, professional, and engaging Arabic.
+
+OUTPUT FORMAT (respond ONLY with this JSON structure):
+{
+  "summary": "A detailed, multi-paragraph Arabic report on the topic. It should be comprehensive enough that the user gets a full understanding without clicking links."
+}
+
+IMPORTANT: 
+- The summary MUST be in Arabic.
+- Aim for a high-quality journalistic style.
+PROMPT;
+
+            $userMessage = "الموضوع للبحث:\n" . ($originalNews['title'] ?? '') . "\n\n";
+            $userMessage .= "المصادر:\n" . json_encode($snippets, JSON_UNESCAPED_UNICODE);
+
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . config('services.groq.api_key'),
+                'Content-Type' => 'application/json',
+            ])
+            ->timeout(60)
+            ->post('https://api.groq.com/openai/v1/chat/completions', [
+                'model' => self::PRIMARY_MODEL,
+                'messages' => [
+                    ['role' => 'system', 'content' => $systemPrompt],
+                    ['role' => 'user', 'content' => $userMessage]
+                ],
+                'response_format' => ['type' => 'json_object'],
+                'temperature' => 0.3,
+            ]);
+
+            if ($response->successful()) {
+                $data = $response->json();
+                $content = $data['choices'][0]['message']['content'] ?? null;
+                
+                if ($content) {
+                    $result = json_decode($content, true);
+                    return $result ?? ['summary' => 'فشل توليد الملخص'];
+                }
+            }
+
+            return ['summary' => 'تعذر توليد الملخص التلقائي. يرجى مراجعة المصادر أدناه.'];
+            
+        } catch (\Exception $e) {
+            Log::error('Summary generation failed', ['error' => $e->getMessage()]);
+            return ['summary' => 'حدث خطأ أثناء تحليل النتائج.'];
+        }
+    }
     
 
     /**
@@ -358,11 +438,11 @@ PROMPT;
         if (!$data || ($data['title'] ?? '') === "INVALID" || empty($data['title'])) {
             return [
                 'status' => 'error', 
-                'message' => 'محتوى غير مفهوم أو غير صالح للتحقق'
+                'message' => 'عذراً، لم نتمكن من استخراج خبر واضح من النص المدخل. يرجى التأكد من كتابة النص بشكل صحيح أو إدخال رابط مباشر للخبر.'
             ];
         }
 
-        $results = $this->searchInTrustedSources($data, $days);
+        $results = $this->searchInTrustedSources($data, $days, self::VERIFY_SOURCE_LIMIT);
         $verdict = $this->finalVerdict($data, $results);
 
         $searchScore = !empty($results) 
@@ -387,7 +467,8 @@ PROMPT;
             'summary' => $verdict['summary'] ?? 'فشل التحليل',
             'evidence' => $verdict['evidence'] ?? '',
             'period' => $days,
-            'sources' => collect($results)->take(5)->map(fn($r) => [
+            'type' => 'verify',
+            'sources' => collect($results)->take(self::VERIFY_SOURCE_LIMIT)->map(fn($r) => [
                 'title' => $r['title'] ?? '',
                 'url' => $r['url'] ?? '',
                 'date' => $r['published_date'] ?? null
@@ -405,6 +486,89 @@ PROMPT;
                 'confidence' => $newRecord->confidence . "%",
                 'summary' => $newRecord->summary,
                 'evidence' => $newRecord->evidence,
+            ],
+            'sources' => $newRecord->sources
+        ];
+    }
+
+    /**
+     * Search mode: Summarize topic without true/false verdict
+     */
+    public function search(string $input, ?int $days = null, ?int $userId = null): array
+    {
+        $inputHash = md5(trim(mb_strtolower($input)) . ($days ? "_$days" : "") . "_search");
+        
+        // Check cache first
+        $existingCheck = \App\Models\FactCheck::where('hash', $inputHash)->first();
+        if ($existingCheck) {
+            if ($userId) {
+                $existingCheck->users()->syncWithoutDetaching([$userId]);
+            }
+
+            return [
+                'status' => 'Fetched from Cache',
+                'verdict' => [
+                    'label' => 'Search', // Special label for search
+                    'confidence' => 100,
+                    'summary' => $existingCheck->summary,
+                    'evidence' => '',
+                ],
+                'sources' => $existingCheck->sources
+            ];
+        }
+
+        // Process new input
+        $processed = $this->identifyInputType($input);
+        $raw = $processed['content'];
+        $isFallback = ($raw === "FAILED_CONTENT");
+
+        if ($isFallback && $processed['type'] === 'url') {
+            $raw = "عنوان الخبر من الرابط: " . $this->extractTitleFromUrl($input);
+        }
+
+        $data = $this->refineContentForSearch($raw, $isFallback);
+        
+        if (!$data || ($data['title'] ?? '') === "INVALID" || empty($data['title'])) {
+            return [
+                'status' => 'error', 
+                'message' => 'عذراً، لم نتمكن من استخراج موضوع واضح من النص المدخل.'
+            ];
+        }
+
+        // Search with higher limit for research
+        $results = $this->searchInTrustedSources($data, $days, self::SEARCH_SOURCE_LIMIT);
+        
+        // Generate summary instead of verdict
+        $summaryResult = $this->summarizeResults($data, $results);
+
+        // Store the result
+        $newRecord = \App\Models\FactCheck::create([
+            'hash' => $inputHash,
+            'input_text' => mb_substr($input, 0, 2000),
+            'label' => 'Search', // Special label for search
+            'confidence' => 100, // Not applicable
+            'summary' => $summaryResult['summary'] ?? 'فشل التلخيص',
+            'evidence' => '', // No evidence needed for search
+            'period' => $days,
+            'type' => 'search',
+            'sources' => collect($results)->take(self::SEARCH_SOURCE_LIMIT)->map(fn($r) => [
+                'title' => $r['title'] ?? '',
+                'url' => $r['url'] ?? '',
+                'date' => $r['published_date'] ?? null
+            ])->toArray()
+        ]);
+
+        if ($userId) {
+            $newRecord->users()->attach($userId);
+        }
+
+        return [
+            'status' => 'Search Completed',
+            'verdict' => [
+                'label' => 'Search',
+                'confidence' => 100,
+                'summary' => $newRecord->summary,
+                'evidence' => '',
             ],
             'sources' => $newRecord->sources
         ];

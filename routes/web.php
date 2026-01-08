@@ -6,11 +6,11 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\Home\FeaturedController;
 use App\Http\Controllers\Admin\Home\HeroController;
 use App\Http\Controllers\Admin\Home\TickerController;
-use App\Http\Controllers\Admin\Home\TopStoriesController;
 use App\Http\Controllers\Admin\Home\TopicsSectionController;
 use App\Http\Controllers\Admin\Home\BannerController;
 use App\Http\Controllers\Admin\Home\BusinessController;
 use App\Http\Controllers\Admin\Home\EntertainmentController;
+use App\Http\Controllers\Admin\Home\TopStoriesController;
 use App\Http\Controllers\Admin\JoinRequestController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
 use App\Http\Controllers\Admin\PlanController as AdminPlanController;
@@ -44,6 +44,7 @@ Route::get('/plans', [PlanController::class, 'index'])->name('plans.index');
 Route::get('/check', function () {
     return Inertia::render('VerifyNews');
 });
+Route::post('/search-news', [FactCheckController::class, 'search'])->middleware('auth');
 Route::post('/verify-news', [FactCheckController::class, 'verify'])->middleware('auth');
 Route::get('/api/fact-check/history', [FactCheckController::class, 'history'])->middleware('auth');
 Route::get('/api/fact-check/{factCheck}', [FactCheckController::class, 'show'])->middleware('auth');
@@ -173,6 +174,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/ads/{advertisment}', [App\Http\Controllers\UserAdController::class, 'update'])->name('ads.update');
     Route::delete('/ads/{advertisment}', [App\Http\Controllers\UserAdController::class, 'destroy'])->name('ads.destroy');
 });
+
+    // Notifications
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');

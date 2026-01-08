@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Notifications\CustomVerifyEmail;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Notifications\Notifiable;
@@ -13,6 +14,14 @@ class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, HasApiTokens;
+
+    /**
+     * Send the email verification notification with welcome content.
+     */
+    public function sendEmailVerificationNotification(): void
+    {
+        $this->notify(new CustomVerifyEmail);
+    }
 
     /**
      * Bootstrap the model.
@@ -260,7 +269,8 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
 
-    public function consumeAiCredit(int $amount = 1): bool
+
+    public function consumeAiCredit(int $amount = 1): string|bool
     {
         return \DB::transaction(function () use ($amount) {
             $user = static::lockForUpdate()->find($this->id);
@@ -271,9 +281,8 @@ class User extends Authenticatable implements MustVerifyEmail
             // Check recurring credits first
             if ($user->ai_recurring_credits >= $amount) {
                 $user->decrement('ai_recurring_credits', $amount);
-                // Refresh the current instance to reflect the change
                 $this->refresh();
-                return true;
+                return 'recurring';
             }
 
             // Check combined credits
@@ -284,13 +293,24 @@ class User extends Authenticatable implements MustVerifyEmail
 
                 $user->update(['ai_recurring_credits' => 0]);
                 $user->decrement('ai_bonus_credits', $neededFromBonus);
-                // Refresh the current instance to reflect the changes
                 $this->refresh();
-                return true;
+                return 'mixed';
             }
 
             return false;
         });
+    }
+
+
+    public function refundAiCredit(int $amount, string $type): void
+    {
+        if ($type === 'recurring') {
+            $this->increment('ai_recurring_credits', $amount);
+        } elseif ($type === 'mixed') {
+            // Refund to bonus since that was depleted last
+            $this->increment('ai_bonus_credits', $amount);
+        }
+        $this->refresh();
     }
 
     public function consumeAdCredit(int $days): bool

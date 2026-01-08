@@ -42,7 +42,6 @@ export default function ProfileSidebar({ stats, activeTab, setActiveTab, current
 
     const canAccessArticles = user.role === 'journalist' || user.role === 'admin';
     const isFreePlan = current_plan?.is_free || current_plan?.slug === 'free';
-
     return (
         <div className="flex flex-col gap-6 sticky top-28 transition-all duration-500">
 

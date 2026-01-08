@@ -1,7 +1,7 @@
 <?php
 
-return [
+return array_filter([
     App\Providers\AppServiceProvider::class,
-    App\Providers\HorizonServiceProvider::class,
     App\Providers\PaymentServiceProvider::class,
-];
+    config('app.env') === 'production' ? App\Providers\HorizonServiceProvider::class : null,
+]);

@@ -221,11 +221,20 @@ export default function HeroSection({ hero, ads }) {
             </div>
 
             <div className="mt-12 w-full" data-aos="fade-up">
-                <AdRotator
-                    ads={bottomBigAds}
-                    heightClass="h-28 md:h-40"
-                    placeholderText="بانر إعلاني عريض"
-                />
+                {(!bottomBigAds || bottomBigAds.length === 0) ? (
+                    <div className="w-full h-28 md:h-40 flex items-center justify-center bg-gray-100 border rounded">
+                        <div className="text-center">
+                            <span className="font-bold text-gray-500 block">مساحة إعلانية متوفرة</span>
+                            <span className="text-[10px]">بانر إعلاني </span>
+                        </div>
+                    </div>
+                ) : (
+                    <AdRotator
+                        ads={bottomBigAds}
+                        heightClass="h-28 md:h-40"
+                        placeholderText="بانر إعلاني عريض"
+                    />
+                )}
             </div>
         </section>
     );

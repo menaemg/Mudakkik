@@ -60,11 +60,10 @@ class RegisteredUserController extends Controller
 
         event(new Registered($user));
 
-        // Send welcome notification
-        $user->notify(new \App\Notifications\WelcomeNewUser());
-
         Auth::login($user);
 
-        return redirect(route('welcome', absolute: false));
+        // Redirect to email verification notice
+        return redirect(route('verification.notice', absolute: false))
+            ->with('status', 'تم إرسال رابط التحقق إلى بريدك الإلكتروني. يرجى التحقق لتفعيل حسابك.');
     }
 }

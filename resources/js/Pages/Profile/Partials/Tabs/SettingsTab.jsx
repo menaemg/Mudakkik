@@ -1,28 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
 import UpdateProfileInformation from '../UpdateProfileInformationForm';
 import UpdatePasswordForm from '../UpdatePasswordForm';
 import DeleteUserForm from '../DeleteUserForm';
 import { FaUserShield, FaCheckCircle, FaTimesCircle, FaHourglassHalf, FaFileUpload } from 'react-icons/fa';
 import { useForm, usePage } from '@inertiajs/react';
 import { Button } from "@/components/ui/button";
+import JoinJournalistModal from '@/Components/JoinJournalistModal';
 
 export default function SettingsTab({ mustVerifyEmail, status }) {
     const { upgrade_request_status, auth } = usePage().props;
     const user = auth.user;
     const isNormalUser = user.role === 'user';
-
-    const { data, setData, post, processing, errors } = useForm({
-        document: null,
-        message: '',
-    });
-
-    const submitUpgradeRequest = (e) => {
-        e.preventDefault();
-        post(route('upgrade.store'));
-    };
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     return (
         <div className="space-y-8 animate-in fade-in duration-700 slide-in-from-bottom-4 flex flex-col min-h-[calc(100vh-16rem)] h-full">
+
+            <JoinJournalistModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
 
             {isNormalUser && (
                 <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#000a2e] to-[#1e293b] p-8 md:p-10 text-white shadow-2xl shadow-blue-900/20 border border-white/10 shrink-0">
