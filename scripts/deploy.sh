@@ -82,6 +82,7 @@ else
         echo "⏪ Rolling back to previous release: $(basename $PREVIOUS)"
         ln -nfs "$PREVIOUS" "$APP_DIR/current"
         sudo systemctl reload php8.3-fpm
+        cd "$PREVIOUS"
         php artisan horizon:terminate || true
         sudo supervisorctl restart mudakkik-horizon || true
         echo "✅ Rollback completed"
