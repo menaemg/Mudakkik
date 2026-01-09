@@ -23,6 +23,7 @@ class WelcomeController extends Controller
         $topics        = $homeService->getTopics();
         $moreNews      = $homeService->getMoreNews();
         $editorAlerts  = $homeService->getEditorAlertsManual();
+        $mainBanner    = $homeService->getBanner();
 
         return Inertia::render('Welcome', [
             'canLogin'    => Route::has('login'),
@@ -38,6 +39,7 @@ class WelcomeController extends Controller
             'moreNews'      => $moreNews->values(),
             'gridSection'   => $gridSection,
             'editorAlerts'  => $editorAlerts->values(),
+            'mainBanner'    => $mainBanner
         ]);
     }
 }

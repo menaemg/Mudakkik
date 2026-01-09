@@ -25,8 +25,10 @@ export default function Welcome({
     moreNews,
     ads,
     gridSection,
-    editorAlerts
+    editorAlerts,
+    bannerPost
 }) {
+  const mainBannerAd = ads && ads.length > 0 ? ads : null;
     return (
         <>
             <Head title="الرئيسية - مدقق نيوز" />
@@ -54,7 +56,10 @@ export default function Welcome({
                       forYouPosts={gridSection.forYou}
                   />
 
-                    <BannerSection ads={ads} />
+                    <BannerSection
+                        post={!mainBannerAd ? bannerPost : null}
+                        ad={mainBannerAd}
+                    />
 
                     <MoreNewsSection articles={moreNews} ads={ads} />
                 </main>

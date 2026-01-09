@@ -48,7 +48,8 @@ export default function TopStories({ slots }) {
     };
 
     const EditControl = ({ slotName, hasPost, postLink, isLarge }) => (
-        <div className="absolute top-2 left-2 z-50 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-y-2 group-hover:translate-y-0 w-[calc(100%-1rem)]">
+        <div className="absolute top-2 left-2 z-50 flex gap-2 opacity-0 group-hover:opacity-100
+        transition-all duration-200 translate-y-2 group-hover:translate-y-0 w-[calc(100%-1rem)]">
             <div className="bg-white/95 backdrop-blur-sm rounded-lg shadow-2xl p-1 border border-slate-200 flex gap-1 items-center flex-1">
                 <div className="flex-1 min-w-0">
                     <AsyncSelect
@@ -57,14 +58,20 @@ export default function TopStories({ slots }) {
                         placeholder={isLarge ? "اختر خبراً رئيسياً..." : "اختر خبراً..."}
                         menuPortalTarget={document.body}
                         styles={{
-                            control: (base) => ({ ...base, borderRadius: "0.5rem", fontSize: '0.75rem', minHeight: '32px', border: 'none', boxShadow: 'none', backgroundColor: 'transparent' }),
+                            control: (base) => ({ ...base, borderRadius: "0.5rem", fontSize:
+                              '0.75rem', minHeight: '32px', border: 'none',
+                              boxShadow: 'none',
+                              backgroundColor: 'transparent' }),
                             menu: (base) => ({ ...base, zIndex: 999999, width: '280px' }),
                             menuPortal: base => ({ ...base, zIndex: 999999 }),
-                            option: (base, state) => ({ ...base, backgroundColor: state.isFocused ? "#f1f5f9" : "white", color: "#0f172a", fontSize: "0.8rem", cursor: "pointer" })
+                            option: (base, state) => ({ ...base,
+                              backgroundColor: state.isFocused ?
+                              "#f1f5f9" : "white", color: "#0f172a", fontSize: "0.8rem", cursor: "pointer" })
                         }}
                         formatOptionLabel={({ label, image }) => (
                             <div className="flex items-center gap-2">
-                                <img src={image} className="w-5 h-5 rounded-md object-cover border border-slate-100"/>
+                                <img src={image} className="w-5 h-5
+                                rounded-md object-cover border border-slate-100"/>
                                 <span className="text-xs font-bold truncate">{label}</span>
                             </div>
                         )}
@@ -81,14 +88,16 @@ export default function TopStories({ slots }) {
                                 const post = slots.find(s => s.slot_name === slotName)?.post;
                                 setPreviewPost(post);
                             }}
-                            className="bg-blue-50 hover:bg-blue-100 text-blue-600 p-2 rounded-lg border border-blue-200 shadow-sm flex items-center justify-center h-[42px] w-[42px]"
+                            className="bg-blue-50 hover:bg-blue-100 text-blue-600 p-2 rounded-lg
+                            border border-blue-200 shadow-sm flex items-center justify-center h-[42px] w-[42px]"
                             title="معاينة"
                         >
                             <Eye size={18} />
                         </button>
                         <button
                             onClick={() => handleReset(slotName)}
-                            className="bg-red-50 hover:bg-red-100 text-red-600 p-2 rounded-lg border border-red-200 shadow-sm flex items-center justify-center h-[42px] w-[42px]"
+                            className="bg-red-50 hover:bg-red-100 text-red-600 p-2
+                            rounded-lg border border-red-200 shadow-sm flex items-center justify-center h-[42px] w-[42px]"
                             title="إزالة"
                         >
                             <Trash2 size={18} />
@@ -150,7 +159,8 @@ export default function TopStories({ slots }) {
                     </>
                 ) : (
                     <div className="flex flex-col items-center justify-center h-full text-slate-400 gap-3 p-4 text-center">
-                        <div className="w-14 h-14 rounded-full bg-white shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <div className="w-14 h-14 rounded-full bg-white shadow-sm flex items-center justify-center
+                        group-hover:scale-110 transition-transform">
                             <Plus size={28} className="text-slate-300 group-hover:text-blue-500 transition-colors" />
                         </div>
                         <div>
@@ -203,7 +213,10 @@ export default function TopStories({ slots }) {
                                 <h3 className="font-black text-[#001246] text-lg flex items-center gap-2">
                                     <Eye size={18} className="text-blue-500"/> معاينة سريعة
                                 </h3>
-                                <button onClick={() => setPreviewPost(null)} className="w-8 h-8 flex items-center justify-center bg-slate-50 hover:bg-red-50 hover:text-red-500 rounded-full transition-colors">
+                                <button onClick={() => setPreviewPost(null)} className="w-8 h-8 flex
+                                items-center justify-center
+                                bg-slate-50 hover:bg-red-50
+                                hover:text-red-500 rounded-full transition-colors">
                                     <X size={18} />
                                 </button>
                             </div>

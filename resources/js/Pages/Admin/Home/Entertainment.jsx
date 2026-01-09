@@ -14,8 +14,6 @@ const getImageUrl = (path) => {
     if (path.startsWith('http')) return path;
     return `/storage/${path}`;
 };
-
-// تأكد أن الكنترولر يرسل agendaAd مع الـ slots
 export default function Entertainment({ slots, agendaAd }) {
     const [previewPost, setPreviewPost] = useState(null);
 
@@ -55,8 +53,10 @@ export default function Entertainment({ slots, agendaAd }) {
     };
 
     const EditControl = ({ slotName, hasPost }) => (
-        <div className="absolute top-2 left-2 z-50 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-y-2 group-hover:translate-y-0 w-[calc(100%-1rem)]">
-            <div className="bg-white/95 backdrop-blur-sm rounded-lg shadow-2xl p-1 border border-slate-200 flex gap-1 items-center flex-1">
+        <div className="absolute top-2 left-2 z-50 flex gap-2 opacity-0 group-hover:opacity-100
+        transition-all duration-200 translate-y-2 group-hover:translate-y-0 w-[calc(100%-1rem)]">
+            <div className="bg-white/95 backdrop-blur-sm rounded-lg shadow-2xl p-1
+            border border-slate-200 flex gap-1 items-center flex-1">
                 <div className="flex-1 min-w-0">
                     <AsyncSelect
                         loadOptions={loadOptions}
@@ -64,10 +64,18 @@ export default function Entertainment({ slots, agendaAd }) {
                         placeholder="بحث عن خبر..."
                         menuPortalTarget={document.body}
                         styles={{
-                            control: (base) => ({ ...base, borderRadius: "0.5rem", fontSize: '0.75rem', minHeight: '32px', border: 'none', boxShadow: 'none', backgroundColor: 'transparent' }),
+                            control: (base) => ({ ...base, borderRadius:
+                              "0.5rem", fontSize: '0.75rem',
+                              minHeight: '32px',
+                              border: 'none',
+                              boxShadow: 'none',
+                              backgroundColor:
+                              'transparent' }),
                             menu: (base) => ({ ...base, zIndex: 999999, width: '280px' }),
                             menuPortal: base => ({ ...base, zIndex: 999999 }),
-                            option: (base, state) => ({ ...base, backgroundColor: state.isFocused ? "#f1f5f9" : "white", color: "#0f172a", fontSize: "0.8rem", cursor: "pointer" })
+                            option: (base,
+                              state) => ({ ...base,
+                                backgroundColor: state.isFocused ? "#f1f5f9" : "white", color: "#0f172a", fontSize: "0.8rem", cursor: "pointer" })
                         }}
                         formatOptionLabel={({ label, image }) => (
                             <div className="flex items-center gap-2">
@@ -87,14 +95,20 @@ export default function Entertainment({ slots, agendaAd }) {
                             const post = slots.find(s => s.slot_name === slotName)?.post;
                             setPreviewPost(post);
                         }}
-                        className="bg-blue-50 hover:bg-blue-100 text-blue-600 p-2 rounded-lg border border-blue-200 shadow-sm flex items-center justify-center h-[42px] w-[42px]"
+                        className="bg-blue-50 hover:bg-blue-100
+                        text-blue-600 p-2 rounded-lg border
+                         border-blue-200 shadow-sm flex items-center
+                         justify-center h-[42px] w-[42px]"
                         title="معاينة"
                     >
                         <Eye size={18} />
                     </button>
                     <button
                         onClick={() => handleReset(slotName)}
-                        className="bg-red-50 hover:bg-red-100 text-red-600 p-2 rounded-lg border border-red-200 shadow-sm flex items-center justify-center h-[42px] w-[42px]"
+                        className="bg-red-50 hover:bg-red-100
+                        text-red-600 p-2 rounded-lg border
+                        border-red-200 shadow-sm flex items-center
+                        justify-center h-[42px] w-[42px]"
                         title="إزالة"
                     >
                         <Trash2 size={18} />
@@ -105,26 +119,27 @@ export default function Entertainment({ slots, agendaAd }) {
     );
 
     const RenderSlot = ({ name }) => {
-        // --- تعديل: معالجة خاصة لقسم الأجندة الإعلاني ---
         if (name === 'agenda') {
             return (
-                <div className="h-[200px] bg-gradient-to-br from-pink-600 to-rose-700 mb-6 flex flex-col items-center justify-center text-white text-center p-6 rounded-xl shadow-xl relative overflow-hidden group border border-pink-500/30">
+                <div className="h-[200px] bg-gradient-to-br from-pink-600 to-rose-700 mb-6 flex
+                flex-col items-center justify-center text-white text-center p-6 rounded-xl shadow-xl
+                relative overflow-hidden group border border-pink-500/30">
 
-                    {/* علامة القفل: ليعرف الأدمن أن هذا القسم للقراءة فقط هنا */}
-                    <div className="absolute top-2 left-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Badge className="bg-black/50 hover:bg-black/70 text-white text-[10px] gap-1 backdrop-blur-md border-0 px-2 py-1">
+                    <div className="absolute top-2 left-2 z-20 opacity-0
+                    group-hover:opacity-100 transition-opacity">
+                        <Badge className="bg-black/50 hover:bg-black/70
+                        text-white text-[10px] gap-1 backdrop-blur-md border-0 px-2 py-1">
                             <Lock size={10} /> مساحة إعلانية
                         </Badge>
                     </div>
 
-                    {/* إذا كان هناك إعلان قادم من الباك إند */}
                     {agendaAd ? (
                         <>
-                            {/* صورة خلفية خفيفة للإعلان إن وجدت */}
                             {agendaAd.image && (
                                 <img
                                     src={getImageUrl(agendaAd.image)}
-                                    className="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-30 transition-opacity duration-700"
+                                    className="absolute inset-0 w-full h-full
+                                    object-cover opacity-20 group-hover:opacity-30 transition-opacity duration-700"
                                     alt="Ad Background"
                                 />
                             )}
@@ -136,15 +151,14 @@ export default function Entertainment({ slots, agendaAd }) {
                                 <p className="text-[10px] text-white/90 mb-4 line-clamp-1 font-medium">
                                     {agendaAd.description || 'عرض خاص'}
                                 </p>
-                                {/* زر المحاكاة (شكلي فقط) */}
-                                <div className="inline-flex items-center gap-1 bg-white text-rose-600 px-4 py-1.5 text-[10px] font-bold rounded-full shadow-sm">
+                                <div className="inline-flex items-center gap-1 bg-white
+                                text-rose-600 px-4 py-1.5 text-[10px] font-bold rounded-full shadow-sm">
                                     <span>اضغط هنا</span>
                                     <ExternalLink size={10} />
                                 </div>
                             </div>
                         </>
                     ) : (
-                        /* الحالة الافتراضية إذا لم يكن هناك إعلان نشط */
                         <div className="relative z-10 opacity-60">
                             <Calendar className="mx-auto mb-2" size={24} />
                             <h4 className="text-lg font-bold mb-1">أجندة الفعاليات</h4>
@@ -155,7 +169,6 @@ export default function Entertainment({ slots, agendaAd }) {
             );
         }
 
-        // --- باقي الكروت القابلة للتعديل ---
         const slotData = slots.find(s => s.slot_name === name) || { slot_name: name, type: 'unknown' };
         const { post, is_manual, type } = slotData;
 
@@ -186,19 +199,24 @@ export default function Entertainment({ slots, agendaAd }) {
 
         if (type === 'vertical') {
             return (
-                <div className="flex flex-col group bg-white p-3 rounded-xl hover:shadow-xl transition-all duration-300 border border-transparent hover:border-gray-100 relative min-h-[300px]">
+                <div className="flex flex-col group bg-white p-3 rounded-xl hover:shadow-xl transition-all
+                duration-300 border border-transparent hover:border-gray-100 relative min-h-[300px]">
                     <EditControl slotName={name} hasPost={!!post} />
                     {post ? (
                         <>
                             <div className="h-48 overflow-hidden rounded-lg mb-3 relative shadow-sm">
-                                <img src={getImageUrl(post.image)} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                                <img src={getImageUrl(post.image)} className="w-full h-full object-cover
+                                transition-transform duration-700 group-hover:scale-110" />
                             </div>
-                            <div className="flex items-center gap-2 text-[10px] text-[#b20e1e] mb-2 font-black">
+                            <div className="flex items-center gap-2 text-[10px]
+                            text-[#b20e1e] mb-2 font-black">
                                 <span>{post.category?.name}</span>
                                 <span className="text-gray-300">|</span>
                                 <span className="text-gray-400">{new Date(post.created_at).toLocaleDateString('ar-EG')}</span>
                             </div>
-                            <h3 className="font-bold text-lg leading-snug text-gray-900 group-hover:text-[#b20e1e] transition-colors line-clamp-2">{post.title}</h3>
+                            <h3 className="font-bold text-lg leading-snug text-gray-900
+                            group-hover:text-[#b20e1e]
+                            transition-colors line-clamp-2">{post.title}</h3>
                         </>
                     ) : <EmptyState label="خبر عمودي" />}
                     {is_manual && <ManualBadge />}
@@ -208,7 +226,8 @@ export default function Entertainment({ slots, agendaAd }) {
 
         if (type === 'side') {
             return (
-                <div className="mb-4 border-b border-gray-100 pb-4 last:border-0 last:mb-0 last:pb-0 group relative min-h-[80px]">
+                <div className="mb-4 border-b border-gray-100 pb-4 last:border-0
+                last:mb-0 last:pb-0 group relative min-h-[80px]">
                     <EditControl slotName={name} hasPost={!!post} />
                     {post ? (
                         <div className="block text-right">
@@ -234,7 +253,8 @@ export default function Entertainment({ slots, agendaAd }) {
     );
 
     const EmptyState = ({ label }) => (
-        <div className="flex flex-col items-center justify-center h-full text-slate-400 gap-3 p-4 text-center border-2 border-dashed border-slate-200 rounded-xl">
+        <div className="flex flex-col items-center justify-center h-full text-slate-400
+        gap-3 p-4 text-center border-2 border-dashed border-slate-200 rounded-xl">
             <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center">
                 <Plus size={20} className="text-slate-300" />
             </div>
@@ -267,7 +287,6 @@ export default function Entertainment({ slots, agendaAd }) {
                     </div>
 
                     <div className="lg:col-span-3">
-                        {/* هنا استدعاء الأجندة الإعلانية */}
                         <RenderSlot name="agenda" />
 
                         <div className="flex flex-col bg-white p-4 rounded-xl border border-gray-100 shadow-sm min-h-[300px]">
@@ -296,7 +315,8 @@ export default function Entertainment({ slots, agendaAd }) {
                                 <h3 className="font-black text-[#001246] text-lg flex items-center gap-2">
                                     <Eye size={18} className="text-blue-500" /> معاينة سريعة
                                 </h3>
-                                <button onClick={() => setPreviewPost(null)} className="w-8 h-8 flex items-center justify-center bg-slate-50 hover:bg-red-50 hover:text-red-500 rounded-full transition-colors">
+                                <button onClick={() => setPreviewPost(null)} className="w-8 h-8 flex items-center
+                                justify-center bg-slate-50 hover:bg-red-50 hover:text-red-500 rounded-full transition-colors">
                                     <X size={18} />
                                 </button>
                             </div>
