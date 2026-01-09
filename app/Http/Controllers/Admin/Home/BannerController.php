@@ -40,7 +40,7 @@ class BannerController extends Controller
     {
         $request->validate([
             'type'    => 'required|in:post,ad',
-            'post_id' => 'required_if:type,post|nullable|exists:posts,id',
+            'post_id' => 'nullable|exists:posts,id',
         ]);
 
         $slot = HomeSlot::firstOrNew([
