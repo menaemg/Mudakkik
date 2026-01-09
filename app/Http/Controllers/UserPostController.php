@@ -9,14 +9,20 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
+use App\Services\ContentReviewService;
+use App\Notifications\PostPublished;
+use App\Notifications\PostRejected;
+use App\Notifications\PostMarkedFake;
+use App\Jobs\AuditPostContent;
+
 
 class UserPostController extends Controller
 {
     public function create()
     {
-    return Inertia::render('Profile/Posts/Create', [
-        'categories' => \App\Models\Category::select('id', 'name')->get()
-    ]);
+        return Inertia::render('Profile/Posts/Create', [
+            'categories' => \App\Models\Category::select('id', 'name')->get()
+        ]);
     }
 
     public function store(Request $request)
@@ -31,22 +37,20 @@ class UserPostController extends Controller
 
         $imagePath = $request->file('image')->store('posts', 'public');
 
-        /** @var \App\Models\User $user */
-        $user = $request->user();
-
-        $user->posts()->create([
+        $post = $request->user()->posts()->create([
             'title' => $validated['title'],
-            'slug' => Str::slug($validated['title']) . '-' . time() . '-' . Str::random(4),
+            'slug' => Str::slug($validated['title']) . '-' . time(),
             'body' => $validated['body'],
             'category_id' => $validated['category_id'],
             'image' => $imagePath,
             'type' => $validated['type'],
-            'status' => 'pending',
+            'status' => 'pending', 
         ]);
 
-        return redirect()->route('profile.edit')->with('success', 'تم إرسال المحتوى للمراجعة بنجاح!');
-    }
+        AuditPostContent::dispatch($post);
 
+        return redirect()->route('profile.edit')->with('warning', 'تم استلام مقالك بنجاح، سيتم تدقيقه آلياً وإشعارك بالنتيجة فوراً.');
+    }
     /**
      * Update the specified resource in storage.
      */
@@ -66,10 +70,10 @@ class UserPostController extends Controller
 
 
         if ($request->hasFile('image')) {
-          $oldImage = $post->getRawOriginal('image');
-               if ($oldImage) {
+            $oldImage = $post->getRawOriginal('image');
+            if ($oldImage) {
                 Storage::disk('public')->delete($oldImage);
-             }
+            }
             $validated['image'] = $request->file('image')->store('posts', 'public');
         } else {
             unset($validated['image']);

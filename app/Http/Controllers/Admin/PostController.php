@@ -52,8 +52,8 @@ class PostController extends Controller
             ->where('title', 'like', "%{$query}%")
             ->where('status', 'published')
             ->whereNotIn('id', $allPinnedIds)
-            ->where(function($q) {
-                 $q->where('ai_verdict', '!=', 'fake')->orWhereNull('ai_verdict');
+            ->where(function ($q) {
+                $q->where('ai_verdict', '!=', 'fake')->orWhereNull('ai_verdict');
             })
             ->latest()
             ->take(20)
@@ -82,16 +82,16 @@ class PostController extends Controller
                 Post::where('is_cover_story', true)->update(['is_cover_story' => false]);
             }
 
-        if ($feature === 'status') {
-            $post->update([
-                'status' => $post->status === 'published' ? 'pending' : 'published'
-            ]);
-        } else {
-            $post->update([
-                $feature => !$post->$feature
-            ]);
+            if ($feature === 'status') {
+                $post->update([
+                    'status' => $post->status === 'published' ? 'pending' : 'published'
+                ]);
+            } else {
+                $post->update([
+                    $feature => !$post->$feature
+                ]);
+            }
         }
-     }
         return back()->with('success', 'تم تحديث حالة المقال بنجاح');
     }
 
@@ -179,10 +179,28 @@ class PostController extends Controller
             });
 
             return back()->with('success', 'تم حذف المقال وكل ملفاته بنجاح');
-
         } catch (\Exception $e) {
             Log::error('فشل حذف المقال: ' . $e->getMessage(), ['post_id' => $post->id]);
             return back()->with('error', 'عذراً، حدث خطأ أثناء محاولة الحذف');
         }
+    }
+    public function aiAuditIndex(Request $request)
+    {
+        $posts = Post::with('user', 'category')
+            ->when($request->search, function ($query, $search) {
+                $query->where('title', 'like', "%{$search}%");
+            })
+            ->when($request->status, function ($query, $status) {
+                $query->where('status', $status);
+            })
+            ->latest()
+            ->paginate(15)
+            ->withQueryString();
+
+        return inertia('Admin/AiAudit/Index', [
+            'posts' => $posts,
+
+            'filters' => $request->only(['search', 'status'])
+        ]);
     }
 }

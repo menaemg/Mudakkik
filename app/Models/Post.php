@@ -25,7 +25,8 @@ class Post extends Model
         'is_featured',
         'is_breaking',
         'views',
-
+        'ai_score',
+        'ai_report'
     ];
 
     public function user()
@@ -75,7 +76,7 @@ class Post extends Model
         );
     }
 
- public function likes()
+    public function likes()
     {
         return $this->hasMany(Like::class);
     }
@@ -120,9 +121,9 @@ class Post extends Model
     public function scopePublishedTrusted($query)
     {
         return $query->where('status', 'published')
-                    ->where(function($q) {
-                        $q->where('ai_verdict', '!=', 'fake')
-                          ->orWhereNull('ai_verdict');
-                    });
+            ->where(function ($q) {
+                $q->where('ai_verdict', '!=', 'fake')
+                    ->orWhereNull('ai_verdict');
+            });
     }
 }
