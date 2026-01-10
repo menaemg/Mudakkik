@@ -14,7 +14,7 @@ import { usePage, router } from "@inertiajs/react";
 import RequestEditeModal from "./Partials/RequestEditeModel";
 
 export default function join({ filters = {} }) {
-  const [selectedStatus, setSelectedStatus] = useState(filters?.search || "");
+  const [selectedStatus, setSelectedStatus] = useState(filters?.status || "");
   const [searchTerm, setSearchTerm] = useState(filters?.search || "");
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [selectedEditeRequest, setSelectedEditeRequest] = useState(null);
@@ -78,13 +78,19 @@ export default function join({ filters = {} }) {
   // console.log(stats);
 
   useEffect(() => {
-    if (searchTerm !== filters?.search || selectedStatus !== filters?.status) {
-      router.get(
-        route("admin.requests.join"),
-        { search: searchTerm, status: selectedStatus, page: 1 },
-        { preserveState: true, replace: true, preserveScroll: true }
-      );
-    }
+    const delayDebounceFn = setTimeout(() => {
+      if (
+        searchTerm !== (filters?.search || "") ||
+        selectedStatus !== (filters?.status || "")
+      ) {
+        router.get(
+          route("admin.requests.join"),
+          { search: searchTerm, status: selectedStatus, page: 1 },
+          { preserveState: true, replace: true, preserveScroll: true }
+        );
+      }
+    }, 500);
+    return () => clearTimeout(delayDebounceFn);
   }, [searchTerm, selectedStatus, filters.search, filters.status]);
 
   const getStatusColor = (status) => {
