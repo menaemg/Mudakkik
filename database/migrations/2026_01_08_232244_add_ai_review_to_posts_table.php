@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::table('posts', function (Blueprint $table) {
             $table->integer('ai_score')->default(0)->after('ai_verdict');
             $table->text('ai_report')->nullable()->after('ai_score');
-            $table->string('content_hash')->nullable()->unique()->after('body');
+            $table->string('content_hash')->nullable()->after('body');
         });
         \App\Models\Post::chunk(100, function ($posts) {
             foreach ($posts as $post) {
