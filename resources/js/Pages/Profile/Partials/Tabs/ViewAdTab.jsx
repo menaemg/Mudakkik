@@ -14,12 +14,7 @@ import {
     FaCalendarCheck
 } from 'react-icons/fa';
 import { Badge } from "@/components/ui/badge";
-
-const getImagePath = (path) => {
-    if (!path) return '/assets/images/post.webp';
-    if (path.startsWith('http')) return path;
-    return `/storage/${path}`;
-};
+import { getImagePath } from '@/utils';
 
 export default function ViewAdTab({ ad, setActiveTab }) {
     if (!ad) return null;

@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
+import { getImagePath } from '@/utils';
 import { Badge } from "@/components/ui/badge";
 import { FaClock, FaArrowLeft } from 'react-icons/fa';
 import { Link } from '@inertiajs/react';
@@ -15,7 +16,7 @@ const NewsCard = ({ news, delay }) => (
     >
         <div className="h-48 overflow-hidden relative">
             <img
-                src={news.image?.startsWith('http') ? news.image : `/storage/${news.image}`}
+                src={getImagePath(news.image)}
                 alt={news.title}
                 crossOrigin="anonymous" referrerPolicy="no-referrer"
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
@@ -30,8 +31,8 @@ const NewsCard = ({ news, delay }) => (
                 {news.category?.name || 'عام'}
             </Badge>
         </div>
-        <div className="p-5 flex flex-col flex-grow">
-            <h3 className="font-bold text-[15px] leading-snug text-gray-900 group-hover:text-brand-blue transition-colors line-clamp-3 mb-4">
+        <div className="p-4 flex flex-col flex-grow">
+            <h3 className="font-bold text-base leading-snug text-gray-900 group-hover:text-brand-blue transition-colors line-clamp-3 mb-4">
                 {news.title}
             </h3>
             <div className="mt-auto pt-4 border-t border-gray-50 flex justify-between items-center text-xs text-gray-400 font-medium">
@@ -47,9 +48,9 @@ const NewsCard = ({ news, delay }) => (
 );
 
 const SectionLabel = ({ title }) => (
-    <div className="mb-8 border-b border-gray-200 pb-3 flex justify-between items-end">
-        <h2 className="text-2xl font-black text-gray-900 flex items-center gap-2">
-            <span className="w-2 h-8 bg-brand-red rounded-sm"></span>
+    <div className="mb-6 md:mb-8 border-b border-gray-200 pb-3 flex justify-between items-end">
+        <h2 className="text-xl sm:text-2xl font-black text-gray-900 flex items-center gap-2">
+            <span className="w-2 h-6 sm:h-8 bg-brand-red rounded-sm"></span>
             {title}
         </h2>
         <Link href={route('posts.index')} className="text-xs font-bold text-gray-500 hover:text-brand-blue flex items-center gap-1 transition-colors">
@@ -64,9 +65,9 @@ export default function MoreNewsSection({ articles = [], ads }) {
     }, []);
 
     return (
-        <section className="container mx-auto px-4 py-8 mb-12">
+        <section className="container mx-auto px-4 py-8 sm:py-12">
             <SectionLabel title="المزيد من الأخبار" />
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 gap-y-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                 {articles.length > 0 ? (
                     articles.map((news, index) => (
                         <NewsCard key={news.id} news={news} delay={index * 50} />

@@ -7,12 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Trash2, Search, X, Calendar, Megaphone, Check } from 'lucide-react';
 import { FaArrowLeft, FaBell, FaBolt } from 'react-icons/fa';
-
-const getImagePath = (path) => {
-    if (!path) return '/assets/images/post.webp';
-    return path.startsWith('http') ? path : `/storage/${path}`;
-};
-
+import { getImagePath } from '@/utils';
 export default function TopicsSection({ alertsData, categories, upcomingAd }) {
 
     const loadOptions = (inputValue) => {

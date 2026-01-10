@@ -7,11 +7,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Link } from '@inertiajs/react';
 import AdRotator from '@/Components/AdRotator';
 
-const getImagePath = (path) => {
-    if (!path) return '/assets/images/post.webp';
-    if (path.startsWith('http')) return path;
-    return `/storage/${path}`;
-};
+import { getImagePath } from '@/utils';
 
 const handleImageError = (e) => {
     e.currentTarget.onerror = null;
@@ -35,6 +31,7 @@ const LatestNewsCard = ({ category, date, title, image, delay, slug }) => (
         </div>
         <div className="flex flex-col justify-center flex-1 min-w-0 py-1">
             <div className="flex items-center gap-2 text-[10px] text-gray-400 mb-1">
+                {/* The text-[10px] is small, but it's for metadata and helps keep the UI clean on mobile. */}
                 <span className="text-brand-blue font-bold truncate">{category}</span>
                 <span className="text-slate-300">|</span>
                 <span className="flex items-center gap-1"><FaClock size={8} /> {date}</span>
@@ -49,17 +46,19 @@ const LatestNewsCard = ({ category, date, title, image, delay, slug }) => (
 const MainFeatureCard = ({ story }) => (
     <Link
         href={route('posts.show', story?.slug || '#')}
-        className="relative h-[400px] lg:h-full w-full rounded-[2rem] overflow-hidden group block shadow-xl border border-slate-100"
+        // Mobile-first height adjustment. Smaller on mobile, full height on desktop.
+        className="relative h-[300px] sm:h-[350px] lg:h-full w-full rounded-[2rem] overflow-hidden group block shadow-xl border border-slate-100"
         data-aos="zoom-in"
     >
         <img src={getImagePath(story?.image)} alt={story?.title} className="w-full h-full object-cover transition-transform
         duration-1000 group-hover:scale-105" onError={handleImageError} />
         <div className="absolute inset-0 bg-gradient-to-t from-[#001246] via-transparent to-transparent opacity-90"></div>
-        <div className="absolute bottom-0 right-0 p-6 lg:p-8 w-full text-white z-10">
+        <div className="absolute bottom-0 right-0 p-4 md:p-6 lg:p-8 w-full text-white z-10">
             <Badge className="bg-[#D00000] hover:bg-red-700 text-white border-0 mb-3 px-3 py-1 rounded-lg shadow-sm font-bold">
                 {story?.category?.name || 'عام'}
             </Badge>
-            <h1 className="text-2xl md:text-3xl lg:text-4xl font-black mb-3 leading-tight
+            {/* Responsive font size for the main title. */}
+            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black mb-3 leading-tight
             drop-shadow-md group-hover:text-slate-200 transition-colors line-clamp-3">
                 {story?.title}
             </h1>
@@ -71,6 +70,7 @@ const MainFeatureCard = ({ story }) => (
                     </Avatar>
                     <span className="font-bold truncate max-w-[150px]">{story?.user?.name}</span>
                 </div>
+                {/* Hide redundant info on smaller screens to save space. */}
                 <span className="hidden lg:inline text-white/50">•</span>
                 <span className="hidden lg:inline text-xs">{new Date(story?.created_at).toLocaleDateString('ar-EG')}</span>
             </div>
@@ -87,7 +87,8 @@ const TrendingCard = ({ category, title, image, index, delay, slug, views }) => 
         data-aos-delay={delay}
     >
         <div className="flex items-center gap-4 flex-1 min-w-0">
-            <span className="text-2xl font-black text-slate-200 group-hover:text-[#D00000] italic w-6 text-center shrink-0">{index}</span>
+            {/* Responsive font size for the trending index. */}
+            <span className="text-xl lg:text-2xl font-black text-slate-200 group-hover:text-[#D00000] italic w-6 text-center shrink-0">{index}</span>
             <div className="w-20 h-20 shrink-0 overflow-hidden rounded-lg relative shadow-sm border border-slate-100">
                 <img src={getImagePath(image)} alt={title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" onError={handleImageError} />
             </div>
@@ -140,9 +141,10 @@ export default function HeroSection({ hero, ads }) {
     ];
 
     return (
-        <section className="container mx-auto px-4 py-8 lg:py-12 font-sans" dir="rtl">
+        <section className="container mx-auto px-4 sm:px-6 py-8 lg:py-12 font-sans" dir="rtl">
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-12 items-stretch lg:h-[550px]">
+            {/* Responsive grid with adjusted gap and margin for mobile. */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6 mb-8 lg:mb-12 items-stretch lg:h-[550px]">
                 <div className="lg:col-span-3 order-2 lg:order-1 flex flex-col h-full">
                     <div className="bg-black text-white px-4 py-2 font-bold text-lg w-fit relative
                     shadow-md mb-4 after:content-['']
@@ -173,7 +175,7 @@ export default function HeroSection({ hero, ads }) {
                 <div className="lg:col-span-3 order-3 h-full flex flex-col">
                     <div className="flex items-center gap-2 mb-4 border-b-2 border-brand-red pb-2 shrink-0">
                         <FaChartLine className="text-brand-red text-xl" />
-                        <h2 className="font-black text-xl text-gray-900">الأكثر رواجاً</h2>
+                        <h2 className="font-black text-lg md:text-xl text-gray-900">الأكثر رواجاً</h2>
                     </div>
                     <div className="bg-white rounded-2xl p-2 border border-slate-50 shadow-sm flex flex-col gap-1 flex-1 min-h-0">
                         {trending && trending.length > 0 ? (
@@ -194,8 +196,9 @@ export default function HeroSection({ hero, ads }) {
                 </div>
             </div>
 
-            <div className="border-t border-slate-100 pt-12 mt-16">
-                <div className="bg-slate-50/50 rounded-[2rem] p-6 border border-slate-100">
+            <div className="border-t border-slate-100 pt-8 md:pt-12 mt-8 md:mt-16">
+                 {/* Responsive padding for the bottom strip. */}
+                <div className="bg-slate-50/50 rounded-[2rem] p-4 md:p-6 border border-slate-100">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         {finalStrip.map((item, index) => {
                             if (item.type === 'post') {
@@ -225,7 +228,7 @@ export default function HeroSection({ hero, ads }) {
                 </div>
             </div>
 
-            <div className="mt-12 w-full" data-aos="fade-up">
+            <div className="mt-8 md:mt-12 w-full" data-aos="fade-up">
                 {(!allAds || allAds.length === 0) ? (
                     <div className="w-full h-28 md:h-40 flex items-center justify-center bg-gray-100 border rounded">
                         <div className="text-center">

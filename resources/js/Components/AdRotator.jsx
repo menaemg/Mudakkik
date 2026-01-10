@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { AnimatePresence, motion, useSpring } from 'framer-motion';
 import { FaExternalLinkAlt, FaStar, FaArrowLeft, FaBolt } from 'react-icons/fa';
-import { getImagePath } from '@/utils/imagePaths';
+import { getImagePath } from '@/utils';
 
 const getDomain = (url) => {
     try {

@@ -9,9 +9,9 @@ import { FaArrowLeft,
 import { Link } from '@inertiajs/react';
 
 const SectionLabel = ({ title }) => (
-    <div className="mb-8 border-b border-gray-200 pb-3 flex justify-between items-end">
-        <h2 className="text-2xl font-black text-gray-900 flex items-center gap-2">
-            <span className="w-2 h-8 bg-black rounded-sm"></span>
+    <div className="mb-6 md:mb-8 border-b border-gray-200 pb-3 flex justify-between items-end">
+        <h2 className="text-xl sm:text-2xl font-black text-gray-900 flex items-center gap-2">
+            <span className="w-2 h-6 sm:h-8 bg-black rounded-sm"></span>
             {title}
         </h2>
         <Link href={route('posts.index', { category: 'economy' })} className="text-xs font-bold
@@ -45,13 +45,13 @@ const BusinessCard = ({ title, date, image, delay, slug, categoryName }) => (
                 {new Date(date).toLocaleDateString('ar-EG', { day: 'numeric', month: 'long' })}
             </div>
         </div>
-        <div className="p-5">
+        <div className="p-4">
             <div className="flex items-center gap-2 text-xs text-brand-blue
             font-bold mb-2 uppercase tracking-wide">
                 <FaBriefcase size={10} />
                 <span>{categoryName || 'اقتصاد وأعمال'}</span>
             </div>
-            <h3 className="font-bold text-lg leading-snug
+            <h3 className="font-bold text-base sm:text-lg leading-snug
             text-gray-900 group-hover:text-brand-blue transition-colors line-clamp-3">
                 {title}
             </h3>
@@ -70,10 +70,10 @@ export default function BusinessSection({ articles = [], ads }) {
     const displayArticles = articles.length > 0 ? articles.slice(0, 4) : [];
 
     return (
-        <section className="container mx-auto px-4 py-16 border-b border-gray-100">
+        <section className="container mx-auto px-4 py-12 sm:py-16 border-b border-gray-100">
             <SectionLabel title="مال وأعمال" />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                 {displayArticles.map((article, index) => (
                     <BusinessCard
                         key={article.id}

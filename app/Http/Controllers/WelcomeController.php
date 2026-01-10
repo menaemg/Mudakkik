@@ -12,7 +12,7 @@ class WelcomeController extends Controller
     public function index(HomePageService $homeService)
     {
 
-        $ticker        = $homeService->getTickerWithSlots()->pluck('post')->filter()->values();
+        // $ticker        = $homeService->getTickerWithSlots()->pluck('post')->filter()->values();
         $hero          = $homeService->getHeroWithSlots();
         $featured      = $homeService->getFeaturedManual();
         $topStories    = $homeService->getTopStoriesWithSlots();
@@ -28,7 +28,7 @@ class WelcomeController extends Controller
         return Inertia::render('Welcome', [
             'canLogin'    => Route::has('login'),
             'canRegister' => Route::has('register'),
-            'ticker'        => $ticker,
+            // 'ticker'        => $ticker,
             'hero'          => $hero,
             'featured'      => $featured,
             'ads'           => $ads,

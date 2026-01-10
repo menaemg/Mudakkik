@@ -40,6 +40,8 @@ export default function ProfileSidebar({ stats, activeTab, setActiveTab, current
     const aiCredits = stats?.ai_credits || 0;
     const adCredits = stats?.ad_credits || 0;
 
+    const verificationBadgeLevel = current_plan?.features?.verification_badge || null;
+
     const canAccessArticles = user.role === 'journalist' || user.role === 'admin';
     const isFreePlan = current_plan?.is_free || current_plan?.slug === 'free';
     return (
@@ -57,12 +59,12 @@ export default function ProfileSidebar({ stats, activeTab, setActiveTab, current
                     <div className="relative inline-block mb-6">
                         <div className="w-28 h-28 p-1.5 rounded-full bg-white shadow-2xl relative z-10 mx-auto">
                             <Avatar className="w-full h-full border-4 border-gray-50 bg-gray-100">
-                                <AvatarImage src={user.avatar ? `/storage/${user.avatar}` : ''} className="object-cover" />
+                                <AvatarImage src={user.avatar ? `/storage/${user.avatar}?t=${new Date().getTime()}` : ''} className="object-cover" />
                                 <AvatarFallback className="text-3xl font-black bg-white text-[#000a2e]">{user.name.charAt(0)}</AvatarFallback>
                             </Avatar>
                         </div>
                         <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 z-20 flex justify-center w-max">
-                             <UserBadge user={user} planSlug={current_plan?.slug} className="scale-110 drop-shadow-lg" />
+                             <UserBadge user={user} verificationBadgeLevel={verificationBadgeLevel} className="scale-110 drop-shadow-lg" />
                         </div>
                     </div>
 

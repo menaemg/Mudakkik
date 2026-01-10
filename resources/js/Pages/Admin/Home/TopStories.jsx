@@ -7,12 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Star, X, Eye, Plus, Trash2, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from "framer-motion";
 import PostView from "@/Pages/Admin/Components/Posts/Partials/PostView";
-
-const getImageUrl = (path) => {
-    if (!path) return '/assets/images/post.webp';
-    if (path.startsWith('http')) return path;
-    return `/storage/${path}`;
-};
+import { getImagePath } from '@/utils';
 
 export default function TopStories({ slots }) {
 
@@ -24,7 +19,7 @@ export default function TopStories({ slots }) {
             .then((res) => res.data.map(post => ({
                 value: post.id,
                 label: post.title,
-                image: getImageUrl(post.image),
+                image: getImagePath(post.image),
                 slug: post.slug,
                 raw: post
             })))
@@ -121,7 +116,7 @@ export default function TopStories({ slots }) {
                 {post ? (
                     <>
                         <img
-                            src={getImageUrl(post.image)}
+                            src={getImagePath(post.image)}
                             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-[#000a2e] via-[#000a2e]/40 to-transparent opacity-90"></div>
@@ -140,7 +135,7 @@ export default function TopStories({ slots }) {
 
                             <div className="flex items-center gap-2 text-xs text-slate-300 font-bold mt-2 pt-3 border-t border-white/10">
                                 <img
-                                    src={getImageUrl(post.user?.avatar)}
+                                    src={getImagePath(post.user?.avatar)}
                                     className="w-5 h-5 rounded-full border border-white/30"
                                 />
                                 <span>{post.user?.name}</span>

@@ -6,14 +6,10 @@ import { Link } from '@inertiajs/react';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 
-const getImageUrl = (path) => {
-    if (!path) return '/assets/images/post.webp';
-    if (path.startsWith('http')) return path;
-    return `/storage/${path}`;
-};
+import { getImagePath } from '@/utils';
 
 const MainCardSkeleton = () => (
-    <div className="relative h-[600px]
+    <div className="relative h-[400px] sm:h-[500px] lg:h-[600px]
     w-full rounded-xl bg-gray-200
     animate-pulse overflow-hidden"></div>
 );
@@ -23,24 +19,24 @@ const SideItemSkeleton = () => ( <div className="mb-6 border-b border-gray-100 p
 
 
 const MainEntertainCard = ({ post }) => (
-    <Link href={route('posts.show', post.slug)} className="relative h-[600px]
+    <Link href={route('posts.show', post.slug)} className="relative h-[400px] sm:h-[500px] lg:h-[600px]
     w-full group cursor-pointer overflow-hidden rounded-xl shadow-2xl block" data-aos="zoom-in">
-        <img src={getImageUrl(post.image)} alt={post.title} className="w-full h-full
+        <img src={getImagePath(post.image)} alt={post.title} className="w-full h-full
         object-cover transition-transform duration-1000 group-hover:scale-105" />
         <div className="absolute inset-0 bg-gradient-to-t
         from-black/80 via-transparent to-transparent opacity-60"></div>
-        <div className="absolute bottom-8 right-8 left-8 bg-[#b20e1e]/95
-        backdrop-blur-sm p-8 text-white shadow-xl border-t-4 border-white/20 rounded-sm">
+        <div className="absolute bottom-4 right-4 left-4 sm:bottom-8 sm:right-8 sm:left-8 bg-[#b20e1e]/95
+        backdrop-blur-sm p-4 sm:p-8 text-white shadow-xl border-t-4 border-white/20 rounded-sm">
             <span className="text-[10px]
             font-black uppercase mb-3 block text-white/80 tracking-widest">
                 ★ {post.is_breaking ? 'تغطية خاصة' : post.category?.name}
             </span>
-            <h2 className="text-3xl md:text-4xl font-black
-            leading-tight mb-4 drop-shadow-md">{post.title}</h2>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black
+            leading-tight mb-4 drop-shadow-md line-clamp-3">{post.title}</h2>
             <div className="flex items-center gap-3
             text-xs text-white/90 font-medium border-t border-white/20 pt-4">
                  <Avatar className="w-8 h-8 border-2 border-white/30">
-                    <AvatarImage src={getImageUrl(post.user?.avatar)} />
+                    <AvatarImage src={getImagePath(post.user?.avatar)} />
                     <AvatarFallback className="bg-[#b20e1e]
                     text-white font-bold">{post.user?.name?.charAt(0)?.toUpperCase() || 'U'}</AvatarFallback>
                 </Avatar>
@@ -59,7 +55,7 @@ const VerticalCard = ({ post, delay }) => (
     transition-all duration-300 border border-transparent
      hover:border-gray-100 block" data-aos="fade-up" data-aos-delay={delay}>
         <div className="h-48 overflow-hidden rounded-lg mb-3 relative shadow-sm">
-            <img src={getImageUrl(post.image)} className="w-full h-full object-cover
+            <img src={getImagePath(post.image)} className="w-full h-full object-cover
             transition-transform duration-700 group-hover:scale-110" />
              <div className="absolute inset-0 flex items-center justify-center
              bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -84,7 +80,7 @@ const SideListItem = ({ post, delay }) => (
         <span className="text-[10px] text-[#b20e1e] font-bold block mb-1 uppercase">أخبار : {post.category?.name}</span>
         <h4 className="font-bold text-[15px] leading-snug text-gray-900 mb-2 group-hover:text-[#b20e1e] transition-colors">{post.title}</h4>
         <div className="flex items-center gap-2 text-xs text-gray-500">
-             <Avatar className="w-5 h-5"><AvatarImage src={getImageUrl(post.user?.avatar)} /><AvatarFallback
+             <Avatar className="w-5 h-5"><AvatarImage src={getImagePath(post.user?.avatar)} /><AvatarFallback
              className="bg-[#b20e1e] text-white font-bold text-xs">{post.user?.name?.charAt(0)?.toUpperCase() || 'U'}</AvatarFallback></Avatar>
             <span className="font-medium text-gray-700">{post.user?.name}</span>
         </div>
@@ -102,9 +98,9 @@ const AgendaCard = ({ agendaAd }) => {
     return (
         <div className="h-[200px] bg-gradient-to-br from-pink-600
         to-rose-700 mb-6 flex flex-col items-center
-        justify-center text-white text-center p-6 rounded-xl shadow-xl relative overflow-hidden group">
+        justify-center text-white text-center p-4 sm:p-6 rounded-xl shadow-xl relative overflow-hidden group">
             {agendaAd && agendaAd.image && (
-                 <img src={getImageUrl(agendaAd.image)}
+                 <img src={getImagePath(agendaAd.image)}
                  className="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-30 transition-opacity duration-700" alt={title} />
             )}
 
@@ -134,7 +130,7 @@ export default function EntertainmentSection({ data = [], agendaAd = null }) {
     const isLoading = !data || data.length === 0;
 
     return (
-        <section className="container mx-auto px-4 py-16 bg-gray-50/30">
+        <section className="container mx-auto px-4 py-12 sm:py-16 bg-gray-50/30">
             <div className="mb-8 border-b border-gray-200 flex justify-between items-end pb-2">
                 <h2 className="bg-black text-white px-6 py-2 font-black text-lg inline-block relative top-[1px] shadow-md">ترفيه وفنون</h2>
                 <Link href={route('posts.index', {category: 'entertainment'})} className="text-xs font-bold text-gray-500 hover:text-[#b20e1e] flex items-center gap-1 transition-colors mb-1 group">
@@ -142,7 +138,7 @@ export default function EntertainmentSection({ data = [], agendaAd = null }) {
                 </Link>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-y-8 lg:gap-x-8">
                 <div className="lg:col-span-6">
                     {isLoading ? <MainCardSkeleton /> : <MainEntertainCard post={data[0]} />}
                 </div>

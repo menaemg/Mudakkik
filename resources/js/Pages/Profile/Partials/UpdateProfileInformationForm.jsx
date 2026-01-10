@@ -36,6 +36,7 @@ export default function UpdateProfileInformation({ mustVerifyEmail, status, clas
             tab: currentTab,
             ...data,
         }, {
+          forceFormData: true,
             preserveScroll: true,
             onSuccess: () => {
                 router.visit(window.location.href, {
