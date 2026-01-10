@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\UpgradeRequest;
+use App\Notifications\JournalistApproved;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
-use App\Notifications\JournalistApproved;
 
 class JoinRequestController extends Controller
 {
@@ -16,12 +16,13 @@ class JoinRequestController extends Controller
         $requests = UpgradeRequest::query()
             ->latest()
             ->with('user')
-            ->when($request->search, function ($q, $search) {
-                $q->whereHas('user', fn ($u) => $u->where('name', 'like', "%{$search}%"));
-            })
-            ->when($request->status, fn ($q, $status) => $q->where('status', $status))
+            ->filter($request)
             ->paginate(10)
             ->withQueryString();
+        // ->when($request->search, function ($q, $search) {
+        //     $q->whereHas('user', fn ($u) => $u->where('name', 'like', "%{$search}%"));
+        // })
+        // ->when($request->status, fn ($q, $status) => $q->where('status', $status))
 
         $stats = [
             'total' => UpgradeRequest::count(),
@@ -74,9 +75,9 @@ class JoinRequestController extends Controller
                 $user->increment('ai_bonus_credits', 50);
 
                 try {
-                    $user->notify(new JournalistApproved());
+                    $user->notify(new JournalistApproved);
                 } catch (\Exception $e) {
-                    \Log::error('Failed to send journalist approval notification: ' . $e->getMessage());
+                    \Log::error('Failed to send journalist approval notification: '.$e->getMessage());
                 }
             }
         });
