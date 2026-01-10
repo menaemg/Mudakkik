@@ -35,12 +35,13 @@ ln -nfs "$SHARED_DIR/.env" "$RELEASE_DIR/.env"
 rm -rf "$RELEASE_DIR/storage"
 ln -nfs "$SHARED_DIR/storage" "$RELEASE_DIR/storage"
 
-# Create public storage symlink
-php artisan storage:link || true
 
 # Install Composer dependencies (production)
 echo "📦 Installing Composer dependencies..."
 composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+
+# Create public storage symlink 
+php artisan storage:link --force || true
 
 # Laravel optimizations
 echo "⚡ Optimizing Laravel..."
