@@ -41,7 +41,7 @@ echo "📦 Installing Composer dependencies..."
 composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
 
 # Create public storage symlink 
-php artisan storage:link --force || true
+php artisan storage:link --force
 
 # Laravel optimizations
 echo "⚡ Optimizing Laravel..."
