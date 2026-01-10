@@ -39,20 +39,26 @@ it('sends notification when post is rejected', function () {
     Notification::assertSentTo($user, PostRejected::class);
 });
 
-it('sends notification when post is marked as fake', function () {
+it('sends notification when post is rejected due to fake content', function () {
     Notification::fake();
 
     $user = User::factory()->create();
     $post = Post::factory()->create([
         'user_id' => $user->id,
-        'ai_verdict' => 'trusted'
+        'ai_verdict' => 'trusted', 
+        'status' => 'pending'      
     ]);
 
-    $post->update(['ai_verdict' => 'fake']);
+    $post->update([
+        'ai_verdict' => 'fake',
+        'status' => 'rejected',
+        'ai_report' => 'محتوى مخالف للسياسة'
+    ]);
 
-    Notification::assertSentTo($user, PostMarkedFake::class);
+    $user->notify(new PostRejected($post));
+
+    Notification::assertSentTo($user, PostRejected::class);
 });
-
 it('sends notification when post is deleted', function () {
     Notification::fake();
 

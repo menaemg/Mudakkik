@@ -4,6 +4,8 @@ namespace App\Notifications;
 
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Str;
+
 
 class PostRejected extends Notification
 {
@@ -30,16 +32,18 @@ class PostRejected extends Notification
     /**
      * Get the mail representation of the notification.
      */
-    public function toMail(object $notifiable): MailMessage
+    public function toMail($notifiable)
     {
+        $url = url('/profile?tab=articles');
+
         return (new MailMessage)
-            ->subject('تم رفض نشر مقالك')
+            ->subject('تم رفض نشر مقالك: ' . Str::limit($this->post->title, 50))
             ->greeting('مرحباً ' . $notifiable->name)
-            ->line("نأسف لإبلاغك أن مقالك: '{$this->post->title}' تم رفض نشره.")
-            ->line('يرجى مراجعة المحتوى والتأكد من الالتزام بسياسة الموقع والشروط والأحكام.')
-            ->action('تعديل المقال', url('/my-posts/' . $this->post->id . '/edit'))
-            ->line('شكراً لتفهمك.')
-            ->salutation('مع خالص التحية، فريق الموقع');
+            ->line("نأسف لإبلاغك أن مقالك تم رفض نشره بسبب انتهاك سياسات المحتوى.")
+            ->line('سبب الرفض: ' . ($this->post->ai_report ?: 'لم يتم توفير سبب تفصيلي.'))
+            ->action('عرض مقالاتي وتعديلها', $url)
+            ->line('يرجى الالتزام بمعايير النشر لضمان قبول مقالاتك القادمة.')
+            ->salutation('مع خالص التحية، فريق المدقق');
     }
 
     /**

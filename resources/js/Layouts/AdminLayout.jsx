@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-// إضافة router هنا
 import { Link, usePage, router } from "@inertiajs/react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -42,7 +41,6 @@ export default function AdminLayout({ children }) {
   const notifications = auth?.user?.notifications || [];
   const unreadCount = auth?.user?.unread_notifications_count || 0;
 
-  // دالة التعامل مع "تحديد الكل كمقروء"
   const handleMarkAllRead = () => {
     router.post(
       route("notifications.read"),
@@ -50,7 +48,6 @@ export default function AdminLayout({ children }) {
       {
         onSuccess: () => {
           setShowNotifications(false);
-          // هنا البيانات ستتحدث تلقائياً لأن الكنترولر يرجع back()
         },
         preserveScroll: true,
       }
@@ -64,6 +61,7 @@ export default function AdminLayout({ children }) {
       icon: Newspaper,
       list: [
         { label: "المقالات", icon: Newspaper, url: "/admin/posts" },
+        { label: "التدقيق الذكي", icon: ShieldCheck, url: "/admin/ai-audit" },
         { label: "الفئات", icon: FolderTree, url: "/admin/categories" },
         { label: "الأوسمة", icon: Hash, url: "/admin/tags" },
       ],
@@ -74,12 +72,36 @@ export default function AdminLayout({ children }) {
       list: [
         { label: "شريط الأخبار", icon: ScrollText, url: "/admin/home/ticker" },
         { label: "الهيرو سكشن", icon: LayoutTemplate, url: "/admin/home/hero" },
-        { label: "أخبار مميزة", icon: LayoutTemplate, url: "/admin/home/featured" },
-        { label: "أهم قصص اليوم", icon: LayoutTemplate, url: "/admin/home/top-stories" },
-        { label: "أهم المواضيع", icon: LayoutTemplate, url: "/admin/home/top-topics" },
-        { label: "الفنون والترفيه", icon: LayoutTemplate, url: "/admin/home/entertainment" },
-        { label: "مال واعمال ", icon: LayoutTemplate, url: "/admin/home/business" },
-        { label: "قسم البانر", icon: LayoutTemplate, url: "/admin/home/banner" },
+        {
+          label: "أخبار مميزة",
+          icon: LayoutTemplate,
+          url: "/admin/home/featured",
+        },
+        {
+          label: "أهم قصص اليوم",
+          icon: LayoutTemplate,
+          url: "/admin/home/top-stories",
+        },
+        {
+          label: "أهم المواضيع",
+          icon: LayoutTemplate,
+          url: "/admin/home/top-topics",
+        },
+        {
+          label: "الفنون والترفيه",
+          icon: LayoutTemplate,
+          url: "/admin/home/entertainment",
+        },
+        {
+          label: "مال واعمال ",
+          icon: LayoutTemplate,
+          url: "/admin/home/business",
+        },
+        {
+          label: "قسم البانر",
+          icon: LayoutTemplate,
+          url: "/admin/home/banner",
+        },
       ],
     },
     {
@@ -115,6 +137,11 @@ export default function AdminLayout({ children }) {
       icon: Settings,
       list: [
         {
+          label: "سياسات المدقق", 
+          icon: ShieldCheck, 
+          url: "/admin/policies",
+        },
+        {
           label: "المواقع الموثوقة",
           icon: WholeWord,
           url: "/admin/trusted-domains",
@@ -141,9 +168,8 @@ export default function AdminLayout({ children }) {
         route("notifications.read"),
         {},
         {
-          preserveScroll: true, 
-          onSuccess: () => {
-          },
+          preserveScroll: true,
+          onSuccess: () => {},
         }
       );
     }

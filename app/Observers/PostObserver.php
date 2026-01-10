@@ -42,13 +42,13 @@ class PostObserver
             }
         }
 
-
-        if ($post->wasChanged('ai_verdict') && $post->ai_verdict === 'fake') {
-            \Log::info('Sending PostMarkedFake notification to author', ['post_id' => $post->id, 'user_id' => $post->user_id]);
-            if ($post->user) {
-                $post->user->notify(new \App\Notifications\PostMarkedFake($post));
-            }
-        }
+// i want to depand on job to send this notification
+        // if ($post->wasChanged('ai_verdict') && $post->ai_verdict === 'fake') {
+        //     \Log::info('Sending PostMarkedFake notification to author', ['post_id' => $post->id, 'user_id' => $post->user_id]);
+        //     if ($post->user) {
+        //         $post->user->notify(new \App\Notifications\PostMarkedFake($post));
+        //     }
+        // }
     }
 
     public function deleted(Post $post)

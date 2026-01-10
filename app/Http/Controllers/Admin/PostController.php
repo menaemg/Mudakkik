@@ -52,8 +52,8 @@ class PostController extends Controller
             ->where('title', 'like', "%{$query}%")
             ->where('status', 'published')
             ->whereNotIn('id', $allPinnedIds)
-            ->where(function($q) {
-                 $q->where('ai_verdict', '!=', 'fake')->orWhereNull('ai_verdict');
+            ->where(function ($q) {
+                $q->where('ai_verdict', '!=', 'fake')->orWhereNull('ai_verdict');
             })
             ->latest()
             ->take(20)
@@ -82,16 +82,16 @@ class PostController extends Controller
                 Post::where('is_cover_story', true)->update(['is_cover_story' => false]);
             }
 
-        if ($feature === 'status') {
-            $post->update([
-                'status' => $post->status === 'published' ? 'pending' : 'published'
-            ]);
-        } else {
-            $post->update([
-                $feature => !$post->$feature
-            ]);
+            if ($feature === 'status') {
+                $post->update([
+                    'status' => $post->status === 'published' ? 'pending' : 'published'
+                ]);
+            } else {
+                $post->update([
+                    $feature => !$post->$feature
+                ]);
+            }
         }
-     }
         return back()->with('success', 'تم تحديث حالة المقال بنجاح');
     }
 
@@ -179,10 +179,35 @@ class PostController extends Controller
             });
 
             return back()->with('success', 'تم حذف المقال وكل ملفاته بنجاح');
-
         } catch (\Exception $e) {
             Log::error('فشل حذف المقال: ' . $e->getMessage(), ['post_id' => $post->id]);
             return back()->with('error', 'عذراً، حدث خطأ أثناء محاولة الحذف');
         }
+    }
+    public function aiAuditIndex(Request $request)
+    {
+        $posts = Post::query()
+            ->with(['user:id,name'])
+            ->select(['id', 'title', 'user_id', 'status', 'ai_score', 'ai_report', 'ai_verdict', 'created_at'])
+            ->when($request->filled('search'), function ($query) use ($request) {
+                $query->where(function ($q) use ($request) {
+                    $q->where('title', 'like', "%{$request->search}%")
+                        ->orWhere('body', 'like', "%{$request->search}%");
+                });
+            })
+            ->when($request->filled('status'), function ($query) use ($request) {
+                $query->where('status', $request->status);
+            })
+            ->when($request->filled('verdict'), function ($query) use ($request) {
+                $query->where('ai_verdict', $request->verdict);
+            })
+            ->latest()
+            ->paginate(15)
+            ->withQueryString();
+
+        return inertia('Admin/AiAudit/Index', [
+            'posts' => $posts,
+            'filters' => $request->only(['search', 'status', 'verdict'])
+        ]);
     }
 }

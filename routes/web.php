@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\Home\EntertainmentController;
 use App\Http\Controllers\Admin\Home\TopStoriesController;
 use App\Http\Controllers\Admin\JoinRequestController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
+use App\Http\Controllers\Admin\PolicyController;
 use App\Http\Controllers\Admin\PlanController as AdminPlanController;
 use App\Http\Controllers\Admin\PostController as AdminPostController;
 use App\Http\Controllers\Admin\SubscriptionController as AdminSubscriptionController;
@@ -66,7 +67,8 @@ Route::middleware(['auth', 'verified', 'can:admin-access'])
         Route::get('posts/search', [AdminPostController::class, 'search'])->name('posts.search');
         Route::resource('posts', AdminPostController::class);
         Route::patch('posts/{post}/toggle-featured', [AdminPostController::class, 'toggleFeatured'])->name('posts.toggle-featured');
-
+        Route::get('/ai-audit', [AdminPostController::class, 'aiAuditIndex'])->name('ai-audit.index');
+        Route::resource('policies', PolicyController::class);
         Route::get('subscriptions', [AdminSubscriptionController::class, 'index'])->name('subscriptions.index');
         Route::get('subscriptions/{subscription}/edit', [AdminSubscriptionController::class, 'edit'])->name('subscriptions.edit');
         Route::put('subscriptions/{subscription}', [AdminSubscriptionController::class, 'update'])->name('subscriptions.update');
@@ -110,25 +112,25 @@ Route::middleware(['auth', 'verified', 'can:admin-access'])
                 Route::post('/top-stories/update', 'update')->name('top-stories.update');
             });
 
-              Route::controller(TopicsSectionController::class)->group(function () {
-                  Route::get('/top-topics', [TopicsSectionController::class, 'index'])->name('topics.index');
-                  Route::post('/top-topics/update', [TopicsSectionController::class, 'update'])->name('topics.update');
-              });
+            Route::controller(TopicsSectionController::class)->group(function () {
+                Route::get('/top-topics', [TopicsSectionController::class, 'index'])->name('topics.index');
+                Route::post('/top-topics/update', [TopicsSectionController::class, 'update'])->name('topics.update');
+            });
 
-              Route::controller(BannerController::class)->group(function () {
-                        Route::get('/banner', 'index')->name('banner.index');
-                        Route::post('/banner/update', 'update')->name('banner.update');
-                    });
+            Route::controller(BannerController::class)->group(function () {
+                Route::get('/banner', 'index')->name('banner.index');
+                Route::post('/banner/update', 'update')->name('banner.update');
+            });
 
-              Route::controller(EntertainmentController::class)->group(function () {
-                  Route::get('/entertainment', 'index')->name('entertainment.index');
-                  Route::post('/entertainment/update', 'update')->name('entertainment.update');
-              });
+            Route::controller(EntertainmentController::class)->group(function () {
+                Route::get('/entertainment', 'index')->name('entertainment.index');
+                Route::post('/entertainment/update', 'update')->name('entertainment.update');
+            });
 
-              Route::controller(BusinessController::class)->group(function () {
-                  Route::get('/business', 'index')->name('business.index');
-                  Route::post('/business/update', 'update')->name('business.update');
-              });
+            Route::controller(BusinessController::class)->group(function () {
+                Route::get('/business', 'index')->name('business.index');
+                Route::post('/business/update', 'update')->name('business.update');
+            });
         });
 
         /* Reports */
@@ -172,7 +174,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/ads/{advertisment}', [App\Http\Controllers\UserAdController::class, 'destroy'])->name('ads.destroy');
 });
 
-    // Notifications
+// Notifications
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
