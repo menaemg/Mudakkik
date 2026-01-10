@@ -16,6 +16,11 @@ return new class extends Migration
             $table->text('ai_report')->nullable()->after('ai_score');
             $table->string('content_hash')->nullable()->unique()->after('body');
         });
+        \App\Models\Post::chunk(100, function ($posts) {
+            foreach ($posts as $post) {
+                $post->update(['content_hash' => md5($post->body)]);
+            }
+        });
     }
 
     /**
@@ -24,7 +29,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('posts', function (Blueprint $table) {
-            $table->dropColumn(['ai_score', 'ai_report','content_hash']);
+            $table->dropColumn(['ai_score', 'ai_report', 'content_hash']);
         });
     }
 };

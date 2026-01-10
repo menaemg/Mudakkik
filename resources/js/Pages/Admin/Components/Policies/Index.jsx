@@ -42,7 +42,7 @@ export default function Index({ policies, filters = {} }) {
             }
         }, 500);
         return () => clearTimeout(delayDebounceFn);
-    }, [searchTerm, filters.search]);
+    }, [searchTerm, filters?.search]);
 
     const openCreateModal = () => {
         setEditMode(false);

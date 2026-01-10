@@ -9,8 +9,6 @@ use App\Models\Policy;
 class AiAuditService
 {
     private const PRIMARY_MODEL = 'llama-3.3-70b-versatile';
-    private const FAST_MODEL = 'llama-3.1-8b-instant';
-
     public function audit($postBody)
     {
         $policy = Policy::where('type', 'سياسة النشر ومحتوى الموقع')->first();

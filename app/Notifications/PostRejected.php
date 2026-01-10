@@ -30,17 +30,17 @@ class PostRejected extends Notification
     /**
      * Get the mail representation of the notification.
      */
-  public function toMail(object $notifiable): MailMessage
-{
-    return (new MailMessage)
-        ->subject('تم رفض نشر مقالك: ' . $this->post->title)
-        ->greeting('مرحباً ' . $notifiable->name)
-        ->line("نأسف لإبلاغك أن مقالك تم رفض نشره بسبب انتهاك سياسات المحتوى.")
-        ->line('سبب الرفض: ' . $this->post->ai_report) 
-        ->action('تعديل المقال وإعادة المحاولة', url('/my-posts/' . $this->post->id . '/edit'))
-        ->line('يرجى الالتزام بمعايير النشر لضمان قبول مقالاتك القادمة.')
-        ->salutation('مع خالص التحية، فريق المدقق');
-}
+    public function toMail(object $notifiable): MailMessage
+    {
+        return (new MailMessage)
+            ->subject('تم رفض نشر مقالك: ' . $this->post->title)
+            ->greeting('مرحباً ' . $notifiable->name)
+            ->line("نأسف لإبلاغك أن مقالك تم رفض نشره بسبب انتهاك سياسات المحتوى.")
+            ->line('سبب الرفض: ' . $this->post->ai_report)
+            ->action('تعديل المقال وإعادة المحاولة', route('posts.edit', $this->post->id))
+            ->line('يرجى الالتزام بمعايير النشر لضمان قبول مقالاتك القادمة.')
+            ->salutation('مع خالص التحية، فريق المدقق');
+    }
 
     /**
      * Get the array representation of the notification.

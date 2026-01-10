@@ -30,7 +30,7 @@ export default function Index({ posts, filters }) {
 
       if (searchTerm !== currentSearch || statusFilter !== currentStatus) {
         router.get(
-          route("admin.ai-audit.index"), 
+          route("admin.ai-audit.index"),
           { search: searchTerm, status: statusFilter, page: 1 },
           {
             preserveState: true,
@@ -43,6 +43,7 @@ export default function Index({ posts, filters }) {
 
     return () => clearTimeout(delayDebounceFn);
   }, [searchTerm, statusFilter]);
+
   const getVerdictBadge = (verdict) => {
     switch (verdict) {
       case "trusted":
@@ -81,7 +82,6 @@ export default function Index({ posts, filters }) {
             <h1 className="text-2xl font-black text-[#001246]">
               مركز التدقيق الذكي
             </h1>
-           
           </div>
         </div>
 

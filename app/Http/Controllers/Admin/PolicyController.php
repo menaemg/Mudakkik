@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Policy;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Illuminate\Support\Str;
 
 class PolicyController extends Controller
 {
