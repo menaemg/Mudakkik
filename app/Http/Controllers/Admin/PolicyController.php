@@ -9,20 +9,21 @@ use Inertia\Inertia;
 
 class PolicyController extends Controller
 {
-  
+
     public function index(Request $request)
     {
         $policies = Policy::latest()
             ->when($request->search, function ($query, $search) {
                 $query->where('type', 'like', "%{$search}%")
-                      ->orWhere('content', 'like', "%{$search}%");
+                    ->orWhere('content', 'like', "%{$search}%");
             })
             ->paginate(10)
             ->withQueryString();
 
         return Inertia::render('Admin/Components/Policies/Index', [
             'policies' => $policies,
-            'filters' => $request->only(['search'])
+            'filters' => $request->only(['search']),
+            'defaultType' => \App\Services\AiAuditService::MAIN_POLICY_TYPE
         ]);
     }
 
@@ -39,7 +40,7 @@ class PolicyController extends Controller
         return redirect()->back()->with('success', "تم إنشاء السياسة ({$policy->type}) بنجاح.");
     }
 
-   
+
     public function update(Request $request, Policy $policy)
     {
         $validated = $request->validate([

@@ -19,6 +19,12 @@ class AuditPostContent implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $post;
+
+    public function __construct(Post $post)
+    {
+        $this->post = $post;
+    }
+
     private function getDefaultErrorData()
     {
         return [
@@ -29,52 +35,51 @@ class AuditPostContent implements ShouldQueue
         ];
     }
 
-    public function __construct(Post $post)
-    {
-        $this->post = $post;
-    }
+ public function handle(AiAuditService $aiService)
+{
+    Log::info("Job Started: Auditing Post #{$this->post->id}");
 
-    public function handle(AiAuditService $aiService)
-    {
-        try {
-            $result = $aiService->audit($this->post->body);
+    try {
+        $result = $aiService->audit($this->post->body);
 
-            if (!$result) {
-                $data = [
-                    'score' => 0,
-                    'verdict' => 'pending',
-                    'verdict_type' => 'checking',
-                    'notes' => 'فشل الفحص الآلي، بانتظار المراجعة اليدوية.'
-                ];
-            } else {
-                $data = json_decode($result, true);
-                if (json_last_error() !== JSON_ERROR_NONE) {
-                    Log::error('AI Audit returned invalid JSON', ['error' => json_last_error_msg()]);
-                    $data = $this->getDefaultErrorData();
-                }
+        $data = $result ?: $this->getDefaultErrorData();
+
+        Log::info("AI Results for Post #{$this->post->id}", [
+            'verdict' => $data['verdict'] ?? 'none',
+            'type' => $data['verdict_type'] ?? 'none'
+        ]);
+
+     
+        $this->post->update([
+            'ai_score'   => $data['score'] ?? 0,
+            'ai_report'  => $data['notes'] ?? '',
+            'ai_verdict' => $data['verdict_type'] ?? 'checking',
+            'status'     => $data['verdict'] ?? 'pending',
+        ]);
+
+        $user = $this->post->user;
+        if ($user) {
+            Log::info("Attempting to notify user #{$user->id} for status: {$this->post->status}");
+
+            if ($this->post->status === 'published') {
+                $user->notify(new PostPublished($this->post));
+                Log::info("Notification Sent: PostPublished");
+            } 
+            elseif ($this->post->status === 'rejected') {
+                $user->notify(new PostRejected($this->post));
+                Log::info("Notification Sent: PostRejected");
+            } 
+            else {
+                $user->notify(new PostPendingReview($this->post, $this->post->ai_report));
+                Log::info("Notification Sent: PostPendingReview");
             }
-
-
-            $this->post->update([
-                'ai_score'   => $data['score'] ?? 0,
-                'ai_report'  => $data['notes'] ?? '',
-                'ai_verdict' => $data['verdict_type'] ?? 'checking',
-                'status'     => $data['verdict'] ?? 'pending',
-            ]);
-
-            $user = $this->post->user;
-            if ($user) {
-                if ($this->post->status === 'published') {
-                    $user->notify(new PostPublished($this->post));
-                } elseif ($this->post->status === 'rejected') {
-                    $user->notify(new PostRejected($this->post));
-                } else {
-                    $user->notify(new PostPendingReview($this->post, $this->post->ai_report));
-                }
-            }
-        } catch (\Exception $e) {
-            \Log::error("Job Error: " . $e->getMessage());
-            $this->post->update(['status' => 'pending']);
+        } else {
+            Log::warning("No user found for Post #{$this->post->id}");
         }
+
+    } catch (\Exception $e) {
+        Log::error("Critical Job Failure: " . $e->getMessage());
+        $this->post->update(['status' => 'pending']);
     }
+}
 }

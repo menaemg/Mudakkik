@@ -31,14 +31,18 @@ class PostPublished extends Notification
     /**
      * Get the mail representation of the notification.
      */
-    public function toMail(object $notifiable): MailMessage
-    {
-        return (new MailMessage)
-            ->greeting('مبروك!')
-            ->line("تم نشر مقالك: '{$this->post->title}'")
-            ->action('عرض المقال', url('/posts/' . $this->post->slug))
-            ->line('شكراً لمساهمتك في المنصة!');
-    }
+public function toMail($notifiable)
+{
+    $url = url('/profile?tab=articles'); 
+
+    return (new MailMessage)
+        ->subject('تهانينا! تم نشر مقالك بنجاح')
+        ->greeting('مرحباً ' . $notifiable->name)
+        ->line("يسعدنا إبلاغك أن مقالك: '" . $this->post->title . "' قد اجتاز مراجعة الذكاء الاصطناعي وتم نشره بنجاح.")
+        ->action('عرض مقالاتي المنشورة', $url)
+        ->line('شكراً لمساهمتك القيمة في منصتنا.')
+        ->salutation('مع التحية، فريق العمل');
+}
 
     /**
      * Get the array representation of the notification.

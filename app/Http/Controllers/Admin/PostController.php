@@ -186,7 +186,9 @@ class PostController extends Controller
     }
     public function aiAuditIndex(Request $request)
     {
-            ->select(['id', 'title', 'user_id', 'status', 'ai_score', 'ai_report', 'ai_verdict', 'created_at']) // بنحدد الأعمدة اللي محتاجينها بس
+        $posts = Post::query()
+            ->with(['user:id,name'])
+            ->select(['id', 'title', 'user_id', 'status', 'ai_score', 'ai_report', 'ai_verdict', 'created_at'])
             ->when($request->filled('search'), function ($query) use ($request) {
                 $query->where(function ($q) use ($request) {
                     $q->where('title', 'like', "%{$request->search}%")

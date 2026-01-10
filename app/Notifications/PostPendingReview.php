@@ -24,26 +24,27 @@ class PostPendingReview extends Notification
         return ['mail', 'database'];
     }
 
-    public function toMail($notifiable): MailMessage
+    public function toMail($notifiable)
     {
+        $url = url('/profile?tab=articles');
+
         return (new MailMessage)
-            ->subject('مقالك قيد المراجعة: مطلوب بعض التعديلات')
+            ->subject('مقالك قيد المراجعة: ' . \Illuminate\Support\Str::limit($this->post->title, 50))
             ->greeting('مرحباً ' . $notifiable->name)
-            ->line("شكراً لمشاركتك مقال بعنوان: '{$this->post->title}'.")
-            ->line("لقد تمت مراجعة المقال أولياً، وهو الآن 'تحت المراجعة' لوجود بعض الملاحظات اللغوية والنحوية التي تحتاج لتعديلك.")
-            ->line("إليك تقرير الأخطاء بالتفصيل:")
-            ->line($this->notes)
-            ->action('تعديل المقال الآن', route('posts.index'))
-            ->salutation('مع تحيات فريق التدقيق الذكي');
+            ->line("تم استلام مقالك، وهو حالياً قيد المراجعة الإضافية لتحسين الجودة.")
+            ->line('ملاحظات التدقيق: ' . ($this->post->ai_report ?: 'تعديلات بسيطة مطلوبة.'))
+            ->action('متابعة حالة المقال', $url)
+            ->line('سنقوم بإرسال إشعار فور انتهاء عملية المراجعة.')
+            ->salutation('مع التحية، فريق العمل');
     }
 
     public function toArray($notifiable): array
     {
         return [
             'post_id' => $this->post->id,
-            'title' => $this->post->title, 
+            'title' => $this->post->title,
             'message' => 'مقالك يحتاج لتعديلات لغوية ونحوية ليتم نشره.',
-            'action_url' => route('posts.edit', $this->post->id) 
+            'action_url' => route('posts.edit', $this->post->id)
         ];
     }
 }
