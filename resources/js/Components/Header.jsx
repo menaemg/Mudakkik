@@ -9,10 +9,11 @@ import Search from './Search';
 import Notifications from './Notifications';
 import UserBadge from '@/Components/UserBadge';
 
-const Header = ({ auth, ticker }) => {
+
+const Header = ({ auth }) => {
     const { url, props } = usePage();
     const user = auth?.user || props.auth?.user;
-    const globalTicker = ticker || props.ticker || [];
+    const globalTicker = props.ticker || [];
 
     const isActive = (itemLink, itemSlug) => {
         if (itemSlug === null && url === '/') return true;
@@ -29,31 +30,15 @@ const Header = ({ auth, ticker }) => {
         return false;
     };
 
-    const getPlanSlug = (currentUser) => {
-        if (!currentUser) return 'free';
+  const userVerificationBadgeLevel = user?.verification_badge_level || null;
 
-        if (currentUser.subscription?.plan?.slug) {
-            return currentUser.subscription.plan.slug.toLowerCase();
-        }
-
-        if (currentUser.subscriptions?.length > 0 && currentUser.subscriptions[0]?.plan?.slug) {
-            return currentUser.subscriptions[0].plan.slug.toLowerCase();
-        }
-
-        if (currentUser.plan_slug) {
-            return currentUser.plan_slug.toLowerCase();
-        }
-
-        return 'free';
-    };
-
-    const userPlanSlug = getPlanSlug(user);
 
     const [isSearchActive, setIsSearchActive] = useState(false);
     const [currentNewsIndex, setCurrentNewsIndex] = useState(0);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
     const [isTickerPaused, setIsTickerPaused] = useState(false);
+
 
     const isAdmin = user?.role === 'admin';
     const isJournalist = user?.role === 'journalist';
@@ -96,6 +81,7 @@ const Header = ({ auth, ticker }) => {
             }
         };
         window.addEventListener('scroll', handleScroll);
+
 
         let interval;
         if (globalTicker.length > 0 && !isTickerPaused) {
@@ -207,7 +193,7 @@ const Header = ({ auth, ticker }) => {
                                             </div>
                                             <span className="text-xs font-bold max-w-[80px] truncate">{user.name}</span>
 
-                                            <UserBadge user={user} planSlug={userPlanSlug} />
+                                            <UserBadge user={user} verificationBadgeLevel={userVerificationBadgeLevel} />
 
                                             <FaChevronDown className="text-[10px] group-hover:rotate-180 transition-transform" />
                                         </div>
@@ -218,7 +204,7 @@ const Header = ({ auth, ticker }) => {
                                                 <div className="flex items-center gap-2 mb-1">
                                                      <p className="text-white text-sm font-bold truncate">{user.name}</p>
                                                      <div className="scale-75 origin-right">
-                                                        <UserBadge user={user} planSlug={userPlanSlug} />
+                                                        <UserBadge user={user} verificationBadgeLevel={userVerificationBadgeLevel} />
                                                      </div>
                                                 </div>
                                                 <p className="text-gray-400 text-[10px] truncate">{user.email}</p>
@@ -283,7 +269,7 @@ const Header = ({ auth, ticker }) => {
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-2 mb-0.5">
                                         <h3 className="font-bold text-gray-900 truncate">{user.name}</h3>
-                                        <UserBadge user={user} planSlug={userPlanSlug} />
+                                        <UserBadge user={user} verificationBadgeLevel={userVerificationBadgeLevel} />
                                     </div>
                                     <p className="text-xs text-gray-500 truncate">{user.email}</p>
                                 </div>
@@ -363,8 +349,7 @@ const Header = ({ auth, ticker }) => {
                     </div>
                 )}
             </div>
-
-            <div
+     <div
                 className="mt-[80px] bg-gradient-to-r from-[#8a0008] via-[#b20e1e]
                 to-[#8a0008] text-white h-10 flex items-center relative
                 z-30 overflow-hidden shadow-inner border-t border-red-900/50"
@@ -382,7 +367,7 @@ const Header = ({ auth, ticker }) => {
                             <span className="transform skew-x-[10deg]">عاجل</span>
                         </div>
                     </div>
-                    <div className="flex-1 h-full flex items-center mr-32 overflow-hidden relative">
+                    <div className="flex-1 h-full flex items-center mr-24 sm:mr-32 overflow-hidden relative">
                         <div className="w-full">
                             {globalTicker.length > 0 ? (
                                 <Link

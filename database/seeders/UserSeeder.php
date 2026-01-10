@@ -13,6 +13,7 @@ class UserSeeder extends Seeder
     {
         $this->call(PlanSeeder::class);
 
+        $freePlan = Plan::where('slug', 'free')->first();
         $proPlan = Plan::where('slug', 'professional')->first();
         $annualPlan = Plan::where('slug', 'professional-annual')->first();
 
@@ -33,11 +34,11 @@ class UserSeeder extends Seeder
         ]);
 
         if ($annualPlan) {
-
+            $admin->subscriptions()->delete();
             $admin->subscriptions()->create([
                 'plan_id' => $annualPlan->id,
                 'status' => 'active',
-                'start_at' => now(),
+                'start_at' => now()->subDay(),
                 'ends_at' => now()->addYear(),
             ]);
         }
@@ -58,15 +59,16 @@ class UserSeeder extends Seeder
         ]);
 
         if ($proPlan) {
+            $journalist->subscriptions()->delete();
             $journalist->subscriptions()->create([
                 'plan_id' => $proPlan->id,
                 'status' => 'active',
-                'start_at' => now(),
+                'start_at' => now()->subDay(),
                 'ends_at' => now()->addMonth(),
             ]);
         }
 
-        User::factory()->create([
+        $normalUser = User::factory()->create([
             'name' => 'محمد القارئ',
             'username' => 'user',
             'email' => 'user@mudakkik.com',
@@ -80,6 +82,16 @@ class UserSeeder extends Seeder
             'ai_recurring_credits' => 30,
             'ad_credits' => 0,
         ]);
+
+        if ($freePlan) {
+            $normalUser->subscriptions()->delete();
+            $normalUser->subscriptions()->create([
+                'plan_id' => $freePlan->id,
+                'status' => 'active',
+                'start_at' => now()->subDay(),
+                'ends_at' => null,
+            ]);
+        }
 
         User::factory(5)->journalist()->create();
         User::factory(15)->create();

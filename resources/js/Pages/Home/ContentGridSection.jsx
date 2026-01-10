@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { getImagePath } from '@/utils';
 import { FaFacebookF,
    FaInstagram,
    FaTwitter,
@@ -12,7 +13,7 @@ import { Link } from '@inertiajs/react';
 
 const SectionLabel = ({ title, colorClass = "bg-black" }) => (
     <div className="mb-6 border-b-2 border-gray-100 flex items-center justify-between font-sans">
-        <h2 className={`${colorClass} text-white px-4 py-1.5 font-bold text-base relative top-[2px] shadow-sm`}>
+        <h2 className={`${colorClass} text-white px-4 py-1.5 font-bold text-sm sm:text-base relative top-[2px] shadow-sm`}>
             {title}
         </h2>
     </div>
@@ -21,14 +22,16 @@ const SectionLabel = ({ title, colorClass = "bg-black" }) => (
 const DontMissCard = ({ post, delay }) => (
     <Link
         href={route('posts.show', post.slug)}
-        className="flex gap-5 mb-6 group cursor-pointer border-b border-gray-50
+        // Responsive gap and layout
+        className="flex gap-3 sm:gap-5 mb-6 group cursor-pointer border-b border-gray-50
         last:border-0 pb-6 last:pb-0 hover:bg-gray-50/50 p-2 rounded-lg transition-colors"
         data-aos="fade-up"
         data-aos-delay={delay}
     >
-        <div className="w-[160px] h-[110px] shrink-0 overflow-hidden rounded-lg shadow-sm relative">
+        {/* Responsive image size */}
+        <div className="w-[120px] sm:w-[160px] h-[90px] sm:h-[110px] shrink-0 overflow-hidden rounded-lg shadow-sm relative">
             <img
-                src={post.image_url}
+                src={getImagePath(post.image_url)}
                 alt={post.title}
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
             />
@@ -39,13 +42,13 @@ const DontMissCard = ({ post, delay }) => (
                 text-white border-0 mb-2 px-2 py-0.5 text-[10px] rounded-sm shadow-sm">
                     {post.category?.name}
                 </Badge>
-                <h3 className="font-bold text-[15px] leading-snug
+                <h3 className="font-bold text-sm sm:text-[15px] leading-snug
                 text-gray-900 group-hover:text-brand-blue
                 transition-colors line-clamp-2">
                     {post.title}
                 </h3>
             </div>
-            <div className="flex items-center justify-end gap-2 text-[11px] text-gray-400 mt-2 font-medium">
+            <div className="flex items-center justify-end gap-2 text-[10px] sm:text-[11px] text-gray-400 mt-2 font-medium">
                 <span>{post.formatted_date}</span>
                 <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
                 <span className="text-gray-600">{post.user?.name}</span>
@@ -57,17 +60,18 @@ const DontMissCard = ({ post, delay }) => (
 const BreakingNewsCard = ({ post }) => {
     if (!post) return null;
     return (
-        <Link href={route('posts.show', post.slug)} className="relative group cursor-pointer h-full min-h-[450px]
+        // Responsive height and padding
+        <Link href={route('posts.show', post.slug)} className="relative group cursor-pointer h-full min-h-[350px] sm:min-h-[450px]
         rounded-xl overflow-hidden shadow-lg
         hover:shadow-2xl transition-all duration-300 block" data-aos="zoom-in">
             <img
-                src={post.image_url}
+                src={getImagePath(post.image_url)}
                 alt={post.title}
                 className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-red-900/90 via-black/20 to-transparent opacity-90"></div>
 
-            <div className="absolute bottom-0 right-0 p-8 w-full text-right text-white z-10">
+            <div className="absolute bottom-0 right-0 p-4 sm:p-6 md:p-8 w-full text-right text-white z-10">
                 <div className="flex items-center justify-end gap-2 mb-4">
                     <span className="bg-red-600/90 backdrop-blur-sm text-white font-bold text-xs uppercase px-3 py-1 rounded-full shadow-lg border border-red-500">
                         تحديث مباشر
@@ -78,7 +82,8 @@ const BreakingNewsCard = ({ post }) => {
                       <span className="relative inline-flex rounded-full h-3 w-3 bg-red-600"></span>
                     </span>
                 </div>
-                <h2 className="text-2xl md:text-3xl font-black leading-tight mb-4 group-hover:text-red-100 transition-colors drop-shadow-md">
+                 {/* Responsive typography */}
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-black leading-tight mb-4 group-hover:text-red-100 transition-colors drop-shadow-md">
                     {post.title}
                 </h2>
                 <div className="flex items-center justify-end gap-3 text-xs text-gray-200 border-t border-white/20 pt-4 font-medium">
@@ -104,7 +109,7 @@ const JustForYouItem = ({ post }) => (
             </h4>
         </div>
         <div className="w-[70px] h-[70px] shrink-0 overflow-hidden rounded-lg shadow-sm">
-            <img src={post.image_url} alt={post.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+            <img src={getImagePath(post.image_url)} alt={post.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
         </div>
     </Link>
 );
@@ -115,8 +120,8 @@ export default function ContentGridSection({ dontMissPosts = [], breakingPost = 
     }, []);
 
     return (
-        <section className="container mx-auto px-4 py-16 bg-white" dir="rtl">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <section className="container mx-auto px-4 py-12 sm:py-16 bg-white" dir="rtl">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-y-8 lg:gap-x-8 items-start">
 
                 <div className="lg:col-span-5 flex flex-col">
                     <SectionLabel title="لا تفوت" />
@@ -135,7 +140,7 @@ export default function ContentGridSection({ dontMissPosts = [], breakingPost = 
                 </div>
 
                 <div className="lg:col-span-3 flex flex-col">
-                    <div className="bg-white p-6 shadow-sm border border-gray-100 rounded-xl mb-8">
+                    <div className="bg-white p-4 sm:p-6 shadow-sm border border-gray-100 rounded-xl mb-8">
                         <h3 className="font-bold text-sm text-gray-900 mb-5 text-center border-b border-gray-50 pb-3">تواصل معنا</h3>
                         <div className="flex justify-around">
                             <div className="flex flex-col items-center gap-2

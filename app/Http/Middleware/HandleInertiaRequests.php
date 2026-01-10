@@ -31,6 +31,7 @@ class HandleInertiaRequests extends Middleware
                     'avatar' => $request->user()->avatar,
                     'role' => $request->user()->role,
                     'plan_slug' => $request->user()->currentPlan()?->slug ?? 'free',
+                    'verification_badge_level' => $request->user()->currentPlan()?->features['verification_badge'] ?? null,
                     'is_journalist' => $request->user()->role === 'journalist',
                     'is_admin' => $request->user()->role === 'admin',
                     'credits' => [
@@ -53,7 +54,7 @@ class HandleInertiaRequests extends Middleware
             ],
 
             'ticker' => \Cache::remember('global.ticker_posts', 300, function () use ($homeService) {
-                return $homeService->getTickerWithSlots()->values();
+                return $homeService->getTickerWithSlots()->pluck('post')->filter()->values();
             }),
 
             'flash' => [
