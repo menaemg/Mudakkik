@@ -186,12 +186,13 @@ class PostController extends Controller
     }
     public function aiAuditIndex(Request $request)
     {
-        $posts = Post::with('user', 'category')
-            ->when($request->search, function ($query, $search) {
-                $query->where('title', 'like', "%{$search}%");
+
+        $posts = Post::with(['user'])
+            ->when($request->filled('search'), function ($query) use ($request) {
+                $query->where('title', 'like', "%{$request->search}%");
             })
-            ->when($request->status, function ($query, $status) {
-                $query->where('status', $status);
+            ->when($request->filled('status'), function ($query) use ($request) {
+                $query->where('status', $request->status);
             })
             ->latest()
             ->paginate(15)
@@ -199,7 +200,6 @@ class PostController extends Controller
 
         return inertia('Admin/AiAudit/Index', [
             'posts' => $posts,
-
             'filters' => $request->only(['search', 'status'])
         ]);
     }

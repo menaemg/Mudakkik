@@ -3,60 +3,69 @@
 namespace App\Jobs;
 
 use App\Models\Post;
-use App\Services\ContentReviewService;
+use App\Services\AiAuditService;
 use App\Notifications\PostPublished;
+use App\Notifications\PostPendingReview;
 use App\Notifications\PostRejected;
-use App\Notifications\PostMarkedFake;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
-use App\Notifications\PostPendingReview;
 
 class AuditPostContent implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public int $tries = 1;
-    public int $backoff = 30;
+    public $post;
 
-    public function __construct(
-        public Post $post
-    ) {}
-
-    public function handle(ContentReviewService $reviewer): void
+    public function __construct(Post $post)
     {
-        $audit = $reviewer->audit($this->post->body);
-        $score = $audit['score'];
-        $notes = $audit['notes'];
-        $aiVerdict = $audit['verdict'];
+        $this->post = $post;
+    }
 
-        if ($aiVerdict === 'published' && $score >= 80) {
-            $status = 'published';
-            $notification = new PostPublished($this->post);
-        } elseif ($score >= 50 && $score < 80) {
-            $status = 'pending';
-            $notification = new PostPendingReview($this->post, $notes);
+public function handle(AiAuditService $aiService)
+{
+    try {
+        $result = $aiService->audit($this->post->body);
+
+        if (!$result) {
+            $data = [
+                'score' => 0,
+                'verdict' => 'pending',
+                'verdict_type' => 'checking',
+                'notes' => 'فشل الفحص الآلي، بانتظار المراجعة اليدوية.'
+            ];
         } else {
-            $status = 'rejected';
-            $notification = new PostRejected($this->post, $notes);
+            $data = json_decode($result, true);
         }
 
         $this->post->update([
-            'status' => $status,
-            'ai_score' => $score,
-            'ai_report' => $notes,
+            'ai_score'   => $data['score'] ?? 0,
+            'ai_report'  => $data['notes'] ?? '',
+            'ai_verdict' => $data['verdict_type'] ?? 'checking',
+            'status'     => $data['verdict'] ?? 'pending', 
         ]);
 
-        $this->post->user->notify($notification);
+        $user = $this->post->user;
+        if ($user) {
+            if ($this->post->status === 'published') {
+                $user->notify(new PostPublished($this->post));
+               
+                
+            } elseif ($this->post->status === 'rejected') {
+                $user->notify(new PostRejected($this->post));
+                
+            } else {
+                $user->notify(new PostPendingReview($this->post, $this->post->ai_report));
+               
+            }
+        }
+
+    } catch (\Exception $e) {
+        \Log::error("Job Error: " . $e->getMessage());
+        $this->post->update(['status' => 'pending']);
     }
-    public function failed(\Throwable $exception): void
-    {
-        Log::error('فشل الـ Job الخاص بتدقيق المقال نهائياً', [
-            'post_id' => $this->post->id,
-            'error' => $exception->getMessage()
-        ]);
-    }
+}
 }

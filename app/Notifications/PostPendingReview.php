@@ -33,8 +33,7 @@ class PostPendingReview extends Notification
             ->line("لقد تمت مراجعة المقال أولياً، وهو الآن 'تحت المراجعة' لوجود بعض الملاحظات اللغوية والنحوية التي تحتاج لتعديلك.")
             ->line("إليك تقرير الأخطاء بالتفصيل:")
             ->line($this->notes)
-            ->action('تعديل المقال الآن', url('/posts/' . $this->post->id . '/edit'))
-            ->line('بمجرد قيامك بتصحيح هذه النقاط، سيتم إعادة فحص المقال ونشره فوراً على المنصة.')
+            ->action('تعديل المقال الآن', route('posts.index'))
             ->salutation('مع تحيات فريق التدقيق الذكي');
     }
 
@@ -42,9 +41,9 @@ class PostPendingReview extends Notification
     {
         return [
             'post_id' => $this->post->id,
-            'title' => $this->post->title,
+            'title' => $this->post->title, 
             'message' => 'مقالك يحتاج لتعديلات لغوية ونحوية ليتم نشره.',
-            'action_url' => '/posts/' . $this->post->id . '/edit'
+            'action_url' => route('posts.edit', $this->post->id) 
         ];
     }
 }

@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
-use App\Services\ContentReviewService;
 use App\Notifications\PostPublished;
 use App\Notifications\PostRejected;
 use App\Notifications\PostMarkedFake;
@@ -35,21 +34,29 @@ class UserPostController extends Controller
             'type' => 'required|in:article,news',
         ]);
 
-        $imagePath = $request->file('image')->store('posts', 'public');
+        try {
+            $imagePath = $request->file('image')->store('posts', 'public');
 
-        $post = $request->user()->posts()->create([
-            'title' => $validated['title'],
-            'slug' => Str::slug($validated['title']) . '-' . time(),
-            'body' => $validated['body'],
-            'category_id' => $validated['category_id'],
-            'image' => $imagePath,
-            'type' => $validated['type'],
-            'status' => 'pending', 
-        ]);
+            $post = $request->user()->posts()->create([
+                'title' => $validated['title'],
+                'slug' => Str::slug($validated['title']) . '-' . time(),
+                'body' => $validated['body'],
+                'category_id' => $validated['category_id'],
+                'image' => $imagePath,
+                'type' => $validated['type'],
+                'status' => 'pending',
+            ]);
 
-        AuditPostContent::dispatch($post);
+            AuditPostContent::dispatch($post);
 
-        return redirect()->route('profile.edit')->with('warning', 'تم استلام مقالك بنجاح، سيتم تدقيقه آلياً وإشعارك بالنتيجة فوراً.');
+            return redirect()->route('profile.edit')->with('warning', 'تم استلام مقالك بنجاح، سيتم تدقيقه آلياً وإشعارك بالنتيجة فوراً.');
+        } catch (\Illuminate\Database\QueryException $e) {
+            if ($e->errorInfo[1] == 1062) {
+                return back()->with('error', 'هذا المقال تم نشره مسبقاً، يرجى كتابة محتوى حصري.');
+            }
+
+            return back()->with('error', 'حدث خطأ أثناء حفظ المقال، حاول مرة أخرى.');
+        }
     }
     /**
      * Update the specified resource in storage.

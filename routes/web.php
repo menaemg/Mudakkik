@@ -67,7 +67,7 @@ Route::middleware(['auth', 'verified', 'can:admin-access'])
         Route::get('posts/search', [AdminPostController::class, 'search'])->name('posts.search');
         Route::resource('posts', AdminPostController::class);
         Route::patch('posts/{post}/toggle-featured', [AdminPostController::class, 'toggleFeatured'])->name('posts.toggle-featured');
-        Route::get('/ai-audit', [AdminPostController::class, 'aiAuditIndex'])->name('admin.ai-audit.index');
+        Route::get('/ai-audit', [AdminPostController::class, 'aiAuditIndex'])->name('ai-audit.index');
         Route::resource('policies', PolicyController::class);
         Route::get('subscriptions', [AdminSubscriptionController::class, 'index'])->name('subscriptions.index');
         Route::get('subscriptions/{subscription}/edit', [AdminSubscriptionController::class, 'edit'])->name('subscriptions.edit');

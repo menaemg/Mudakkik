@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::table('posts', function (Blueprint $table) {
             $table->integer('ai_score')->default(0)->after('ai_verdict');
             $table->text('ai_report')->nullable()->after('ai_score');
+            $table->string('content_hash')->nullable()->unique()->after('body');
         });
     }
 
@@ -23,7 +24,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('posts', function (Blueprint $table) {
-            $table->dropColumn(['ai_score', 'ai_report']);
+            $table->dropColumn(['ai_score', 'ai_report','content_hash']);
         });
     }
 };
