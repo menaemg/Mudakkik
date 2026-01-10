@@ -31,4 +31,4 @@ class SubscriptionObserver
     {
         $this->clearBadgeCache($subscription);
     }
-}س
+}

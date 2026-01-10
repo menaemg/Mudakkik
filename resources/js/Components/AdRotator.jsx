@@ -326,7 +326,7 @@ export default function AdRotator({
                     <img
                         src={getImagePath(ad.image_url)}
                         alt={ad.title}
-                        className="w-full h-full object-cover transition-transform duration-&lsqb;2s&rsqb; group-hover:scale-110 opacity-80 group-hover:opacity-100"
+                        className="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-110 opacity-80 group-hover:opacity-100"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-90" />
 

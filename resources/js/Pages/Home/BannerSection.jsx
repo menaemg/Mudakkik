@@ -109,7 +109,7 @@ useEffect(() => {
                 <img
                     src={content.image}
                     alt={content.title}
-                    className="w-full h-full object-cover transition-transform duration-&lsqb;2000ms&rsqb; group-hover:scale-110 will-change-transform"
+                    className="w-full h-full object-cover transition-transform duration-[2000ms] group-hover:scale-110 will-change-transform"
                 />
 
                 <div className="absolute inset-0 bg-gradient-to-l from-black/95 via-black/60 to-transparent opacity-90"></div>

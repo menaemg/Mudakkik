@@ -9,7 +9,6 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
@@ -336,31 +335,23 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->belongsToMany(FactCheck::class, 'fact_check_user')->withTimestamps();
     }
 
-  public function getSubscriptionBadgeAttribute()
-  {
-      return \Cache::remember('sub_badge_' . $this->id, 60 * 5, function () {
+public function getSubscriptionBadgeAttribute(): ?string
+{
+    return \Cache::remember('sub_badge_' . $this->id, 60 * 5, function () {
 
-          $latestSubscription = $this->subscriptions()
-              ->with('plan')
-              ->where('status', 'active')
-              ->where(function ($q) {
-                  $q->whereNull('ends_at')
-                    ->orWhere('ends_at', '>', now());
-              })
-              ->latest('created_at')
-              ->first();
+        $latestSubscription = $this->currentSubscription();
 
-          if (!$latestSubscription || !$latestSubscription->plan) {
-              return null;
-          }
+        if (!$latestSubscription || !$latestSubscription->plan) {
+            return null;
+        }
 
-          $badge = $latestSubscription->plan->features['verification_badge'] ?? null;
+        $badge = $latestSubscription->plan->features['verification_badge'] ?? null;
 
-          if ($badge === false || $badge === 'false') {
-              return null;
-          }
+        if ($badge === false || $badge === 'false') {
+            return null;
+        }
 
-          return $badge;
-      });
+        return $badge;
+    });
 }
 }

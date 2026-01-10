@@ -34,13 +34,15 @@ class UserSeeder extends Seeder
         ]);
 
         if ($annualPlan) {
-            $admin->subscriptions()->delete();
-            $admin->subscriptions()->create([
-                'plan_id' => $annualPlan->id,
-                'status' => 'active',
-                'start_at' => now()->subDay(),
-                'ends_at' => now()->addYear(),
-            ]);
+            $admin->subscriptions()->updateOrCreate(
+                ['user_id' => $admin->id],
+                [
+                    'plan_id' => $annualPlan->id,
+                    'status' => 'active',
+                    'start_at' => now()->subDay(),
+                    'ends_at' => now()->addYear(),
+                ]
+            );
         }
 
         $journalist = User::factory()->create([
@@ -59,13 +61,15 @@ class UserSeeder extends Seeder
         ]);
 
         if ($proPlan) {
-            $journalist->subscriptions()->delete();
-            $journalist->subscriptions()->create([
-                'plan_id' => $proPlan->id,
-                'status' => 'active',
-                'start_at' => now()->subDay(),
-                'ends_at' => now()->addMonth(),
-            ]);
+            $journalist->subscriptions()->updateOrCreate(
+                ['user_id' => $journalist->id],
+                [
+                    'plan_id' => $proPlan->id,
+                    'status' => 'active',
+                    'start_at' => now()->subDay(),
+                    'ends_at' => now()->addMonth(),
+                ]
+            );
         }
 
         $normalUser = User::factory()->create([
@@ -84,13 +88,15 @@ class UserSeeder extends Seeder
         ]);
 
         if ($freePlan) {
-            $normalUser->subscriptions()->delete();
-            $normalUser->subscriptions()->create([
-                'plan_id' => $freePlan->id,
-                'status' => 'active',
-                'start_at' => now()->subDay(),
-                'ends_at' => null,
-            ]);
+            $normalUser->subscriptions()->updateOrCreate(
+                ['user_id' => $normalUser->id],
+                [
+                    'plan_id' => $freePlan->id,
+                    'status' => 'active',
+                    'start_at' => now()->subDay(),
+                    'ends_at' => null,
+                ]
+            );
         }
 
         User::factory(5)->journalist()->create();

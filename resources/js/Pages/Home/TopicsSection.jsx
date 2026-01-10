@@ -14,12 +14,7 @@ import {
 import { Link } from '@inertiajs/react';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
-
-const getImagePath = (path) => {
-    if (!path) return '/assets/images/post.webp';
-    if (path.startsWith('http')) return path;
-    return `/storage/${path}`;
-};
+import { getImagePath } from '@/utils';
 
 const TopicCard = ({ topic }) => (
     <Link href={route('posts.index', { category: topic.slug })}

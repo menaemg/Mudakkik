@@ -8,6 +8,8 @@ use App\Models\User;
 use Illuminate\Support\Facades\Gate;
 use App\Models\Post;
 use App\Observers\PostObserver;
+use App\Models\Subscription;
+use App\Observers\SubscriptionObserver;
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -29,5 +31,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Post::observe(PostObserver::class);
+
+        Subscription::observe(SubscriptionObserver::class);
     }
 }
