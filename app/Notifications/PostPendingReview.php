@@ -44,7 +44,7 @@ class PostPendingReview extends Notification
             'post_id' => $this->post->id,
             'title' => $this->post->title,
             'message' => 'مقالك يحتاج لتعديلات لغوية ونحوية ليتم نشره.',
-            'action_url' => route('posts.edit', $this->post->id)
+            'action_url' => url('/profile?tab=articles')
         ];
     }
 }

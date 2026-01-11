@@ -122,6 +122,11 @@ export default function Notifications({ user }) {
                                         className="block pr-6"
                                     >
                                         <p className="text-xs text-white leading-relaxed">{n.data?.message || 'إشعار'}</p>
+                                        {n.data?.details && (
+                                            <p className="text-[11px] text-yellow-400/90 mt-1.5 leading-relaxed">
+                                                {n.data.details}
+                                            </p>
+                                        )}
                                         <span className="text-[10px] text-gray-500 mt-2 block">
                                             {new Date(n.created_at).toLocaleDateString('ar-EG', { day: 'numeric', month: 'long' })}
                                         </span>

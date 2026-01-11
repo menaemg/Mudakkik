@@ -53,7 +53,7 @@ public function toMail($notifiable)
     {
         return [
             'message' => "تم نشر مقالك الجديد: " . $this->post->title,
-            'url' => url('/posts/' . $this->post->slug),
+            'url' => url('/articles/' . $this->post->slug),
             'id' => $this->post->id
         ];
     }

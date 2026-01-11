@@ -28,19 +28,9 @@ class PostObserver
         \Log::info('PostObserver updated called', ['post_id' => $post->id, 'changes' => $post->getChanges()]);
 
 
-        if ($post->wasChanged('status') && $post->status === 'published') {
-            \Log::info('Sending PostPublished notification to author', ['post_id' => $post->id, 'user_id' => $post->user_id]);
-            if ($post->user) {
-                $post->user->notify(new \App\Notifications\PostPublished($post));
-            }
-        }
-
-        if ($post->wasChanged('status') && $post->status === 'rejected') {
-            \Log::info('Sending PostRejected notification to author', ['post_id' => $post->id, 'user_id' => $post->user_id]);
-            if ($post->user) {
-                $post->user->notify(new \App\Notifications\PostRejected($post));
-            }
-        }
+        // Notifications are sent from the AuditPostContent job to avoid duplicates.
+        // If you need to send notifications from manual admin actions,
+        // do it directly in the controller instead of the observer.
 
 // i want to depand on job to send this notification
         // if ($post->wasChanged('ai_verdict') && $post->ai_verdict === 'fake') {
