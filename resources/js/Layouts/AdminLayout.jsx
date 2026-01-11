@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Link, usePage } from "@inertiajs/react";
+import { Link, usePage, router } from "@inertiajs/react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
@@ -11,6 +11,7 @@ import {
   Newspaper,
   Menu,
   X,
+  Bell,
   ChevronLeft,
   ShieldCheck,
   UserRoundCheck,
@@ -24,16 +25,33 @@ import {
   House,
   Settings,
   ShieldAlert,
-  CreditCard as PaymentIcon,
+  MessageSquare,
 } from "lucide-react";
+import Swal from "sweetalert2";
 
 export default function AdminLayout({ children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState(null);
+  const [showNotifications, setShowNotifications] = useState(false);
 
-  const { auth, admin, url } = usePage().props;
+  const { auth, admin, flash, url } = usePage().props;
+  
   const currentUrl = url || window.location.pathname || "";
   const cleanUrl = currentUrl.split('?')[0];
+  const pendingReports = admin?.pendingReportsCount || 0;
+  const notifications = auth?.user?.notifications || [];
+  const unreadCount = auth?.user?.unread_notifications_count || 0;
+
+  const handleMarkAllRead = () => {
+    router.post(
+      route("notifications.read"),
+      {},
+      {
+        onSuccess: () => setShowNotifications(false),
+        preserveScroll: true,
+      }
+    );
+  };
 
   const menuItems = [
     { label: "الرئيسية", icon: LayoutDashboard, url: "/admin/dashboard" },
@@ -68,12 +86,17 @@ export default function AdminLayout({ children }) {
         { label: "قائمة المستخدمين", icon: Users, url: "/admin/users" },
         { label: "طلبات الانضمام", icon: UserRoundCheck, url: "/admin/requests/join" },
         { label: "إعلانات مدقق", icon: Megaphone, url: "/admin/requests/ads" },
-        { label: "البلاغات", icon: ShieldAlert, url: "/admin/reports" },
+        { 
+          label: "البلاغات", 
+          icon: ShieldAlert, 
+          url: "/admin/reports", 
+          badge: pendingReports 
+        },
       ],
     },
     {
       label: "المالية والاشتراكات",
-      icon: PaymentIcon,
+      icon: CreditCard,
       list: [
         { label: "الخطط", icon: Package, url: "/admin/plans" },
         { label: "الاشتراكات", icon: Layers, url: "/admin/subscriptions" },
@@ -92,14 +115,10 @@ export default function AdminLayout({ children }) {
 
   const activeData = useMemo(() => {
     for (const item of menuItems) {
-      if (item.url === cleanUrl) {
-        return { parent: "لوحة التحكم", main: item.label, sub: null, parentLabel: item.label };
-      }
+      if (item.url === cleanUrl) return { parent: "لوحة التحكم", main: item.label, sub: null, parentLabel: item.label };
       if (item.list) {
         const foundSub = item.list.find(sub => cleanUrl.startsWith(sub.url));
-        if (foundSub) {
-          return { parent: "لوحة التحكم", main: item.label, sub: foundSub.label, parentLabel: item.label };
-        }
+        if (foundSub) return { parent: "لوحة التحكم", main: item.label, sub: foundSub.label, parentLabel: item.label };
       }
     }
     return { parent: "لوحة التحكم", main: "الرئيسية", sub: null, parentLabel: null };
@@ -108,6 +127,19 @@ export default function AdminLayout({ children }) {
   useEffect(() => {
     if (activeData.parentLabel) setOpenMenu(activeData.parentLabel);
   }, [activeData.parentLabel]);
+
+  useEffect(() => {
+    if (flash?.success) {
+      Swal.fire({
+        icon: "success",
+        title: "تمت العملية بنجاح",
+        text: flash.success,
+        timer: 2000,
+        showConfirmButton: false,
+        customClass: { popup: "rounded-[2rem] font-sans" },
+      });
+    }
+  }, [flash]);
 
   return (
     <div className="flex h-screen bg-[#FDFDFD] font-sans text-right overflow-hidden" dir="rtl">
@@ -170,6 +202,7 @@ export default function AdminLayout({ children }) {
                                 <sub.icon size={16} className={isSubActive ? "text-white" : "text-slate-500"} />
                                 <span className="text-xs font-bold">{sub.label}</span>
                               </div>
+                              {sub.badge > 0 && <span className="bg-white/20 text-[10px] px-2 py-0.5 rounded-full">{sub.badge}</span>}
                             </Link>
                           );
                         })}
@@ -204,23 +237,63 @@ export default function AdminLayout({ children }) {
           </div>
 
           <div className="flex items-center gap-6">
-             <div className="flex items-center gap-4 pl-6 border-l border-slate-100">
+            <div className="relative">
+              <button
+                onClick={() => setShowNotifications(!showNotifications)}
+                className="p-3 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-all relative group"
+              >
+                <Bell size={24} className="text-[#001246] group-hover:rotate-12 transition-transform" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-6 h-6 bg-red-600 text-white text-[11px] font-black rounded-full flex items-center justify-center border-2 border-white animate-bounce">
+                    {unreadCount}
+                  </span>
+                )}
+              </button>
+
+              <AnimatePresence>
+                {showNotifications && (
+                  <>
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowNotifications(false)} className="fixed inset-0 z-40" />
+                    <motion.div initial={{ opacity: 0, y: 15, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 15, scale: 0.95 }} className="absolute left-0 mt-4 w-80 bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 z-50 overflow-hidden">
+                      <div className="p-6 bg-slate-50/50 border-b border-slate-100 flex justify-between items-center">
+                        <span className="text-sm font-black text-[#001246]">الإشعارات</span>
+                        {unreadCount > 0 && (
+                          <button onClick={handleMarkAllRead} className="text-[11px] font-black text-blue-600 hover:underline">تحديد الكل كمقروء</button>
+                        )}
+                      </div>
+                      <div className="max-h-96 overflow-y-auto">
+                        {notifications.length > 0 ? (
+                          notifications.map((n) => (
+                            <Link key={n.id} href={n.data.link} onClick={() => setShowNotifications(false)} className={`flex gap-4 p-5 border-b border-slate-50 hover:bg-slate-50 transition-colors ${!n.read_at ? "bg-blue-50/20" : ""}`}>
+                              <div className="w-11 h-11 rounded-2xl bg-white border border-slate-100 flex items-center justify-center shrink-0 shadow-sm text-red-500">
+                                <MessageSquare size={18} />
+                              </div>
+                              <div className="flex flex-col min-w-0 text-right">
+                                <p className="text-[12px] font-black text-[#001246] truncate">{n.data.title}</p>
+                                <p className="text-[11px] text-slate-500 mt-1 line-clamp-2 leading-relaxed">{n.data.message}</p>
+                              </div>
+                            </Link>
+                          ))
+                        ) : (
+                          <div className="p-12 text-center text-slate-400 font-bold">لا توجد إشعارات حالياً</div>
+                        )}
+                      </div>
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
+            </div>
+
+            <div className="flex items-center gap-4 pl-6 border-l border-slate-100">
               <div className="hidden md:block text-right">
                 <p className="text-[13px] font-black text-[#001246] mb-0.5">{auth?.user?.name}</p>
-                <p className="text-[11px] text-slate-400 font-bold uppercase tracking-tighter">المسؤول العام</p>
+                <p className="text-[11px] text-slate-400 font-bold uppercase">المسؤول العام</p>
               </div>
-              <Link href="/profile" className="relative group">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-700 to-blue-500 p-[2px] shadow-lg border-2 border-white overflow-hidden hover:scale-105 transition-all duration-300">
-                    {auth?.user?.avatar ? (
-                      <img src={`/storage/${auth.user.avatar}`} className="w-full h-full object-cover" alt="avatar" />
-                    ) : (
-                      <div className="w-full h-full bg-blue-600 flex items-center justify-center text-white font-black text-lg">
-                        {auth?.user?.name?.charAt(0)}
-                      </div>
-                    )}
-                </div>
-              </Link>
+              <div className="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center text-white font-black text-lg shadow-lg">
+                {auth?.user?.name?.charAt(0)}
+              </div>
             </div>
+
             <div className="flex gap-2">
               <Link href="/" className="p-3 text-slate-400 hover:text-[#001246] hover:bg-slate-50 rounded-2xl transition-all"><House size={22} /></Link>
               <Link href={route("logout")} method="post" as="button" className="p-3 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-2xl transition-all"><LogOut size={22} /></Link>
