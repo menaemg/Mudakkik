@@ -80,7 +80,7 @@ export default function RequestViewModal({
               <InfoCard title="ملفات مرفقه" icon={<FileText size={14} />}>
                 <div className="space-y-3">
                   <a
-                    href={request.documents}
+                    href={`/storage/${request.documents}`}
                     className="block text-blue-700 font-bold hover:underline"
                     target="_blank"
                     rel="noopener noreferrer"
