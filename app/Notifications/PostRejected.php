@@ -10,13 +10,23 @@ use Illuminate\Support\Str;
 class PostRejected extends Notification
 {
     public $post;
+    public $reason;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct($post)
+    public function __construct($post, $reason = null)
     {
         $this->post = $post;
+        $this->reason = $reason;
+    }
+
+    /**
+     * Get the rejection reason (custom reason or ai_report fallback).
+     */
+    private function getReason(): string
+    {
+        return $this->reason ?: $this->post->ai_report ?: 'لم يتم توفير سبب تفصيلي.';
     }
 
     /**
@@ -40,7 +50,7 @@ class PostRejected extends Notification
             ->subject('تم رفض نشر مقالك: ' . Str::limit($this->post->title, 50))
             ->greeting('مرحباً ' . $notifiable->name)
             ->line("نأسف لإبلاغك أن مقالك تم رفض نشره بسبب انتهاك سياسات المحتوى.")
-            ->line('سبب الرفض: ' . ($this->post->ai_report ?: 'لم يتم توفير سبب تفصيلي.'))
+            ->line('سبب الرفض: ' . $this->getReason())
             ->action('عرض مقالاتي وتعديلها', $url)
             ->line('يرجى الالتزام بمعايير النشر لضمان قبول مقالاتك القادمة.')
             ->salutation('مع خالص التحية، فريق المدقق');
@@ -55,8 +65,9 @@ class PostRejected extends Notification
     {
         return [
             'message' => "تم رفض نشر مقالك: " . $this->post->title,
+            'details' => 'سبب الرفض: ' . $this->getReason(),
             'type' => 'warning',
-            'url' => url('/my-posts/' . $this->post->id . '/edit')
+            'url' => url('/profile?tab=articles')
         ];
     }
 }
