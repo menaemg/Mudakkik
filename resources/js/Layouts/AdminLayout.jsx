@@ -51,26 +51,31 @@ export default function AdminLayout({ children }) {
 
   useEffect(() => {
     if (showNotifications && unreadCount > 0) {
+      const previousCount = unreadCount;
       setDisplayUnreadCount(0);
+
       router.post(
         route("notifications.read"),
         {},
         {
           preserveScroll: true,
+          onError: () => {
+            setDisplayUnreadCount(previousCount);
+          },
         }
       );
     }
-  }, [showNotifications]);
+  }, [showNotifications, unreadCount]);
 
   const handleMarkAllRead = () => {
+    const previousCount = displayUnreadCount;
     setDisplayUnreadCount(0);
     router.post(
       route("notifications.read"),
       {},
       {
-        onSuccess: () => {
-          setShowNotifications(false);
-        },
+        onSuccess: () => setShowNotifications(false),
+        onError: () => setDisplayUnreadCount(previousCount),
         preserveScroll: true,
       }
     );
@@ -288,13 +293,22 @@ export default function AdminLayout({ children }) {
                       <div className="max-h-96 overflow-y-auto">
                         {notifications.length > 0 ? (
                           notifications.map((n) => (
-                            <Link key={n.id} href={n.data.link} onClick={() => setShowNotifications(false)} className={`flex gap-4 p-5 border-b border-slate-50 hover:bg-slate-50 transition-colors ${!n.read_at ? "bg-blue-50/20" : ""}`}>
+                            <Link 
+                              key={n.id} 
+                              href={n?.data?.link ?? "#"} 
+                              onClick={() => setShowNotifications(false)} 
+                              className={`flex gap-4 p-5 border-b border-slate-50 hover:bg-slate-50 transition-colors ${!n.read_at ? "bg-blue-50/20" : ""}`}
+                            >
                               <div className="w-11 h-11 rounded-2xl bg-white border border-slate-100 flex items-center justify-center shrink-0 shadow-sm text-red-500">
                                 <MessageSquare size={18} />
                               </div>
                               <div className="flex flex-col min-w-0 text-right">
-                                <p className="text-[12px] font-black text-[#001246] truncate">{n.data.title}</p>
-                                <p className="text-[11px] text-slate-500 mt-1 line-clamp-2 leading-relaxed">{n.data.message}</p>
+                                <p className="text-[12px] font-black text-[#001246] truncate">
+                                  {n?.data?.title ?? "بدون عنوان"}
+                                </p>
+                                <p className="text-[11px] text-slate-500 mt-1 line-clamp-2 leading-relaxed">
+                                  {n?.data?.message ?? "لا يوجد محتوى متاح"}
+                                </p>
                               </div>
                             </Link>
                           ))
