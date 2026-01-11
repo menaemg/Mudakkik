@@ -26,6 +26,7 @@ import {
   Settings,
   ShieldAlert,
   MessageSquare,
+  CreditCard as PaymentIcon,
 } from "lucide-react";
 import Swal from "sweetalert2";
 
@@ -34,20 +35,42 @@ export default function AdminLayout({ children }) {
   const [openMenu, setOpenMenu] = useState(null);
   const [showNotifications, setShowNotifications] = useState(false);
 
-  const { auth, admin, flash, url } = usePage().props;
-  
+  const { auth, admin, url, flash } = usePage().props;
   const currentUrl = url || window.location.pathname || "";
-  const cleanUrl = currentUrl.split('?')[0];
+  const cleanUrl = currentUrl.split("?")[0];
+
   const pendingReports = admin?.pendingReportsCount || 0;
   const notifications = auth?.user?.notifications || [];
   const unreadCount = auth?.user?.unread_notifications_count || 0;
 
+  const [displayUnreadCount, setDisplayUnreadCount] = useState(unreadCount);
+
+  useEffect(() => {
+    setDisplayUnreadCount(unreadCount);
+  }, [unreadCount]);
+
+  useEffect(() => {
+    if (showNotifications && unreadCount > 0) {
+      setDisplayUnreadCount(0);
+      router.post(
+        route("notifications.read"),
+        {},
+        {
+          preserveScroll: true,
+        }
+      );
+    }
+  }, [showNotifications]);
+
   const handleMarkAllRead = () => {
+    setDisplayUnreadCount(0);
     router.post(
       route("notifications.read"),
       {},
       {
-        onSuccess: () => setShowNotifications(false),
+        onSuccess: () => {
+          setShowNotifications(false);
+        },
         preserveScroll: true,
       }
     );
@@ -86,17 +109,17 @@ export default function AdminLayout({ children }) {
         { label: "قائمة المستخدمين", icon: Users, url: "/admin/users" },
         { label: "طلبات الانضمام", icon: UserRoundCheck, url: "/admin/requests/join" },
         { label: "إعلانات مدقق", icon: Megaphone, url: "/admin/requests/ads" },
-        { 
-          label: "البلاغات", 
-          icon: ShieldAlert, 
-          url: "/admin/reports", 
-          badge: pendingReports 
+        {
+          label: "البلاغات",
+          icon: ShieldAlert,
+          url: "/admin/reports",
+          badge: pendingReports,
         },
       ],
     },
     {
       label: "المالية والاشتراكات",
-      icon: CreditCard,
+      icon: PaymentIcon,
       list: [
         { label: "الخطط", icon: Package, url: "/admin/plans" },
         { label: "الاشتراكات", icon: Layers, url: "/admin/subscriptions" },
@@ -115,10 +138,12 @@ export default function AdminLayout({ children }) {
 
   const activeData = useMemo(() => {
     for (const item of menuItems) {
-      if (item.url === cleanUrl) return { parent: "لوحة التحكم", main: item.label, sub: null, parentLabel: item.label };
+      if (item.url === cleanUrl)
+        return { parent: "لوحة التحكم", main: item.label, sub: null, parentLabel: item.label };
       if (item.list) {
-        const foundSub = item.list.find(sub => cleanUrl.startsWith(sub.url));
-        if (foundSub) return { parent: "لوحة التحكم", main: item.label, sub: foundSub.label, parentLabel: item.label };
+        const foundSub = item.list.find((sub) => cleanUrl.startsWith(sub.url));
+        if (foundSub)
+          return { parent: "لوحة التحكم", main: item.label, sub: foundSub.label, parentLabel: item.label };
       }
     }
     return { parent: "لوحة التحكم", main: "الرئيسية", sub: null, parentLabel: null };
@@ -161,7 +186,7 @@ export default function AdminLayout({ children }) {
           {menuItems.map((item) => {
             const hasSub = !!item.list;
             const isMenuOpen = openMenu === item.label;
-            const isAnyChildActive = hasSub && item.list.some(s => cleanUrl.startsWith(s.url));
+            const isAnyChildActive = hasSub && item.list.some((s) => cleanUrl.startsWith(s.url));
 
             return (
               <div key={item.label} className="mb-1">
@@ -202,7 +227,9 @@ export default function AdminLayout({ children }) {
                                 <sub.icon size={16} className={isSubActive ? "text-white" : "text-slate-500"} />
                                 <span className="text-xs font-bold">{sub.label}</span>
                               </div>
-                              {sub.badge > 0 && <span className="bg-white/20 text-[10px] px-2 py-0.5 rounded-full">{sub.badge}</span>}
+                              {sub.badge > 0 && (
+                                <span className="bg-red-600 text-[10px] px-2 py-0.5 rounded-full text-white font-black animate-pulse">{sub.badge}</span>
+                              )}
                             </Link>
                           );
                         })}
@@ -226,10 +253,7 @@ export default function AdminLayout({ children }) {
                 <ChevronLeft size={14} className="mt-0.5" />
                 <span className={activeData.sub ? "text-slate-400" : "text-[#001246]"}>{activeData.main}</span>
                 {activeData.sub && (
-                  <>
-                    <ChevronLeft size={14} className="mt-0.5" />
-                    <span className="text-red-500 font-black">{activeData.sub}</span>
-                  </>
+                  <><ChevronLeft size={14} className="mt-0.5" /><span className="text-red-500 font-black">{activeData.sub}</span></>
                 )}
               </nav>
               <p className="text-xl font-black text-[#001246]">{activeData.sub || activeData.main}</p>
@@ -243,9 +267,9 @@ export default function AdminLayout({ children }) {
                 className="p-3 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-all relative group"
               >
                 <Bell size={24} className="text-[#001246] group-hover:rotate-12 transition-transform" />
-                {unreadCount > 0 && (
+                {displayUnreadCount > 0 && (
                   <span className="absolute -top-1 -right-1 w-6 h-6 bg-red-600 text-white text-[11px] font-black rounded-full flex items-center justify-center border-2 border-white animate-bounce">
-                    {unreadCount}
+                    {displayUnreadCount}
                   </span>
                 )}
               </button>
@@ -257,7 +281,7 @@ export default function AdminLayout({ children }) {
                     <motion.div initial={{ opacity: 0, y: 15, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 15, scale: 0.95 }} className="absolute left-0 mt-4 w-80 bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 z-50 overflow-hidden">
                       <div className="p-6 bg-slate-50/50 border-b border-slate-100 flex justify-between items-center">
                         <span className="text-sm font-black text-[#001246]">الإشعارات</span>
-                        {unreadCount > 0 && (
+                        {displayUnreadCount > 0 && (
                           <button onClick={handleMarkAllRead} className="text-[11px] font-black text-blue-600 hover:underline">تحديد الكل كمقروء</button>
                         )}
                       </div>
@@ -287,13 +311,18 @@ export default function AdminLayout({ children }) {
             <div className="flex items-center gap-4 pl-6 border-l border-slate-100">
               <div className="hidden md:block text-right">
                 <p className="text-[13px] font-black text-[#001246] mb-0.5">{auth?.user?.name}</p>
-                <p className="text-[11px] text-slate-400 font-bold uppercase">المسؤول العام</p>
+                <p className="text-[11px] text-slate-400 font-bold uppercase tracking-tighter">المسؤول العام</p>
               </div>
-              <div className="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center text-white font-black text-lg shadow-lg">
-                {auth?.user?.name?.charAt(0)}
-              </div>
+              <Link href="/profile" className="relative group">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-700 to-blue-500 p-[2px] shadow-lg border-2 border-white overflow-hidden hover:scale-105 transition-all duration-300">
+                  {auth?.user?.avatar ? (
+                    <img src={`/storage/${auth.user.avatar}`} className="w-full h-full object-cover" alt="avatar" />
+                  ) : (
+                    <div className="w-full h-full bg-blue-600 flex items-center justify-center text-white font-black text-lg">{auth?.user?.name?.charAt(0)}</div>
+                  )}
+                </div>
+              </Link>
             </div>
-
             <div className="flex gap-2">
               <Link href="/" className="p-3 text-slate-400 hover:text-[#001246] hover:bg-slate-50 rounded-2xl transition-all"><House size={22} /></Link>
               <Link href={route("logout")} method="post" as="button" className="p-3 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-2xl transition-all"><LogOut size={22} /></Link>
