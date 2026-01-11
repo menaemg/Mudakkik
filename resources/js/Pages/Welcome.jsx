@@ -25,8 +25,19 @@ export default function Welcome({
     moreNews,
     ads,
     gridSection,
-    editorAlerts
+    editorAlerts,
+    mainBanner
 }) {
+
+    const isPostActive = mainBanner?.type === 'post' && mainBanner?.data;
+
+    const postForBanner = isPostActive ? mainBanner.data : null;
+
+
+    const adForBanner = !isPostActive
+        ? (mainBanner?.type === 'ad' && mainBanner.data ? mainBanner.data : ads)
+        : null;
+
     return (
         <>
             <Head title="الرئيسية - مدقق نيوز" />
@@ -49,12 +60,15 @@ export default function Welcome({
                     <BusinessSection articles={business} ads={ads} />
 
                     <ContentGridSection
-                      dontMissPosts={gridSection.dontMiss}
-                      breakingPost={gridSection.breaking}
-                      forYouPosts={gridSection.forYou}
+                      dontMissPosts={gridSection?.dontMiss}
+                      breakingPost={gridSection?.breaking}
+                      forYouPosts={gridSection?.forYou}
                   />
 
-                    <BannerSection ads={ads} />
+                    <BannerSection
+                        post={postForBanner}
+                        ad={adForBanner}
+                    />
 
                     <MoreNewsSection articles={moreNews} ads={ads} />
                 </main>

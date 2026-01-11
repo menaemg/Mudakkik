@@ -31,11 +31,10 @@ const BadgeItem = ({ icon: Icon, colorClass, bgClass, ringClass, tooltip }) => (
     </TooltipProvider>
 );
 
-export default function UserBadge({ user, planSlug, className = "" }) {
+export default function UserBadge({ user, verificationBadgeLevel, className = "" }) {
     if (!user) return null;
 
     const role = user.role;
-    const plan = planSlug ? planSlug.toLowerCase() : 'free';
 
     return (
         <div className={`inline-flex items-center gap-3 ${className}`}>
@@ -62,7 +61,7 @@ export default function UserBadge({ user, planSlug, className = "" }) {
             )}
 
 
-            {plan === 'professional-annual' && (
+            {verificationBadgeLevel === 'platinum' && (
                 <BadgeItem
                     icon={FaGem}
                     colorClass="text-gray-50"
@@ -72,7 +71,7 @@ export default function UserBadge({ user, planSlug, className = "" }) {
                 />
             )}
 
-            {plan === 'professional' && (
+            {verificationBadgeLevel === 'gold' && (
                 <BadgeItem
                     icon={FaGem}
                     colorClass="text-white"
@@ -82,7 +81,7 @@ export default function UserBadge({ user, planSlug, className = "" }) {
                 />
             )}
 
-            {plan === 'basic' && (
+            {verificationBadgeLevel === 'bronze' && (
                 <BadgeItem
                     icon={FaCheckCircle}
                     colorClass="text-white"

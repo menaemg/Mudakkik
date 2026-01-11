@@ -5,7 +5,7 @@ import { Separator } from "@/components/ui/separator";
 
 export default function Footer() {
     return (
-        <footer className="bg-[#000a2e] text-white pt-16 pb-8 font-sans border-t-4 border-brand-red relative overflow-hidden">
+        <footer className="bg-[#000a2e] text-white pt-12 sm:pt-16 pb-8 font-sans border-t-4 border-brand-red relative overflow-hidden">
 
             <div className="container mx-auto px-4 relative z-10">
 

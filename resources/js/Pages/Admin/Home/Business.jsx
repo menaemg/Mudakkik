@@ -49,8 +49,11 @@ export default function Business({ slots }) {
     };
 
     const EditControl = ({ slotName, hasPost }) => (
-        <div className="absolute top-2 left-2 z-50 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-y-2 group-hover:translate-y-0 w-[calc(100%-1rem)]">
-            <div className="bg-white/95 backdrop-blur-sm rounded-lg shadow-2xl p-1 border border-slate-200 flex gap-1 items-center flex-1">
+        <div className="absolute top-2 left-2 z-50 flex gap-2 opacity-0 group-hover:opacity-100 transition-all
+        duration-200 translate-y-2 group-hover:translate-y-0 w-[calc(100%-1rem)]">
+            <div className="bg-white/95 backdrop-blur-sm rounded-lg
+            shadow-2xl p-1 border border-slate-200
+            flex gap-1 items-center flex-1">
                 <div className="flex-1 min-w-0">
                     <AsyncSelect
                         loadOptions={loadOptions}
@@ -58,7 +61,10 @@ export default function Business({ slots }) {
                         placeholder="اختر خبراً..."
                         menuPortalTarget={document.body}
                         styles={{
-                            control: (base) => ({ ...base, borderRadius: "0.5rem", fontSize: '0.75rem', minHeight: '32px', border: 'none', boxShadow: 'none', backgroundColor: 'transparent' }),
+                            control: (base) => ({ ...base, borderRadius: "0.5rem",
+                              fontSize: '0.75rem', minHeight: '32px',
+                              border: 'none', boxShadow: 'none',
+                              backgroundColor: 'transparent' }),
                             menu: (base) => ({ ...base, zIndex: 999999, width: '280px' }),
                             option: (base, state) => ({ ...base, backgroundColor: state.isFocused ? "#f1f5f9" : "white", color: "#0f172a", fontSize: "0.8rem", cursor: "pointer" })
                         }}
@@ -76,14 +82,17 @@ export default function Business({ slots }) {
                 <div className="flex gap-1">
                     <button
                         onClick={() => { const post = slots.find(s => s.slot_name === slotName)?.post; setPreviewPost(post); }}
-                        className="bg-blue-50 hover:bg-blue-100 text-blue-600 p-2 rounded-lg border border-blue-200 shadow-sm flex items-center justify-center h-[42px] w-[42px]"
+                        className="bg-blue-50 hover:bg-blue-100 text-blue-600 p-2
+                        rounded-lg border border-blue-200 shadow-sm flex items-center justify-center h-[42px] w-[42px]"
                         title="معاينة الخبر"
                     >
                         <Eye size={18} />
                     </button>
                     <button
                         onClick={() => handleReset(slotName)}
-                        className="bg-red-50 hover:bg-red-100 text-red-600 p-2 rounded-lg border border-red-200 shadow-sm flex items-center justify-center h-[42px] w-[42px]"
+                        className="bg-red-50 hover:bg-red-100 text-red-600
+                        p-2 rounded-lg border border-red-200 shadow-sm
+                        flex items-center justify-center h-[42px] w-[42px]"
                         title="إزالة التثبيت"
                     >
                         <Trash2 size={18} />
@@ -97,7 +106,9 @@ export default function Business({ slots }) {
         const { post, slot_name } = slot;
 
         return (
-            <div className={`group relative bg-white rounded-xl overflow-hidden shadow-sm transition-all duration-300 border h-full flex flex-col
+            <div className={`group relative bg-white rounded-xl
+              overflow-hidden shadow-sm transition-all
+              duration-300 border h-full flex flex-col
                 ${post ? 'hover:shadow-xl border-gray-100' : 'border-dashed border-slate-300 bg-slate-50'}`}>
 
                 <EditControl slotName={slot_name} hasPost={!!post} />
@@ -107,14 +118,17 @@ export default function Business({ slots }) {
                         <div className="h-48 overflow-hidden relative">
                             <img
                                 src={getImageUrl(post.image)}
-                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                className="w-full h-full object-cover
+                                transition-transform duration-700 group-hover:scale-110"
                             />
-                            <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm text-[10px] font-bold px-2 py-1 rounded-md shadow-sm text-gray-800">
+                            <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm text-[10px]
+                            font-bold px-2 py-1 rounded-md shadow-sm text-gray-800">
                                 {new Date(post.created_at).toLocaleDateString('ar-EG', { day: 'numeric', month: 'long' })}
                             </div>
                         </div>
                         <div className="p-5 flex-1 flex flex-col">
-                            <div className="flex items-center gap-2 text-xs text-blue-800 font-bold mb-2 uppercase tracking-wide">
+                            <div className="flex items-center gap-2 text-xs
+                            text-blue-800 font-bold mb-2 uppercase tracking-wide">
                                 <Briefcase size={12} />
                                 <span>{post.category?.name || 'اقتصاد وأعمال'}</span>
                             </div>
@@ -122,16 +136,17 @@ export default function Business({ slots }) {
                                 {post.title}
                             </h3>
                         </div>
-                        {/* بادج التثبيت */}
                         <div className="absolute top-3 left-3 z-20">
-                            <Badge className="bg-amber-500 hover:bg-amber-600 text-white shadow-lg text-[10px] border-0">
+                            <Badge className="bg-amber-500 hover:bg-amber-600
+                            text-white shadow-lg text-[10px] border-0">
                                 مثبت يدوياً
                             </Badge>
                         </div>
                     </>
                 ) : (
                     <div className="h-full flex flex-col items-center justify-center p-8 text-slate-400 gap-3 min-h-[300px]">
-                        <div className="w-16 h-16 rounded-full bg-slate-200 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <div className="w-16 h-16 rounded-full bg-slate-200 flex items-center
+                        justify-center group-hover:scale-110 transition-transform">
                             <Plus size={32} className="text-slate-400" />
                         </div>
                         <div className="text-center">
@@ -176,13 +191,15 @@ export default function Business({ slots }) {
                         <motion.div
                             initial={{ x: "-100%" }} animate={{ x: 0 }} exit={{ x: "-100%" }}
                             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                            className="fixed top-2 bottom-2 left-2 w-full md:w-[600px] bg-white shadow-2xl z-[110] rounded-[2.5rem] overflow-hidden flex flex-col border border-slate-100"
+                            className="fixed top-2 bottom-2 left-2 w-full md:w-[600px] bg-white shadow-2xl z-[110]
+                            rounded-[2.5rem] overflow-hidden flex flex-col border border-slate-100"
                         >
                             <div className="p-5 border-b border-slate-50 flex justify-between items-center bg-white sticky top-0 z-10">
                                 <h3 className="font-black text-[#001246] text-lg flex items-center gap-2">
                                     <Eye size={18} className="text-blue-500" /> معاينة سريعة
                                 </h3>
-                                <button onClick={() => setPreviewPost(null)} className="w-8 h-8 flex items-center justify-center bg-slate-50 hover:bg-red-50 hover:text-red-500 rounded-full transition-colors">
+                                <button onClick={() => setPreviewPost(null)} className="w-8 h-8 flex items-center justify-center
+                                bg-slate-50 hover:bg-red-50 hover:text-red-500 rounded-full transition-colors">
                                     <X size={18} />
                                 </button>
                             </div>

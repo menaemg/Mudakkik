@@ -7,12 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Trash2, Search, X, Calendar, Megaphone, Check } from 'lucide-react';
 import { FaArrowLeft, FaBell, FaBolt } from 'react-icons/fa';
-
-const getImagePath = (path) => {
-    if (!path) return '/assets/images/post.webp';
-    return path.startsWith('http') ? path : `/storage/${path}`;
-};
-
+import { getImagePath } from '@/utils';
 export default function TopicsSection({ alertsData, categories, upcomingAd }) {
 
     const loadOptions = (inputValue) => {
@@ -46,7 +41,8 @@ export default function TopicsSection({ alertsData, categories, upcomingAd }) {
                 <img
                     src={getImagePath(topic.representative_image)}
                     alt={topic.name}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100"
+                    className="w-full h-full object-cover transition-transform
+                    duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100"
                 />
                 <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
             </div>
@@ -55,7 +51,8 @@ export default function TopicsSection({ alertsData, categories, upcomingAd }) {
                     <h3 className="font-bold text-gray-900 text-base group-hover:text-blue-600 transition-colors">{topic.name}</h3>
                     <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{topic.posts_count || 0} مقال</span>
                 </div>
-                <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-blue-600 group-hover:text-white transition-all">
+                <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center
+                text-gray-400 group-hover:bg-blue-600 group-hover:text-white transition-all">
                      <FaArrowLeft className="text-[10px]" />
                 </div>
             </div>
@@ -66,7 +63,8 @@ export default function TopicsSection({ alertsData, categories, upcomingAd }) {
         <div className="font-sans min-h-screen bg-gray-50/30" dir="rtl">
             <Head title="إدارة قسم المواضيع" />
 
-            <div className="bg-white border-b border-gray-200 px-8 py-4 mb-8 sticky top-0 z-50 shadow-sm flex justify-between items-center">
+            <div className="bg-white border-b border-gray-200 px-8
+            py-4 mb-8 sticky top-0 z-50 shadow-sm flex justify-between items-center">
                 <h1 className="text-xl font-black text-[#001246] flex items-center gap-2">
                     <Megaphone size={20} className="text-[#b20e1e]"/> إدارة قسم المواضيع والتنبيهات
                 </h1>

@@ -46,7 +46,9 @@ export default function Featured({ featuredData }) {
 
     const EditControl = ({ section, slotName, hasPost, onView }) => (
         <div className="absolute top-2 left-2 z-50 flex gap-2 opacity-0
-        group-hover:opacity-100 transition-all duration-200 translate-y-2 group-hover:translate-y-0 w-[calc(100%-1rem)] max-w-sm">
+        group-hover:opacity-100 transition-all duration-200 translate-y-2
+        group-hover:translate-y-0
+        w-[calc(100%-1rem)] max-w-sm">
             <div className="bg-white/95 backdrop-blur-sm rounded-lg
              shadow-2xl p-1 border border-slate-200 flex gap-1 items-center flex-1">
                 <div className="flex-1 min-w-0">
@@ -77,7 +79,8 @@ export default function Featured({ featuredData }) {
                         }}
                         formatOptionLabel={({ label, image }) => (
                             <div className="flex items-center gap-2">
-                                <img src={image} className="w-5 h-5 rounded-md object-cover border border-slate-100"/>
+                                <img src={image} className="w-5 h-5 rounded-md object-cover
+                                border border-slate-100"/>
                                 <span className="text-xs font-bold truncate">{label}</span>
                             </div>
                         )}
@@ -91,7 +94,8 @@ export default function Featured({ featuredData }) {
                     <button
                         onClick={onView}
                         className="bg-blue-50 hover:bg-blue-100 text-blue-600 p-2
-                        rounded-lg border border-blue-200 shadow-sm transition-colors flex items-center justify-center h-[42px] w-[42px]"
+                        rounded-lg border border-blue-200 shadow-sm transition-colors
+                        flex items-center justify-center h-[42px] w-[42px]"
                         title="معاينة سريعة"
                         type="button"
                     >
@@ -103,7 +107,8 @@ export default function Featured({ featuredData }) {
                     <button
                         onClick={() => handleReset(section, slotName)}
                         className="bg-red-50 hover:bg-red-100 text-red-600 p-2
-                        rounded-lg border border-red-200 shadow-sm transition-colors flex items-center justify-center h-[42px] w-[42px]"
+                        rounded-lg border border-red-200 shadow-sm transition-colors
+                        flex items-center justify-center h-[42px] w-[42px]"
                         title="إزالة الخبر"
                         type="button"
                     >
@@ -118,7 +123,8 @@ export default function Featured({ featuredData }) {
         <div className="flex items-end justify-between border-b border-gray-200 pb-3 mb-8">
             <h2 className="text-2xl font-black text-[#001246] relative pl-4">
                 {title}
-                <span className={`absolute -bottom-[13px] right-0 w-[40px] h-[4px] ${colorClass} rounded-t-sm`}></span>
+                <span className={`absolute -bottom-[13px] right-0 w-[40px]
+                  h-[4px] ${colorClass} rounded-t-sm`}></span>
             </h2>
         </div>
     );
@@ -135,7 +141,8 @@ export default function Featured({ featuredData }) {
                 />
 
                 {post ? (
-                    <div className="relative h-[450px] md:h-[520px] w-full overflow-hidden mb-5
+                    <div className="relative h-[450px] md:h-[520px]
+                    w-full overflow-hidden mb-5
                     rounded-2xl shadow-xl border border-slate-100 bg-slate-900">
                         <img src={getImagePath(post.image)} className="w-full h-full object-cover
                          transition-transform duration-700 group-hover:scale-105 opacity-90" />

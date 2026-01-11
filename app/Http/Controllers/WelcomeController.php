@@ -12,7 +12,7 @@ class WelcomeController extends Controller
     public function index(HomePageService $homeService)
     {
 
-        $ticker        = $homeService->getTickerWithSlots()->pluck('post')->filter()->values();
+        // $ticker        = $homeService->getTickerWithSlots()->pluck('post')->filter()->values();
         $hero          = $homeService->getHeroWithSlots();
         $featured      = $homeService->getFeaturedManual();
         $topStories    = $homeService->getTopStoriesWithSlots();
@@ -23,11 +23,12 @@ class WelcomeController extends Controller
         $topics        = $homeService->getTopics();
         $moreNews      = $homeService->getMoreNews();
         $editorAlerts  = $homeService->getEditorAlertsManual();
+        $mainBanner    = $homeService->getBanner();
 
         return Inertia::render('Welcome', [
             'canLogin'    => Route::has('login'),
             'canRegister' => Route::has('register'),
-            'ticker'        => $ticker,
+            // 'ticker'        => $ticker,
             'hero'          => $hero,
             'featured'      => $featured,
             'ads'           => $ads,
@@ -38,6 +39,7 @@ class WelcomeController extends Controller
             'moreNews'      => $moreNews->values(),
             'gridSection'   => $gridSection,
             'editorAlerts'  => $editorAlerts->values(),
+            'mainBanner'    => $mainBanner
         ]);
     }
 }

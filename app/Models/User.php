@@ -9,7 +9,6 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
-
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
@@ -335,4 +334,24 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->belongsToMany(FactCheck::class, 'fact_check_user')->withTimestamps();
     }
+
+public function getSubscriptionBadgeAttribute(): ?string
+{
+    return \Cache::remember('sub_badge_' . $this->id, 60 * 5, function () {
+
+        $latestSubscription = $this->currentSubscription();
+
+        if (!$latestSubscription || !$latestSubscription->plan) {
+            return null;
+        }
+
+        $badge = $latestSubscription->plan->features['verification_badge'] ?? null;
+
+        if ($badge === false || $badge === 'false') {
+            return null;
+        }
+
+        return $badge;
+    });
+}
 }
