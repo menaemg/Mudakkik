@@ -23,7 +23,7 @@
 ## 1. Registration & Onboarding
 
 ### Overview
-New users register and receive a free plan with 5 AI credits.
+New users register and receive a free plan with 30 AI credits.
 
 ### Flowchart
 
@@ -36,7 +36,7 @@ flowchart TD
     E --> C
     D -->|Success| F[Create User Account]
     F --> G[Assign Free Plan]
-    G --> H[Grant 5 AI Credits]
+    G --> H[Grant 30 AI Credits]
     H --> I[Send Verification Email]
     I --> J[Redirect to Verification Notice]
 ```
@@ -69,7 +69,7 @@ flowchart TD
 |----------|-------|
 | Role | `user` |
 | Email Verified | `false` |
-| AI Recurring Credits | 5 |
+| AI Recurring Credits | 30 |
 | AI Bonus Credits | 0 |
 | Plan | Free |
 

@@ -461,27 +461,30 @@ flowchart TD
 ### Enterprise API Example
 
 ```
-POST /api/v1/verify
-Authorization: Bearer {enterprise_api_key}
+POST /verify-news
+Authorization: Bearer {token}
 
 {
-  "claim": "Breaking: Major event happened...",
-  "sources": ["aljazeera.net", "bbc.com/arabic"],
-  "period_days": 7
+  "text": "Breaking: Major event happened...",
+  "period": 7
 }
 
 Response:
 {
-  "verdict": "misleading",
-  "confidence": 45,
-  "summary": "Claim partially accurate but context missing",
-  "sources": [
-    {
-      "url": "https://aljazeera.net/...",
-      "title": "Related coverage",
-      "date": "2026-01-10"
-    }
-  ]
+  "success": true,
+  "result": {
+    "verdict": "misleading",
+    "confidence": 45,
+    "summary": "Claim partially accurate but context missing",
+    "sources": [
+      {
+        "url": "https://aljazeera.net/...",
+        "title": "Related coverage",
+        "date": "2026-01-10"
+      }
+    ]
+  },
+  "new_credits": 29
 }
 ```
 

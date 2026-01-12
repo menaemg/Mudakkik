@@ -233,9 +233,11 @@ public function show(Post $post)
 **Cost Comparison:**
 | Provider | Cost per 1M tokens | Speed |
 |----------|-------------------|-------|
-| OpenAI GPT-4 | $30 (input), $60 (output) | Slow |
-| Anthropic Claude | $3 (input), $15 (output) | Medium |
-| **Groq LLaMA** | **$0.59 (input), $0.79 (output)** | **Fast** |
+| [OpenAI GPT-4o](https://openai.com/api/pricing/) | ~$2.50 (input), ~$10.00 (output) | Medium |
+| [Anthropic Claude](https://www.anthropic.com/pricing) | $3.00 (input), $15.00 (output) | Medium |
+| **[Groq LLaMA](https://groq.com/pricing/)** | **$0.59 (input), $0.79 (output)** | **Fast** |
+
+> *Pricing last verified: 2026-01-12*
 
 ### Tavily API
 

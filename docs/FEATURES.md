@@ -205,7 +205,7 @@ Every new article goes through automatic AI review.
 
 ### Subscription Plans
 
-### Subscription Plans
+
 
 | Plan | Arabic Name | Price | AI Credits | Ad Credits | Badge |
 |------|-------------|-------|------------|------------|-------|

@@ -15,7 +15,7 @@ erDiagram
     USERS ||--o{ FOLLOWS : follows
     USERS ||--o{ POST_REPORTS : submits
     USERS ||--o{ UPGRADE_REQUESTS : requests
-    USERS ||--o{ ADVERTISMENTS : creates
+    USERS ||--o{ ADVERTISEMENTS : creates
     USERS }o--o{ FACT_CHECKS : performs
     
     POSTS ||--o{ LIKES : receives
@@ -380,27 +380,7 @@ CREATE TABLE policies (
 
 ## Indexes
 
-### Performance Indexes
-```sql
--- Users
-CREATE INDEX idx_users_email ON users(email);
-CREATE INDEX idx_users_role ON users(role);
 
--- Posts
-CREATE INDEX idx_posts_status ON posts(status);
-CREATE INDEX idx_posts_user_id ON posts(user_id);
-CREATE INDEX idx_posts_category_id ON posts(category_id);
-CREATE INDEX idx_posts_created_at ON posts(created_at);
-
--- Subscriptions
-CREATE INDEX idx_subscriptions_user_id ON subscriptions(user_id);
-CREATE INDEX idx_subscriptions_status ON subscriptions(status);
-CREATE INDEX idx_subscriptions_ends_at ON subscriptions(ends_at);
-
--- Payments
-CREATE INDEX idx_payments_status ON payments(status);
-CREATE INDEX idx_payments_user_id ON payments(user_id);
-```
 
 ---
 
