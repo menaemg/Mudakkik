@@ -328,7 +328,7 @@ export default function AdminLayout({ children }) {
                           notifications.map((n) => (
                             <Link
                               key={n.id}
-                              href={n?.data?.link ?? "#"}
+                              href={n?.data?.url ?? n?.data?.link ?? "#"}
                               onClick={() => setShowNotifications(false)}
                               className={`flex gap-4 p-5 border-b border-slate-50 hover:bg-slate-50 transition-colors ${!n.read_at ? "bg-blue-50/20" : ""}`}
                             >

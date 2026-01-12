@@ -5,12 +5,13 @@ namespace App\Notifications;
 use App\Models\PostReport;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Str;
 
-class ReportSubmitted extends Notification implements ShouldBroadcast
+class ReportSubmitted extends Notification implements ShouldQueue, ShouldBroadcast
 {
     use Queueable;
 

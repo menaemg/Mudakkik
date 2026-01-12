@@ -4,10 +4,11 @@ namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Notification;
 
-class PostDeleted extends Notification implements ShouldBroadcast
+class PostDeleted extends Notification implements ShouldQueue, ShouldBroadcast
 {
     use Queueable;
 

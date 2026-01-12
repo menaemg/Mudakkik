@@ -84,6 +84,7 @@
 | Laravel Horizon | ^5.41 | Queue Monitoring |
 | Laravel Sanctum | ^4.0 | API Authentication |
 | Stripe PHP | ^19.1 | Payment Processing |
+| Laravel Reverb | ^1.0 | WebSocket Server |
 
 ### Frontend
 | Technology | Version | Purpose |
@@ -95,6 +96,7 @@
 | Chart.js / Recharts | Latest | Data Visualization |
 | Lucide React | ^0.562.0 | Icons |
 | SweetAlert2 | ^11.26.17 | Alerts & Modals |
+| Laravel Echo | ^1.17 | WebSocket Client |
 
 ### Development Tools
 | Tool | Purpose |
@@ -382,23 +384,23 @@ The system includes comprehensive notifications:
 
 | Notification | Channels | Description |
 |--------------|----------|-------------|
-| `WelcomeNewUser` | mail, database | New user welcome |
+| `WelcomeNewUser` | mail, database, broadcast | New user welcome |
 | `CustomVerifyEmail` | mail | Email verification |
-| `JournalistApproved` | mail, database | Journalist request approved |
-| `SubscriptionCreated` | mail, database | New subscription |
-| `SubscriptionExpired` | mail, database | Subscription expiry |
-| `PaymentSuccessful` | mail, database | Payment success |
-| `PaymentFailed` | mail, database | Payment failure |
-| `PostPublished` | database | Post published |
-| `PostRejected` | database | Post rejected |
-| `PostPendingReview` | database | Post pending review |
-| `PostDeleted` | database | Post deleted |
-| `PostMarkedFake` | database | Post marked as fake |
-| `PostHiddenByReport` | database | Post hidden due to reports |
-| `ReportSubmitted` | database | Report submitted |
-| `ReportPendingReview` | database | Report pending review |
-| `ReportApproved` | database | Report approved |
-| `ReportRejected` | database | Report rejected |
+| `JournalistApproved` | mail, database, broadcast | Journalist request approved |
+| `SubscriptionCreated` | mail, database, broadcast | New subscription |
+| `SubscriptionExpired` | mail, database, broadcast | Subscription expiry |
+| `PaymentSuccessful` | mail, database, broadcast | Payment success |
+| `PaymentFailed` | mail, database, broadcast | Payment failure |
+| `PostPublished` | database, broadcast | Post published |
+| `PostRejected` | database, broadcast | Post rejected |
+| `PostPendingReview` | database, broadcast | Post pending review |
+| `PostDeleted` | database, broadcast | Post deleted |
+| `PostMarkedFake` | database, broadcast | Post marked as fake |
+| `PostHiddenByReport` | database, broadcast | Post hidden due to reports |
+| `ReportSubmitted` | database, broadcast | Report submitted |
+| `ReportPendingReview` | database, broadcast | Report pending review |
+| `ReportApproved` | database, broadcast | Report approved |
+| `ReportRejected` | database, broadcast | Report rejected |
 | `StalePaymentAlert` | mail | Alert for stale payments |
 
 ---
@@ -455,6 +457,12 @@ The project uses GitHub Actions for automated deployment. See `.github/workflows
 | `STRIPE_WEBHOOK_SECRET` | Stripe webhook secret | For webhooks |
 | `MAIL_*` | Mail configuration | For emails |
 | `GEMINI_API_KEY` | Google Gemini API key | For AI features |
+| `REVERB_APP_ID` | Reverb application ID | For broadcasting |
+| `REVERB_APP_KEY` | Reverb application key | For broadcasting |
+| `REVERB_APP_SECRET` | Reverb application secret | For broadcasting |
+| `REVERB_HOST` | Reverb server hostname | For broadcasting |
+| `REVERB_PORT` | Reverb server port | For broadcasting |
+| `REVERB_SCHEME` | Reverb scheme (http/https) | For broadcasting |
 
 
 ## 👨‍💻 Author
