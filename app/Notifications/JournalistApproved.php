@@ -3,11 +3,12 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class JournalistApproved extends Notification
+class JournalistApproved extends Notification implements ShouldBroadcast
 {
     use Queueable;
 
@@ -26,7 +27,7 @@ class JournalistApproved extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['database', 'mail'];
+        return ['database', 'mail', 'broadcast'];
     }
 
     /**
@@ -44,6 +45,18 @@ class JournalistApproved extends Notification
             ->line('🎁 هدية ترحيبية: 50 نقطة ذكاء اصطناعي إضافية لرصيدك الدائم.')
             ->action('ابدأ النشر الآن', url('/my-posts/create'))
             ->line('نتطلع لرؤية مساهماتك القيمة!');
+    }
+
+    /**
+     * Get the broadcast representation of the notification.
+     */
+    public function toBroadcast(object $notifiable): BroadcastMessage
+    {
+        return new BroadcastMessage([
+            'message' => 'مبارك! تم قبول طلبك وأصبحت صحفياً معتمداً. تم إضافة 50 نقطة لرصيدك 🎉',
+            'url' => '/dashboard',
+            'type' => 'success'
+        ]);
     }
 
     /**

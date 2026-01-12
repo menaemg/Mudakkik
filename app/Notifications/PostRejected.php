@@ -2,13 +2,18 @@
 
 namespace App\Notifications;
 
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Str;
 
 
-class PostRejected extends Notification
+class PostRejected extends Notification implements ShouldBroadcast
 {
+    use Queueable;
+
     public $post;
     public $reason;
 
@@ -36,7 +41,7 @@ class PostRejected extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        return ['mail', 'database', 'broadcast'];
     }
 
     /**
@@ -54,6 +59,19 @@ class PostRejected extends Notification
             ->action('عرض مقالاتي وتعديلها', $url)
             ->line('يرجى الالتزام بمعايير النشر لضمان قبول مقالاتك القادمة.')
             ->salutation('مع خالص التحية، فريق المدقق');
+    }
+
+    /**
+     * Get the broadcast representation of the notification.
+     */
+    public function toBroadcast(object $notifiable): BroadcastMessage
+    {
+        return new BroadcastMessage([
+            'message' => "تم رفض نشر مقالك: " . $this->post->title,
+            'details' => 'سبب الرفض: ' . $this->getReason(),
+            'type' => 'warning',
+            'url' => url('/profile?tab=articles')
+        ]);
     }
 
     /**

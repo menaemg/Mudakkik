@@ -4,11 +4,13 @@ namespace App\Notifications;
 
 use App\Models\Subscription;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class SubscriptionExpired extends Notification implements ShouldQueue
+class SubscriptionExpired extends Notification implements ShouldQueue, ShouldBroadcast
 {
     use Queueable;
 
@@ -25,7 +27,7 @@ class SubscriptionExpired extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        return ['mail', 'database', 'broadcast'];
     }
 
     /**
@@ -44,6 +46,21 @@ class SubscriptionExpired extends Notification implements ShouldQueue
             ->line('يمكنك الترقية في أي وقت للحصول على جميع المميزات.')
             ->action('ترقية الآن', url('/plans'))
             ->line('شكراً لاستخدامك منصتنا!');
+    }
+
+    /**
+     * Get the broadcast representation of the notification.
+     */
+    public function toBroadcast(object $notifiable): BroadcastMessage
+    {
+        return new BroadcastMessage([
+            'type' => 'subscription_expired',
+            'message' => '⏰ انتهى اشتراكك وتم تحويلك للخطة المجانية',
+            'expired_subscription_id' => $this->expiredSubscription->id,
+            'expired_plan_name' => $this->expiredSubscription->plan?->name,
+            'new_subscription_id' => $this->newSubscription->id,
+            'new_plan_name' => $this->newSubscription->plan?->name,
+        ]);
     }
 
     /**

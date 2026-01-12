@@ -2,10 +2,15 @@
 
 namespace App\Notifications;
 
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Notification;
 
-class PostDeleted extends Notification
+class PostDeleted extends Notification implements ShouldBroadcast
 {
+    use Queueable;
+
     public $postTitle;
 
     public function __construct($postTitle)
@@ -20,9 +25,17 @@ class PostDeleted extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['database', 'mail'];
+        return ['database', 'mail', 'broadcast'];
     }
 
+    public function toBroadcast(object $notifiable): BroadcastMessage
+    {
+        return new BroadcastMessage([
+            'message' => "تنبيه: قام المسؤول بحذف مقالك: '{$this->postTitle}' لمخالفته الشروط.",
+            'type' => 'danger',
+            'url' => null
+        ]);
+    }
 
     public function toArray(object $notifiable): array
     {

@@ -4,11 +4,13 @@ namespace App\Notifications;
 
 use App\Models\Payment;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class PaymentSuccessful extends Notification implements ShouldQueue
+class PaymentSuccessful extends Notification implements ShouldQueue, ShouldBroadcast
 {
     use Queueable;
 
@@ -24,7 +26,7 @@ class PaymentSuccessful extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        return ['mail', 'database', 'broadcast'];
     }
 
     /**
@@ -44,6 +46,20 @@ class PaymentSuccessful extends Notification implements ShouldQueue
             ->line("**المبلغ:** {$amount} {$currency}")
             ->action('عرض اشتراكي', url('/my-subscription'))
             ->line('شكراً لاستخدامك منصتنا!');
+    }
+
+    /**
+     * Get the broadcast representation of the notification.
+     */
+    public function toBroadcast(object $notifiable): BroadcastMessage
+    {
+        return new BroadcastMessage([
+            'type' => 'payment_successful',
+            'message' => '✅ تم تأكيد دفعتك بنجاح',
+            'payment_id' => $this->payment->id,
+            'amount' => $this->payment->amount,
+            'currency' => $this->payment->currency,
+        ]);
     }
 
     /**

@@ -60,7 +60,6 @@ public function store(Request $request, Post $post)
         Cache::forget('admin.pending_reports_count');
 
         return redirect()
-            ->route('posts.show', $post->slug)
-            ->with('success', 'تم إرسال البلاغ بنجاح وسيتم مراجعته');
+            ->route('posts.show', $post->slug);
     }
 }
