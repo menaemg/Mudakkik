@@ -127,13 +127,21 @@ class FactCheckServices
             ];
 
             if ($days) {
-                $payload['days'] = $days;
+                $payload['start_date'] = now()->subDays($days)->format('Y-m-d');
+                $payload['topic'] = 'news';
+                $payload['max_results'] = max($limit, 20);
             }
 
             $response = Http::timeout(25)->post('https://api.tavily.com/search', $payload);
 
             if ($response->successful()) {
                 $results = $response->json()['results'] ?? [];
+                
+                $cutoffDate = null;
+                if ($days) {
+                    $cutoffDate = now()->subDays($days)->startOfDay();
+                }
+
                 return collect($results)
                     ->filter(function ($result) use ($domains) {
                         foreach ($domains as $domain) {
@@ -149,6 +157,20 @@ class FactCheckServices
                             $result['published_date'] = $this->extractDate($result);
                         }
                         return $result;
+                    })
+                    ->filter(function ($result) use ($cutoffDate) {
+                        if ($cutoffDate && !empty($result['published_date'])) {
+                            try {
+                                $pubDate = \Carbon\Carbon::parse($result['published_date']);
+
+                                if ($pubDate->lt($cutoffDate)) {
+                                    return false;
+                                }
+                            } catch (\Exception $e) {
+                               
+                            }
+                        }
+                        return true;
                     })
                     ->values()
                     ->all();
@@ -445,16 +467,7 @@ PROMPT;
         $results = $this->searchInTrustedSources($data, $days, self::VERIFY_SOURCE_LIMIT);
         $verdict = $this->finalVerdict($data, $results);
 
-        $searchScore = !empty($results) 
-            ? (collect($results)->avg('score') ?? 0) * 100 
-            : 0;
-        
-        $verdictPercentage = (int)($verdict['percentage'] ?? 0);
-        
-        $finalConfidence = !empty($results)
-            ? (int)round(($verdictPercentage * 0.7) + ($searchScore * 0.3))
-            : $verdictPercentage;
-        
+        $finalConfidence = (int)($verdict['percentage'] ?? 0);
         $finalConfidence = max(0, min(100, $finalConfidence));
         $finalLabel = $this->getCorrectLabel($finalConfidence);
 
