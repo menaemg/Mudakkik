@@ -19,16 +19,13 @@ class JoinRequestController extends Controller
             ->filter($request)
             ->paginate(10)
             ->withQueryString();
-        // ->when($request->search, function ($q, $search) {
-        //     $q->whereHas('user', fn ($u) => $u->where('name', 'like', "%{$search}%"));
-        // })
-        // ->when($request->status, fn ($q, $status) => $q->where('status', $status))
 
         $stats = [
-            'total' => UpgradeRequest::count(),
+            'total' => UpgradeRequest::where('status', '!=', 'archived')->count(),
             'pending' => UpgradeRequest::where('status', 'pending')->count(),
             'accepted' => UpgradeRequest::where('status', 'accepted')->count(),
             'rejected' => UpgradeRequest::where('status', 'rejected')->count(),
+            'archived' => UpgradeRequest::where('status', 'archived')->count(),
         ];
 
         $oldPendingCount = UpgradeRequest::where('status', 'pending')
@@ -53,6 +50,13 @@ class JoinRequestController extends Controller
         ]);
 
         DB::transaction(function () use ($upgradeRequest, $data) {
+
+            UpgradeRequest::where('user_id', $upgradeRequest->user_id)
+                ->where('status', $data['status'])
+                ->where('id', '!=', $upgradeRequest->id)
+                ->update([
+                    'status' => 'archived',
+                ]);
 
             $upgradeRequest->update([
                 'status' => $data['status'],

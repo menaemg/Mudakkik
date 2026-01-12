@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\AuditReportContent;
 use App\Models\Post;
 use App\Models\PostReport;
+use App\Notifications\ReportSubmitted;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use App\Models\User;
@@ -51,25 +53,13 @@ public function store(Request $request, Post $post)
             'reason' => $request->reason,
         ]);
 
-       
-        $admins = User::where('role', 'admin')->get();
-        
-        $notificationData = [
-            'title' => 'بلاغ جديد عن محتوى',
-            'message' => 'قام المستخدم ' . auth()->user()->name . ' بالإبلاغ عن المقال: ' . $post->title,
-            'link' => route('admin.reports.index'), 
-            'type' => 'report'
-        ];
+        auth()->user()->notify(new ReportSubmitted($report));
 
-        foreach ($admins as $admin) {
-            $admin->notify(new \App\Notifications\AdminActivityNotification($notificationData));
-        }
-        
+        AuditReportContent::dispatch($report);
 
         Cache::forget('admin.pending_reports_count');
 
         return redirect()
-            ->route('posts.show', $post->slug)
-            ->with('success', 'تم إرسال البلاغ بنجاح');
+            ->route('posts.show', $post->slug);
     }
 }

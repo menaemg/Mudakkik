@@ -1,9 +1,10 @@
 import React, { useEffect, useRef } from "react";
-import { Head, Link, router } from "@inertiajs/react";
+import { Head, Link, router, usePage } from "@inertiajs/react";
 import Header from '@/Components/Header';
 import Footer from '@/Components/Footer';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
+import Swal from 'sweetalert2';
 import {
     Heart,
     Clock,
@@ -16,12 +17,14 @@ import {
     Check,
     FileText,
     Sparkles,
-
+    UserPlus,
+    UserCheck,
 } from "lucide-react";
 
 export default function PostShow({ auth, post }) {
     const [copied, setCopied] = React.useState(false);
     const copyTimeoutRef = useRef(null);
+    const { flash } = usePage().props;
 
     useEffect(() => {
         AOS.init({ duration: 800, once: true, offset: 50 });
@@ -33,6 +36,37 @@ export default function PostShow({ auth, post }) {
             }
         };
     }, []);
+
+    // Handle flash messages with popup
+    useEffect(() => {
+        if (flash?.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'تم بنجاح',
+                text: flash.success,
+                confirmButtonColor: '#10b981',
+                confirmButtonText: 'حسناً',
+            });
+        }
+        if (flash?.error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'خطأ',
+                text: flash.error,
+                confirmButtonColor: '#ef4444',
+                confirmButtonText: 'حسناً',
+            });
+        }
+        if (flash?.warning) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'تنبيه',
+                text: flash.warning,
+                confirmButtonColor: '#f59e0b',
+                confirmButtonText: 'حسناً',
+            });
+        }
+    }, [flash]);
 
     const handleLike = () => {
         if (!auth.user) {
@@ -144,6 +178,28 @@ export default function PostShow({ auth, post }) {
                                         صحفي معتمد
                                     </p>
                                 </div>
+                                {auth.user && auth.user.id !== post.user.id && (
+                                    <button
+                                        onClick={() => router.post(route('users.follow', post.user.id), {}, { preserveScroll: true })}
+                                        className={`mr-4 px-3 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5
+                                            ${post.is_followed
+                                                ? 'bg-white/10 text-white hover:bg-white/20'
+                                                : 'bg-[#b20e1e] text-white hover:bg-[#900b18]'
+                                            }`}
+                                    >
+                                        {post.is_followed ? (
+                                            <>
+                                                <UserCheck size={12} />
+                                                <span>أتابعه</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <UserPlus size={12} />
+                                                <span>متابعة</span>
+                                            </>
+                                        )}
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>

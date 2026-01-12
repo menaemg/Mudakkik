@@ -4,6 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\PostReport;
+use App\Notifications\ReportApproved;
+use App\Notifications\ReportRejected;
+use App\Notifications\PostHiddenByReport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -11,15 +14,22 @@ use Inertia\Inertia;
 
 class AdminReportController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $reports = PostReport::with(['post', 'user'])
-            ->where('status', 'pending')
-            ->latest()
-            ->get();
+        $status = $request->query('status', 'all');
+        
+        $query = PostReport::with(['post', 'user', 'reviewedBy'])
+            ->latest();
+
+        if ($status !== 'all') {
+            $query->where('status', $status);
+        }
+
+        $reports = $query->get();
 
         return Inertia::render('Admin/Reports/Index', [
-            'reports' => $reports
+            'reports' => $reports,
+            'currentStatus' => $status,
         ]);
     }
 
@@ -32,14 +42,18 @@ class AdminReportController extends Controller
 
         // Check if post exists before updating
         if (!$report->post) {
-            $report->update(['status' => 'approved']);
+            $report->update([
+                'status' => 'approved',
+                'reviewed_by' => auth()->id(),
+            ]);
             return back()->with('warning', 'تمت الموافقة على البلاغ ولكن المنشور غير موجود.');
         }
 
         // Use database transaction for atomic updates
         DB::transaction(function () use ($report) {
             $report->update([
-                'status' => 'approved'
+                'status' => 'approved',
+                'reviewed_by' => auth()->id(),
             ]);
 
             // Reject/hide the post
@@ -47,6 +61,20 @@ class AdminReportController extends Controller
                 'status' => 'rejected'
             ]);
         });
+
+        // Notify the reporter
+        if ($report->user) {
+            $report->user->notify(new ReportApproved($report));
+        }
+
+        // Notify the post author
+        $postAuthor = $report->post->user;
+        if ($postAuthor) {
+            $postAuthor->notify(new PostHiddenByReport(
+                $report->post,
+                $report->reason
+            ));
+        }
 
         // Clear the cached pending reports count
         Cache::forget('admin.pending_reports_count');
@@ -62,8 +90,14 @@ class AdminReportController extends Controller
         }
 
         $report->update([
-            'status' => 'rejected'
+            'status' => 'rejected',
+            'reviewed_by' => auth()->id(),
         ]);
+
+        // Notify the reporter
+        if ($report->user) {
+            $report->user->notify(new ReportRejected($report));
+        }
 
         // Clear the cached pending reports count
         Cache::forget('admin.pending_reports_count');

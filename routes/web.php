@@ -36,14 +36,16 @@ use App\Http\Controllers\Webhooks\StripeWebhookController;
 use App\Http\Controllers\WelcomeController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AdminDashboardController;
-
+use App\Http\Controllers\Public\PolicyController as PublicPolicyController;
 use Inertia\Inertia;
 
 Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
 Route::get('/articles/{post:slug}', [PostController::class, 'show'])->name('posts.show');
 Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
 Route::get('/plans', [PlanController::class, 'index'])->name('plans.index');
-
+Route::get('/terms', [PublicPolicyController::class, 'index'])->name('terms.public');
+Route::get('/privacy', [PublicPolicyController::class, 'privacy'])->name('privacy.public');
+Route::get('/faq', [PublicPolicyController::class, 'faq'])->name('faq.public');
 Route::get('/check', function () {
     return Inertia::render('VerifyNews');
 });
@@ -153,6 +155,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/my-subscription', [SubscriptionController::class, 'show'])->name('subscription.show');
     Route::get('/my-subscription/history', [SubscriptionController::class, 'history'])->name('subscription.history');
+    Route::post('/subscription/cancel', [SubscriptionController::class, 'cancel'])->name('subscription.cancel');
 
     Route::post('/subscribe/{plan:slug}', [PaymentController::class, 'subscribe'])->name('payment.subscribe');
     Route::get('/payment/success', [PaymentController::class, 'success'])->name('payment.success');
@@ -172,6 +175,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::put('/ads/{advertisment}', [App\Http\Controllers\UserAdController::class, 'update'])->name('ads.update');
     Route::delete('/ads/{advertisment}', [App\Http\Controllers\UserAdController::class, 'destroy'])->name('ads.destroy');
+
+    Route::post('/users/{user}/follow', [App\Http\Controllers\FollowController::class, 'toggle'])->name('users.follow');
 });
 
 // Notifications

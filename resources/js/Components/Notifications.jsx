@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { FaBell } from 'react-icons/fa';
 import { Link, usePage } from '@inertiajs/react';
 import axios from 'axios';
+import echo from '../echo';
+import Swal from 'sweetalert2';
 
 export default function Notifications({ user }) {
     const { auth } = usePage().props;
@@ -9,7 +11,9 @@ export default function Notifications({ user }) {
     const [notifications, setNotifications] = useState(auth.user?.notifications || []);
     const [unreadCount, setUnreadCount] = useState(auth.user?.unread_notifications_count || 0);
     const notifRef = useRef(null);
+    const echoChannelRef = useRef(null);
 
+    // Handle clicking outside to close dropdown
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (notifRef.current && !notifRef.current.contains(event.target)) {
@@ -21,13 +25,54 @@ export default function Notifications({ user }) {
     }, []);
 
     useEffect(() => {
-        if (user) {
+        if (user?.id) {
+            // Subscribe to private user channel
+            echoChannelRef.current = echo.private(`App.Models.User.${user.id}`)
+                .notification((notification) => {
+
+                    setNotifications(prev => {
+
+                        if (prev.some(n => n.id === notification.id)) {
+                            return prev;
+                        }
+                        return [{
+                            id: notification.id,
+                            data: notification,
+                            read_at: null,
+                            created_at: new Date().toISOString(),
+                        }, ...prev];
+                    });
+
+                    setUnreadCount(prev => prev + 1);
+
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-start',
+                        icon: notification.type === 'danger' ? 'error' :
+                            notification.type === 'warning' ? 'warning' :
+                                notification.type === 'success' ? 'success' : 'info',
+                        title: notification.message || 'لديك إشعار جديد',
+                        showConfirmButton: false,
+                        timer: 4000,
+                        timerProgressBar: true,
+                        background: '#000a2e',
+                        color: '#fff',
+                        customClass: {
+                            popup: 'rounded-2xl font-sans text-sm border border-white/10',
+                            title: 'text-sm font-bold'
+                        },
+                    });
+                });
+
             fetchNotifications();
 
-            const interval = setInterval(fetchNotifications, 600000);
-            return () => clearInterval(interval);
+            return () => {
+                if (echoChannelRef.current) {
+                    echo.leave(`App.Models.User.${user.id}`);
+                }
+            };
         }
-    }, [user]);
+    }, [user?.id]);
 
     const fetchNotifications = () => {
         axios.get('/notifications')
@@ -73,6 +118,21 @@ export default function Notifications({ user }) {
 
     return (
         <div className="relative" ref={notifRef}>
+            <style>{`
+                .custom-scrollbar::-webkit-scrollbar {
+                    width: 6px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-track {
+                    background: #000a2e;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb {
+                    background: rgba(255, 255, 255, 0.2);
+                    border-radius: 3px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                    background: rgba(255, 255, 255, 0.3);
+                }
+            `}</style>
             <button
                 onClick={() => { setIsOpen(!isOpen); if (!isOpen && unreadCount > 0) markAsRead(); }}
                 className="relative p-2 text-gray-300 hover:text-white transition-all focus:outline-none group"
@@ -85,7 +145,7 @@ export default function Notifications({ user }) {
             </button>
 
             {isOpen && (
-                <div className="absolute top-12 right-0 md:left-0 md:right-auto w-[95vw] max-w-sm md:w-80 bg-[#000a2e] border border-white/10 rounded-lg shadow-2xl
+                <div className="fixed top-20 left-0 right-0 mx-auto w-[95vw] max-w-sm md:absolute md:top-12 md:left-0 md:right-auto md:mx-0 md:w-96 bg-[#000a2e] border border-white/10 rounded-lg shadow-2xl
                 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                     <div className="absolute top-0 left-0 w-full h-1 bg-brand-red"></div>
                     <div className="p-3 border-b border-white/10 flex justify-between items-center bg-white/5">
@@ -100,8 +160,8 @@ export default function Notifications({ user }) {
                             notifications.map(n => (
                                 <div
                                     key={n.id}
-                                    className={`relative p-4 border-b border-white/5 hover:bg-white/5
-                                      transition-colors text-right group ${!n.read_at ? 'bg-white/[0.03]' : ''}`}
+                                    className={`relative p-3 border-b border-white/5 hover:bg-white/5
+                                    transition-colors text-right group ${!n.read_at ? 'bg-white/[0.03]' : ''}`}
                                 >
                                     <button
                                         onClick={(e) => {
@@ -119,10 +179,15 @@ export default function Notifications({ user }) {
                                     <Link
                                         href={n.data.url || '#'}
                                         onClick={() => setIsOpen(false)}
-                                        className="block pr-6"
+                                        className="block pr-2"
                                     >
-                                        <p className="text-xs text-white leading-relaxed">{n.data?.message || 'إشعار'}</p>
-                                        <span className="text-[10px] text-gray-500 mt-2 block">
+                                        <p className="text-xs text-white leading-normal font-medium">{n.data?.message || 'إشعار'}</p>
+                                        {n.data?.details && (
+                                            <p className="text-[11px] text-yellow-400/90 mt-1 leading-normal opacity-90">
+                                                {n.data.details}
+                                            </p>
+                                        )}
+                                        <span className="text-[10px] text-gray-500 mt-1.5 block">
                                             {new Date(n.created_at).toLocaleDateString('ar-EG', { day: 'numeric', month: 'long' })}
                                         </span>
                                     </Link>

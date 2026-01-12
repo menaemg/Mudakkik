@@ -30,7 +30,7 @@ const Header = ({ auth }) => {
         return false;
     };
 
-  const userVerificationBadgeLevel = user?.verification_badge_level || null;
+    const userVerificationBadgeLevel = user?.verification_badge_level || null;
 
 
     const [isSearchActive, setIsSearchActive] = useState(false);
@@ -202,10 +202,10 @@ const Header = ({ auth }) => {
                                             <div className="absolute top-0 left-0 w-full h-1 bg-brand-red"></div>
                                             <div className="p-4 border-b border-white/10 bg-white/5">
                                                 <div className="flex items-center gap-2 mb-1">
-                                                     <p className="text-white text-sm font-bold truncate">{user.name}</p>
-                                                     <div className="scale-75 origin-right">
+                                                    <p className="text-white text-sm font-bold truncate">{user.name}</p>
+                                                    <div className="scale-75 origin-right">
                                                         <UserBadge user={user} verificationBadgeLevel={userVerificationBadgeLevel} />
-                                                     </div>
+                                                    </div>
                                                 </div>
                                                 <p className="text-gray-400 text-[10px] truncate">{user.email}</p>
                                                 <span className="text-[10px] bg-white/10 px-2 py-0.5 rounded text-gray-300 mt-1 inline-block">
@@ -246,8 +246,13 @@ const Header = ({ auth }) => {
                             )}
                         </div>
 
-                        <button className={`lg:hidden text-white text-2xl focus:outline-none ml-2 transition-transform duration-300 ${isSearchActive ? 'hidden' : 'block'} ${isMobileMenuOpen ? 'rotate-90' : ''}`}
-                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+                        <button
+                            className={`lg:hidden text-white text-2xl focus:outline-none ml-2 transition-transform duration-300 ${isSearchActive ? 'hidden' : 'block'} ${isMobileMenuOpen ? 'rotate-90' : ''}`}
+                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                            style={{ touchAction: 'manipulation' }}
+                            type="button"
+                            aria-label="Toggle menu"
+                        >
                             {isMobileMenuOpen ? <FaTimes /> : <FaBars />}
                         </button>
                     </div>
@@ -287,7 +292,7 @@ const Header = ({ auth }) => {
                         </div>
                     ) : (
                         <div className="bg-gray-50 rounded-2xl p-6 text-center border border-gray-100">
-                             <p className="text-gray-500 text-sm font-bold mb-4">انضم لعالم الحقيقة الآن</p>
+                            <p className="text-gray-500 text-sm font-bold mb-4">انضم لعالم الحقيقة الآن</p>
                             <div className="flex gap-3">
                                 <Link href={safeRoute('login')} onClick={() => setIsMobileMenuOpen(false)}
                                     className="flex-1 py-2.5 bg-white border border-gray-200 rounded-xl font-bold text-gray-700 shadow-sm">
@@ -303,7 +308,7 @@ const Header = ({ auth }) => {
                 </div>
 
                 <div className="flex-1 px-2 pb-8">
-                     <div className="px-2 mb-6">
+                    <div className="px-2 mb-6">
                         <Link href="/check" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-between bg-green-50 border border-green-100 px-4 py-3 rounded-xl group active:scale-[0.98] transition-transform">
                             <div className="flex items-center gap-3">
                                 <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center text-white shadow-sm">
@@ -338,7 +343,7 @@ const Header = ({ auth }) => {
                     </div>
                 </div>
 
-                 {user && (
+                {user && (
                     <div className="p-4 bg-white border-t border-gray-100">
                         <Link href={safeRoute('logout')} method="post" as="button"
                             className="w-full flex items-center justify-center gap-2
@@ -349,7 +354,7 @@ const Header = ({ auth }) => {
                     </div>
                 )}
             </div>
-     <div
+            <div
                 className="mt-[80px] bg-gradient-to-r from-[#8a0008] via-[#b20e1e]
                 to-[#8a0008] text-white h-10 flex items-center relative
                 z-30 overflow-hidden shadow-inner border-t border-red-900/50"

@@ -2,11 +2,16 @@
 
 namespace App\Notifications;
 
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class PostPublished extends Notification
+class PostPublished extends Notification implements ShouldQueue, ShouldBroadcast
 {
+    use Queueable;
 
     public $post;
 
@@ -25,24 +30,37 @@ class PostPublished extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        return ['mail', 'database', 'broadcast'];
     }
 
     /**
      * Get the mail representation of the notification.
      */
-public function toMail($notifiable)
-{
-    $url = url('/profile?tab=articles'); 
+    public function toMail($notifiable)
+    {
+        $url = url('/profile?tab=articles'); 
 
-    return (new MailMessage)
-        ->subject('تهانينا! تم نشر مقالك بنجاح')
-        ->greeting('مرحباً ' . $notifiable->name)
-        ->line("يسعدنا إبلاغك أن مقالك: '" . $this->post->title . "' قد اجتاز مراجعة الذكاء الاصطناعي وتم نشره بنجاح.")
-        ->action('عرض مقالاتي المنشورة', $url)
-        ->line('شكراً لمساهمتك القيمة في منصتنا.')
-        ->salutation('مع التحية، فريق العمل');
-}
+        return (new MailMessage)
+            ->subject('تهانينا! تم نشر مقالك بنجاح')
+            ->greeting('مرحباً ' . $notifiable->name)
+            ->line("يسعدنا إبلاغك أن مقالك: '" . $this->post->title . "' قد اجتاز مراجعة الذكاء الاصطناعي وتم نشره بنجاح.")
+            ->action('عرض مقالاتي المنشورة', $url)
+            ->line('شكراً لمساهمتك القيمة في منصتنا.')
+            ->salutation('مع التحية، فريق العمل');
+    }
+
+    /**
+     * Get the broadcast representation of the notification.
+     */
+    public function toBroadcast(object $notifiable): BroadcastMessage
+    {
+        return new BroadcastMessage([
+            'message' => "تم نشر مقالك الجديد: " . $this->post->title,
+            'url' => url('/articles/' . $this->post->slug),
+            'id' => $this->post->id,
+            'type' => 'success',
+        ]);
+    }
 
     /**
      * Get the array representation of the notification.
@@ -53,7 +71,7 @@ public function toMail($notifiable)
     {
         return [
             'message' => "تم نشر مقالك الجديد: " . $this->post->title,
-            'url' => url('/posts/' . $this->post->slug),
+            'url' => url('/articles/' . $this->post->slug),
             'id' => $this->post->id
         ];
     }

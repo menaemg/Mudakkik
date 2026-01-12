@@ -4,11 +4,13 @@ namespace App\Notifications;
 
 use App\Models\Payment;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class PaymentFailed extends Notification implements ShouldQueue
+class PaymentFailed extends Notification implements ShouldQueue, ShouldBroadcast
 {
     use Queueable;
 
@@ -25,7 +27,7 @@ class PaymentFailed extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        return ['mail', 'database', 'broadcast'];
     }
 
     /**
@@ -43,6 +45,19 @@ class PaymentFailed extends Notification implements ShouldQueue
             ->when($this->reason, fn($mail) => $mail->line("**السبب:** {$this->reason}"))
             ->action('إعادة المحاولة', url('/plans'))
             ->line('إذا كنت تعتقد أن هذا خطأ، يرجى التواصل مع الدعم.');
+    }
+
+    /**
+     * Get the broadcast representation of the notification.
+     */
+    public function toBroadcast(object $notifiable): BroadcastMessage
+    {
+        return new BroadcastMessage([
+            'type' => 'payment_failed',
+            'message' => '❌ فشل عملية الدفع',
+            'payment_id' => $this->payment->id,
+            'reason' => $this->reason,
+        ]);
     }
 
     /**
