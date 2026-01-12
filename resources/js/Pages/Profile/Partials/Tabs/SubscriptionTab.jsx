@@ -187,7 +187,7 @@ export default function SubscriptionTab({ subscription, plan, subscription_histo
                                     onClick={() => {
                                         Swal.fire({
                                             title: 'هل أنت متأكد؟',
-                                            text: 'سيتم إلغاء اشتراكك. سيظل الاشتراك فعالاً حتى تاريخ انتهائه.',
+                                            text: 'سيتم إلغاء اشتراكك فوراً.',
                                             icon: 'warning',
                                             showCancelButton: true,
                                             confirmButtonColor: '#dc2626',

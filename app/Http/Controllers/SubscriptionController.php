@@ -106,6 +106,6 @@ class SubscriptionController extends Controller
         }
 
         return redirect()->route('profile.edit')
-            ->with('success', 'تم إلغاء اشتراكك بنجاح. سيظل الاشتراك فعالاً حتى تاريخ انتهائه.');
+            ->with('success', 'تم إلغاء اشتراكك بنجاح.');
     }
 }
