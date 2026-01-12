@@ -174,6 +174,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::put('/ads/{advertisment}', [App\Http\Controllers\UserAdController::class, 'update'])->name('ads.update');
     Route::delete('/ads/{advertisment}', [App\Http\Controllers\UserAdController::class, 'destroy'])->name('ads.destroy');
+
+    Route::post('/users/{user}/follow', [App\Http\Controllers\FollowController::class, 'toggle'])->name('users.follow');
 });
 
 // Notifications
