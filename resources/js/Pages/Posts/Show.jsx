@@ -1,9 +1,10 @@
 import React, { useEffect, useRef } from "react";
-import { Head, Link, router } from "@inertiajs/react";
+import { Head, Link, router, usePage } from "@inertiajs/react";
 import Header from '@/Components/Header';
 import Footer from '@/Components/Footer';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
+import Swal from 'sweetalert2';
 import {
     Heart,
     Clock,
@@ -22,6 +23,7 @@ import {
 export default function PostShow({ auth, post }) {
     const [copied, setCopied] = React.useState(false);
     const copyTimeoutRef = useRef(null);
+    const { flash } = usePage().props;
 
     useEffect(() => {
         AOS.init({ duration: 800, once: true, offset: 50 });
@@ -33,6 +35,37 @@ export default function PostShow({ auth, post }) {
             }
         };
     }, []);
+
+    // Handle flash messages with popup
+    useEffect(() => {
+        if (flash?.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'تم بنجاح',
+                text: flash.success,
+                confirmButtonColor: '#10b981',
+                confirmButtonText: 'حسناً',
+            });
+        }
+        if (flash?.error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'خطأ',
+                text: flash.error,
+                confirmButtonColor: '#ef4444',
+                confirmButtonText: 'حسناً',
+            });
+        }
+        if (flash?.warning) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'تنبيه',
+                text: flash.warning,
+                confirmButtonColor: '#f59e0b',
+                confirmButtonText: 'حسناً',
+            });
+        }
+    }, [flash]);
 
     const handleLike = () => {
         if (!auth.user) {

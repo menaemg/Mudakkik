@@ -14,6 +14,10 @@ class PostReport extends Model
         'user_id',
         'reason',
         'status',
+        'ai_score',
+        'ai_summary',
+        'ai_verdict',
+        'reviewed_by',
     ];
 
     public function post()
@@ -24,5 +28,10 @@ class PostReport extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function reviewedBy()
+    {
+        return $this->belongsTo(User::class, 'reviewed_by');
     }
 }
