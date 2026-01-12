@@ -21,7 +21,7 @@ return new class extends Migration
             $table->text('request_message')->nullable();
 
             $table->text('admin_notes')->nullable();
-            $table->enum('status', ['pending', 'rejected', 'accepted'])->default('pending');
+            $table->string('status',20)->default('pending');
             $table->timestamps();
 
             $table->unique(['user_id', 'status']);
