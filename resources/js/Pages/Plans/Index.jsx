@@ -195,8 +195,9 @@ export default function PlansIndex({ auth, plans, currentSubscription, upgradeRe
                                                     <span className="text-4xl font-black text-[#020617]">مجاني</span>
                                                 ) : (
                                                     <>
+                                                        <span className="text-2xl font-bold text-gray-400">$</span>
                                                         <span className="text-5xl font-black text-[#020617]">{Math.floor(plan.price)}</span>
-                                                        <span className="text-sm font-bold text-gray-400">ج.م <br /> {getBillingText(plan.billing_interval)}</span>
+                                                        <span className="text-sm font-bold text-gray-400 mr-1">{getBillingText(plan.billing_interval)}</span>
                                                     </>
                                                 )}
                                             </div>

@@ -20,8 +20,9 @@ export default function Form({ plan }) {
         is_active: plan?.is_active ?? true,
         sort_order: plan?.sort_order || 0,
         features: plan?.features || {
-            posts_limit: 10,
-            ads_limit: 0,
+            monthly_ai_credits: 0,
+            monthly_ad_credits: 0,
+            verification_badge: null,
             priority_support: false,
         },
     });
@@ -161,60 +162,83 @@ export default function Form({ plan }) {
 
                     {/* Features */}
                     <div className="border-t pt-6">
-                        <h3 className="mb-4 text-lg font-medium text-gray-900">الميزات</h3>
-                        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                        <h3 className="mb-4 text-lg font-medium text-gray-900">الميزات الأساسية</h3>
+                        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700">
-                                    حد المنشورات
+                                    رصيد AI الشهري
                                 </label>
                                 <input
                                     type="number"
                                     min="0"
-                                    value={data.features.posts_limit ?? ''}
+                                    value={data.features.monthly_ai_credits ?? ''}
                                     onChange={(e) =>
                                         setData('features', {
                                             ...data.features,
-                                            posts_limit: e.target.value ? parseInt(e.target.value) : null,
+                                            monthly_ai_credits: e.target.value ? parseInt(e.target.value) : 0,
                                         })
                                     }
                                     className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                    placeholder="فارغ = غير محدود"
+                                    placeholder="0"
                                 />
                             </div>
 
                             <div>
                                 <label className="block text-sm font-medium text-gray-700">
-                                    عدد الإعلانات
+                                    رصيد الإعلانات الشهري
                                 </label>
                                 <input
                                     type="number"
                                     min="0"
-                                    value={data.features.ads_limit ?? ''}
+                                    value={data.features.monthly_ad_credits ?? ''}
                                     onChange={(e) =>
                                         setData('features', {
                                             ...data.features,
-                                            ads_limit: e.target.value ? parseInt(e.target.value) : null,
+                                            monthly_ad_credits: e.target.value ? parseInt(e.target.value) : 0,
                                         })
                                     }
                                     className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                    placeholder="فارغ = غير محدود"
+                                    placeholder="0"
                                 />
                             </div>
 
-                            <label className="flex items-center gap-2">
-                                <input
-                                    type="checkbox"
-                                    checked={data.features.priority_support || false}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">
+                                    شارة التوثيق
+                                </label>
+                                <select
+                                    value={data.features.verification_badge ?? ''}
                                     onChange={(e) =>
                                         setData('features', {
                                             ...data.features,
-                                            priority_support: e.target.checked,
+                                            verification_badge: e.target.value || null,
                                         })
                                     }
-                                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                                />
-                                <span className="text-sm text-gray-700">دعم أولوية</span>
-                            </label>
+                                    className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                >
+                                    <option value="">بدون شارة</option>
+                                    <option value="bronze">برونزية (Bronze)</option>
+                                    <option value="gold">ذهبية (Gold)</option>
+                                    <option value="platinum">بلاتينية (Platinum)</option>
+                                </select>
+                            </div>
+
+                            <div className="flex items-center pt-6">
+                                <label className="flex items-center gap-2">
+                                    <input
+                                        type="checkbox"
+                                        checked={data.features.priority_support || false}
+                                        onChange={(e) =>
+                                            setData('features', {
+                                                ...data.features,
+                                                priority_support: e.target.checked,
+                                            })
+                                        }
+                                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                    />
+                                    <span className="text-sm text-gray-700">دعم فني متميز (Priority Support)</span>
+                                </label>
+                            </div>
                         </div>
 
                         {/* Custom Features */}
@@ -224,7 +248,7 @@ export default function Form({ plan }) {
                             {/* Existing custom features */}
                             <div className="space-y-2 mb-4">
                                 {Object.entries(data.features)
-                                    .filter(([key]) => !['posts_limit', 'ads_limit', 'priority_support'].includes(key))
+                                    .filter(([key]) => !['monthly_ai_credits', 'monthly_ad_credits', 'verification_badge', 'priority_support'].includes(key))
                                     .map(([key, feature]) => (
                                         <div key={key} className="flex gap-2 items-center bg-gray-50 p-3 rounded-lg">
                                             <div className="flex-1 grid grid-cols-3 gap-2">
@@ -324,7 +348,7 @@ export default function Form({ plan }) {
                                     type="button"
                                     onClick={() => {
                                         const key = newFeature.key.trim();
-                                        const reservedKeys = ['posts_limit', 'ads_limit', 'priority_support'];
+                                        const reservedKeys = ['monthly_ai_credits', 'monthly_ad_credits', 'verification_badge', 'priority_support'];
                                         if (!key) return;
                                         if (reservedKeys.includes(key)) {
                                             alert('هذا المفتاح محجوز، اختر مفتاحاً آخر');

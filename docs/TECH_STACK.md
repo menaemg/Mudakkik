@@ -233,9 +233,9 @@ public function show(Post $post)
 **Cost Comparison:**
 | Provider | Cost per 1M tokens | Speed |
 |----------|-------------------|-------|
-| OpenAI GPT-4 | $30 | Slow |
-| Anthropic Claude | $15 | Medium |
-| **Groq LLaMA** | $0.89 | **Fast** |
+| OpenAI GPT-4 | $30 (input), $60 (output) | Slow |
+| Anthropic Claude | $3 (input), $15 (output) | Medium |
+| **Groq LLaMA** | **$0.59 (input), $0.79 (output)** | **Fast** |
 
 ### Tavily API
 
@@ -250,7 +250,7 @@ public function show(Post $post)
 
 | Aspect | Details |
 |--------|---------|
-| **Version** | stripe-php ^19.1 |
+| **Version** | stripe-php ^18.0 |
 | **Why** | Industry-standard payment processing. Global support, excellent webhooks, PCI compliance. |
 | **Problem Solved** | Building payment infrastructure from scratch is risky and expensive |
 | **Key Features Used** | Checkout Sessions, Webhooks, Customer portal, Subscription management |

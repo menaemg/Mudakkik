@@ -205,18 +205,20 @@ Every new article goes through automatic AI review.
 
 ### Subscription Plans
 
+### Subscription Plans
+
 | Plan | Arabic Name | Price | AI Credits | Ad Credits | Badge |
 |------|-------------|-------|------------|------------|-------|
 | **Free** | الباقة المجانية | $0 | 30/mo | 0 | - |
-| **Basic** | الباقة الأساسية | $29/mo | 100/mo | 7/mo | Bronze |
-| **Professional** | الباقة الاحترافية | $99/mo | 1,000/mo | 30/mo | Gold |
-| **Pro Annual** | احترافي (سنوي) | $999/yr | 12,000/yr | 365/yr | Platinum |
+| **Basic** | الباقة الأساسية | $9/mo | 300/mo | 7/mo | Bronze |
+| **Professional** | الباقة الاحترافية | $29/mo | 2,000/mo | 30/mo | Gold |
+| **Pro Annual** | احترافي (سنوي) | $299/yr | 24,000/yr | 365/yr | Platinum |
 
 ### Plan Features
 
 | Feature | Free | Basic | Professional | Pro Annual |
 |---------|------|-------|--------------|------------|
-| AI Credits | 30/mo | 100/mo | 1,000/mo | 12,000/yr |
+| AI Credits | 30/mo | 300/mo | 2,000/mo | 24,000/yr |
 | Ad Credits | 0 | 7/mo | 30/mo | 365/yr |
 | Verification Badge | ❌ | Bronze | Gold | Platinum |
 | Priority Support | ❌ | ❌ | ✅ | ✅ |

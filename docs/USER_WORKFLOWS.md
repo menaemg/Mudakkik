@@ -184,11 +184,20 @@ flowchart TD
 
 | Component | Description |
 |-----------|-------------|
-| Verdict Label | موثوق / مضلل / كاذب |
+| Verdict Label | موثوق / قيد التحقق / مضلل / كاذب |
 | Confidence | 0-100% |
 | Summary | Arabic explanation |
 | Evidence | Key points from sources |
 | Sources | Links to trusted news |
+
+### Verdict Types
+
+| Verdict | Arabic | Description |
+|---------|--------|-------------|
+| `trusted` | موثوق | Claim verified as true (70-100%) |
+| `checking` | قيد التحقق | Still verifying or awaiting review |
+| `misleading` | مضلل | Partially true or out of context (40-69%) |
+| `fake` | كاذب | Claim verified as false (0-39%) |
 
 ---
 
