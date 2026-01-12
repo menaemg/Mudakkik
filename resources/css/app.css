@@ -73,12 +73,26 @@
   * {
     @apply border-border;
   }
+
+  html,
+  body {
+    overflow-x: hidden;
+  }
+
   body {
     @apply bg-background text-foreground;
     font-family: "Cairo", "IBM Plex Sans Arabic", sans-serif;
     font-feature-settings: "cv11", "ss01";
   }
+
+  /* Improve touch responsiveness on real mobile devices */
+  button,
+  a,
+  [role="button"] {
+    touch-action: manipulation;
+  }
 }
+
 .news-ticker-container {
   width: 100%;
   overflow: hidden;
@@ -163,7 +177,7 @@ Retrieved 2025-12-23, License - CC BY-SA 4.0
 .scrollbar::-webkit-scrollbar-thumb {
   background: linear-gradient(
     180deg,
-    #001246,
+      #001246,
     #00124680
   );
   border-radius: 999px;
