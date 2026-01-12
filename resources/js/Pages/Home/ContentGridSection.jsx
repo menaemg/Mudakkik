@@ -31,7 +31,7 @@ const DontMissCard = ({ post, delay }) => (
         {/* Responsive image size */}
         <div className="w-[120px] sm:w-[160px] h-[90px] sm:h-[110px] shrink-0 overflow-hidden rounded-lg shadow-sm relative">
             <img
-                src={getImagePath(post.image_url)}
+                src={getImagePath(post.image)}
                 alt={post.title}
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
             />
@@ -65,7 +65,7 @@ const BreakingNewsCard = ({ post }) => {
         rounded-xl overflow-hidden shadow-lg
         hover:shadow-2xl transition-all duration-300 block" data-aos="zoom-in">
             <img
-                src={getImagePath(post.image_url)}
+                src={getImagePath(post.image)}
                 alt={post.title}
                 className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
             />
@@ -109,11 +109,18 @@ const JustForYouItem = ({ post }) => (
             </h4>
         </div>
         <div className="w-[70px] h-[70px] shrink-0 overflow-hidden rounded-lg shadow-sm">
-            <img src={getImagePath(post.image_url)} alt={post.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+            <img src={getImagePath(post.image)} alt={post.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
         </div>
     </Link>
 );
 
+/**
+ * Displays a grid of content sections: "Don't Miss", "Breaking News", and "Just for You".
+ * @param {object} props - The component props.
+ * @param {Array<object>} [props.dontMissPosts=[]] - An array of posts for the "Don't Miss" section. Each post object should have an 'image' property.
+ * @param {object|null} [props.breakingPost=null] - A single post object for the "Breaking News" section. This post object should have an 'image' property.
+ * @param {Array<object>} [props.forYouPosts=[]] - An array of posts for the "Just for You" section. Each post object should have an 'image' property.
+ */
 export default function ContentGridSection({ dontMissPosts = [], breakingPost = null, forYouPosts = [] }) {
     useEffect(() => {
         AOS.init({ duration: 800, once: true });
