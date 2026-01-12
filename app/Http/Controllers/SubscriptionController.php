@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Plan;
+use App\Services\Payment\PaymentService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -10,6 +11,10 @@ use Illuminate\Support\Facades\Auth;
 
 class SubscriptionController extends Controller
 {
+    public function __construct(
+        private PaymentService $paymentService
+    ) {}
+
     /**
      * Display available plans.
      */
@@ -67,5 +72,40 @@ class SubscriptionController extends Controller
         return Inertia::render('Subscriptions/History', [
             'subscriptions' => $subscriptions,
         ]);
+    }
+
+    /**
+     * Cancel the user's current subscription.
+     */
+    public function cancel(): \Illuminate\Http\RedirectResponse
+    {
+        $user = Auth::user();
+        if (!$user) {
+            abort(403, 'Unauthorized');
+        }
+
+        $subscription = $user->currentSubscription();
+
+        if (!$subscription) {
+            return redirect()->route('profile.edit')
+                ->with('error', 'لا يوجد اشتراك نشط لإلغائه.');
+        }
+
+        // Check if it's a free plan
+        if ($subscription->plan?->is_free) {
+            return redirect()->route('profile.edit')
+                ->with('error', 'لا يمكن إلغاء الباقة المجانية.');
+        }
+
+        // Cancel the subscription
+        $cancelled = $this->paymentService->cancelSubscription($subscription);
+
+        if (!$cancelled) {
+            return redirect()->route('profile.edit')
+                ->with('error', 'حدث خطأ أثناء إلغاء الاشتراك. يرجى المحاولة مرة أخرى.');
+        }
+
+        return redirect()->route('profile.edit')
+            ->with('success', 'تم إلغاء اشتراكك بنجاح.');
     }
 }

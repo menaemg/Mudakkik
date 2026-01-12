@@ -1,6 +1,7 @@
 import React from 'react';
-import { Link } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import { Button } from "@/components/ui/button";
+import Swal from 'sweetalert2';
 import { Badge } from "@/components/ui/badge";
 import {
     FaCrown, FaCalendarAlt, FaCreditCard,
@@ -180,14 +181,31 @@ export default function SubscriptionTab({ subscription, plan, subscription_histo
                                         تغيير الخطة
                                     </Button>
                                 </Link>
-                                <Link href={route('payment.cancel')} className="flex-1">
-                                    <Button
-                                        variant="outline"
-                                        className="w-full h-12 border-2 border-red-50 hover:border-red-100 hover:bg-red-50 text-red-600 font-bold rounded-xl transition-all"
-                                    >
-                                        إلغاء الاشتراك
-                                    </Button>
-                                </Link>
+                                <Button
+                                    variant="outline"
+                                    className="flex-1 w-full h-12 border-2 border-red-50 hover:border-red-100 hover:bg-red-50 text-red-600 font-bold rounded-xl transition-all"
+                                    onClick={() => {
+                                        Swal.fire({
+                                            title: 'هل أنت متأكد؟',
+                                            text: 'سيتم إلغاء اشتراكك فوراً.',
+                                            icon: 'warning',
+                                            showCancelButton: true,
+                                            confirmButtonColor: '#dc2626',
+                                            cancelButtonColor: '#6b7280',
+                                            confirmButtonText: 'نعم، إلغاء الاشتراك',
+                                            cancelButtonText: 'تراجع',
+                                            customClass: {
+                                                popup: 'font-[Cairo]'
+                                            }
+                                        }).then((result) => {
+                                            if (result.isConfirmed) {
+                                                router.post(route('subscription.cancel'));
+                                            }
+                                        });
+                                    }}
+                                >
+                                    إلغاء الاشتراك
+                                </Button>
                             </>
                         )}
                     </div>
