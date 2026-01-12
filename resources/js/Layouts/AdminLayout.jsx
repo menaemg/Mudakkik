@@ -316,7 +316,7 @@ export default function AdminLayout({ children }) {
                 {showNotifications && (
                   <>
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowNotifications(false)} className="fixed inset-0 z-40" />
-                    <motion.div initial={{ opacity: 0, y: 15, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 15, scale: 0.95 }} className="absolute left-0 mt-4 w-80 bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 z-50 overflow-hidden">
+                    <motion.div initial={{ opacity: 0, y: 15, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 15, scale: 0.95 }} className="fixed top-24 left-0 right-0 mx-auto md:absolute md:left-0 md:top-auto md:right-auto md:mx-0 md:mt-4 w-[90vw] max-w-xs md:w-80 bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 z-50 overflow-hidden">
                       <div className="p-6 bg-slate-50/50 border-b border-slate-100 flex justify-between items-center">
                         <span className="text-sm font-black text-[#001246]">الإشعارات</span>
                         {displayUnreadCount > 0 && (
