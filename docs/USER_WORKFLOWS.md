@@ -58,7 +58,7 @@ flowchart TD
 
 ```php
 'name' => 'required|string|max:255'
-'username' => 'required|string|min:3|max:20|unique:users|alpha_dash'
+'username' => 'required|string|min:3|max:255|unique:users|regex:/^[a-zA-Z0-9._-]+$/'
 'email' => 'required|string|email|max:255|unique:users'
 'password' => 'required|string|min:8|confirmed'
 ```
@@ -184,7 +184,7 @@ flowchart TD
 
 | Component | Description |
 |-----------|-------------|
-| Verdict Label | موثوق / قيد التحقق / مضلل / كاذب |
+| Verdict Label | رسمي / صحيح / غير مؤكد / غير صحيح |
 | Confidence | 0-100% |
 | Summary | Arabic explanation |
 | Evidence | Key points from sources |
@@ -192,12 +192,23 @@ flowchart TD
 
 ### Verdict Types
 
-| Verdict | Arabic | Description |
-|---------|--------|-------------|
-| `trusted` | موثوق | Claim verified as true (70-100%) |
-| `checking` | قيد التحقق | Still verifying or awaiting review |
-| `misleading` | مضلل | Partially true or out of context (40-69%) |
-| `fake` | كاذب | Claim verified as false (0-39%) |
+**FactCheckServices (News Verification)** - Arabic verdicts with confidence thresholds:
+
+| Verdict | Arabic | Confidence |
+|---------|--------|------------|
+| Official | رسمي | ≥90% |
+| True | صحيح | 70-89% |
+| Unverified | غير مؤكد | 50-69% |
+| False | غير صحيح | <50% |
+
+**AiAuditService (Content Moderation)** - English verdicts for DB schema:
+
+| Verdict | Description |
+|---------|-------------|
+| `trusted` | Content passes quality/policy checks |
+| `checking` | Still under AI review |
+| `misleading` | Contains questionable claims |
+| `fake` | Contains false/harmful information |
 
 ---
 
@@ -607,10 +618,19 @@ flowchart TD
 | Post Published | Article goes live |
 | Post Rejected | Article rejected |
 | Post Pending | Needs manual review |
+| Post Deleted | Post deleted by author/admin |
+| Post Hidden by Report | Post hidden due to a report |
 | Report Submitted | Report created |
-| Report Result | Report approved/rejected |
+| Report Pending Review | Report is under review |
+| Report Approved | Report action taken |
+| Report Rejected | Report dismissed |
 | Payment Success | Payment completed |
-| Subscription | Created/expired |
+| Payment Failed | Payment reconciliation fails |
+| Subscription Created | New subscription activated |
+| Subscription Expired | Subscription ended |
+| Journalist Approved | Journalist status approved |
+| Stale Payment Alert | Admins notified of overdue payments |
+| Admin Activity | Admins notified of new activities |
 
 ---
 
@@ -624,10 +644,10 @@ flowchart TD
 | Login | `POST /login` | No |
 | Verify News | `POST /verify-news` | Yes |
 | Search News | `POST /search-news` | Yes |
-| Create Post | `POST /my-posts` | Journalist |
-| Report Post | `POST /posts/{id}/report` | Yes |
-| Like Post | `POST /posts/{id}/like` | Yes |
-| Subscribe | `POST /subscribe/{plan}` | Yes |
+| Create Post | `POST /my-posts` | Yes (Journalist) |
+| Report Post | `POST /posts/{post}/report` | Yes |
+| Like Post | `POST /posts/{post}/like` | Yes |
+| Subscribe | `POST /subscribe/{plan:slug}` | Yes |
 | View Profile | `GET /profile` | Yes |
 
 ### Credit Costs
