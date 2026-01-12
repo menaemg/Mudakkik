@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Plan;
+use App\Services\Payment\PaymentService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -10,6 +11,10 @@ use Illuminate\Support\Facades\Auth;
 
 class SubscriptionController extends Controller
 {
+    public function __construct(
+        private PaymentService $paymentService
+    ) {}
+
     /**
      * Display available plans.
      */
@@ -93,7 +98,12 @@ class SubscriptionController extends Controller
         }
 
         // Cancel the subscription
-        $subscription->cancel();
+        $cancelled = $this->paymentService->cancelSubscription($subscription);
+
+        if (!$cancelled) {
+            return redirect()->route('profile.edit')
+                ->with('error', 'حدث خطأ أثناء إلغاء الاشتراك. يرجى المحاولة مرة أخرى.');
+        }
 
         return redirect()->route('profile.edit')
             ->with('success', 'تم إلغاء اشتراكك بنجاح. سيظل الاشتراك فعالاً حتى تاريخ انتهائه.');
