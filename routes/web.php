@@ -36,14 +36,16 @@ use App\Http\Controllers\Webhooks\StripeWebhookController;
 use App\Http\Controllers\WelcomeController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AdminDashboardController;
-
+use App\Http\Controllers\Public\PolicyController as PublicPolicyController;
 use Inertia\Inertia;
 
 Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
 Route::get('/articles/{post:slug}', [PostController::class, 'show'])->name('posts.show');
 Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
 Route::get('/plans', [PlanController::class, 'index'])->name('plans.index');
-
+Route::get('/terms', [PublicPolicyController::class, 'index'])->name('terms.public');
+Route::get('/privacy', [PublicPolicyController::class, 'privacy'])->name('privacy.public');
+Route::get('/faq', [PublicPolicyController::class, 'faq'])->name('faq.public');
 Route::get('/check', function () {
     return Inertia::render('VerifyNews');
 });

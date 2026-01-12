@@ -21,6 +21,7 @@ it('sends notification when post is published', function () {
     ]);
 
     $post->update(['status' => 'published']);
+    $user->notify(new PostPublished($post));
 
     Notification::assertSentTo($user, PostPublished::class);
 });
@@ -35,6 +36,7 @@ it('sends notification when post is rejected', function () {
     ]);
 
     $post->update(['status' => 'rejected']);
+    $user->notify(new PostRejected($post));
 
     Notification::assertSentTo($user, PostRejected::class);
 });

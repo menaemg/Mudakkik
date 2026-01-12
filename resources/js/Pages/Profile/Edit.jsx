@@ -16,6 +16,7 @@ import ViewAdTab from './Partials/Tabs/ViewAdTab';
 import EditAdTab from './Partials/Tabs/EditAdTab';
 import Header from '@/Components/Header';
 import Footer from '@/Components/Footer';
+import Swal from 'sweetalert2';
 
 export default function Edit({
     mustVerifyEmail,
@@ -32,7 +33,41 @@ export default function Edit({
     current_plan,
     ticker,
 }) {
-    const { auth } = usePage().props;
+    const { auth, flash } = usePage().props;
+
+    // Flash message handling (like admin dashboard)
+    useEffect(() => {
+        if (flash?.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'تمت العملية بنجاح',
+                text: flash.success,
+                timer: 3000,
+                showConfirmButton: false,
+                customClass: { popup: 'rounded-[2rem] font-sans' },
+            });
+        }
+        if (flash?.error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'حدث خطأ',
+                text: flash.error,
+                timer: 4000,
+                showConfirmButton: false,
+                customClass: { popup: 'rounded-[2rem] font-sans' },
+            });
+        }
+        if (flash?.warning) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'تنبيه',
+                text: flash.warning,
+                timer: 4000,
+                showConfirmButton: false,
+                customClass: { popup: 'rounded-[2rem] font-sans' },
+            });
+        }
+    }, [flash]);
 
     const getUrlParams = () => {
         if (typeof window === 'undefined') return { tab: 'overview', postId: null, adId: null };

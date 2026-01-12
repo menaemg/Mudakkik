@@ -89,4 +89,87 @@ class AiAuditService
 - الألفاظ الخارجة، التحريض، الكراهية، أو المحتوى العشوائي (Spam).
 POLICY;
     }
+
+    /**
+     * Audit a user report to determine if it's valid.
+     */
+    public function auditReport(string $reportReason, string $postContent): ?array
+    {
+        $apiKey = config('services.groq.api_key');
+        if (!$apiKey) {
+            Log::warning('Groq API key is missing (services.groq.api_key).');
+            return null;
+        }
+
+        $systemPrompt = $this->buildReportAuditPrompt();
+
+        try {
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $apiKey,
+                'Content-Type' => 'application/json',
+            ])
+                ->retry(2, 500)
+                ->timeout(45)
+                ->post('https://api.groq.com/openai/v1/chat/completions', [
+                    'model' => self::PRIMARY_MODEL,
+                    'messages' => [
+                        ['role' => 'system', 'content' => $systemPrompt],
+                        ['role' => 'user', 'content' => "Report Reason:\n{$reportReason}\n\n---\n\nPost Content:\n{$postContent}"]
+                    ],
+                    'response_format' => ['type' => 'json_object'],
+                    'temperature' => 0.2,
+                ]);
+
+            if ($response->successful()) {
+                $content = data_get($response->json(), 'choices.0.message.content');
+                if (!is_string($content)) return null;
+
+                $decoded = json_decode($content, true);
+                if (!is_array($decoded)) {
+                    Log::warning('Groq returned non-JSON content for report audit.', [
+                        'content_preview' => Str::limit($content, 300),
+                    ]);
+                    return null;
+                }
+                return $decoded;
+            }
+
+            Log::error('Groq API Error in Report Audit', [
+                'status' => $response->status(),
+                'body_preview' => Str::limit($response->body(), 500),
+            ]);
+            return null;
+        } catch (\Exception $e) {
+            Log::error('Exception in AiAuditService::auditReport', ['error' => $e->getMessage()]);
+            return null;
+        }
+    }
+
+    private function buildReportAuditPrompt(): string
+    {
+        return <<<PROMPT
+You are a content moderation expert for an Arabic news platform. Your task is to evaluate user reports about posts.
+
+ANALYZE:
+1. The REPORT REASON provided by the reporting user
+2. The POST CONTENT being reported
+
+DETERMINE if the report is:
+- "valid": The post clearly violates policies (hate speech, harassment, misinformation, spam, inappropriate content)
+- "invalid": The report is frivolous, the post does not violate any policies
+- "needs_review": Unclear case that requires human administrator review
+
+RULES:
+1. SCORE: Give a confidence score from 0-100
+2. VERDICT: 'valid', 'invalid', or 'needs_review'
+3. SUMMARY: Detailed explanation in Arabic for administrators
+
+RESPONSE FORMAT (JSON ONLY):
+{
+  "score": 85,
+  "verdict": "valid",
+  "summary": "البلاغ صحيح. المحتوى يحتوي على..."
+}
+PROMPT;
+    }
 }

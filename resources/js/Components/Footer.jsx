@@ -15,7 +15,6 @@ export default function Footer() {
             <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 mb-12">
-
                     <div className="lg:col-span-4 flex flex-col items-start">
                         <div className="mb-6">
                             <Link href="/" className="flex items-center gap-3 group shrink-0">
@@ -38,7 +37,6 @@ export default function Footer() {
                             المصدر الأول للأخبار الموثوقة والتحليلات العميقة.
                             نلتزم بالدقة والموضوعية في نقل الأحداث العالمية والمحلية لحظة بلحظة.
                         </p>
-
                         <div className="flex gap-3">
                             {[
                                 { Icon: FaFacebookF, label: 'Facebook' },
@@ -46,42 +44,60 @@ export default function Footer() {
                                 { Icon: FaInstagram, label: 'Instagram' },
                                 { Icon: FaLinkedinIn, label: 'LinkedIn' }
                             ].map(({ Icon, label }, idx) => (
-                                <a
-                                    key={idx}
-                                    href="#"
-                                    aria-label={label}
-                                    className="w-10 h-10 rounded-full border border-white/10
-                                    flex items-center justify-center text-gray-400 hover:bg-white
-                                    hover:text-[#000a2e] hover:border-white transition-all duration-300 hover:-translate-y-1"
-                                >
-                                    <Icon size={16} />
+                                <a key={idx} href="#" aria-label={label} className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-gray-400 hover:bg-white hover:text-[#000a2e] hover:border-white transition-all duration-300">
+                                     <Icon size={16} />
                                 </a>
-                            ))}
-                        </div>
+                             ))}
+                         </div>
                     </div>
 
                     <div className="lg:col-span-8 grid grid-cols-2 md:grid-cols-3 gap-8 pt-2">
-                        {[
-                            { title: "عن مدقق", links: ["من نحن", "فريق التحرير", "وظائف خالية", "أعلن معنا"] },
-                            { title: "الأقسام", links: ["أخبار عاجلة", "سياسة واقتصاد", "تكنولوجيا", "علوم وبيئة", "رياضة"] },
-                            { title: "مساعدة", links: ["اتصل بنا", "الأسئلة الشائعة", "سياسة الخصوصية", "الشروط والأحكام"] }
-                        ].map((section, idx) => (
-                            <div key={idx}>
-                                <h3 className="text-lg font-bold mb-6 text-white relative inline-block">
-                                    {section.title}
-                                    <span className="absolute -bottom-2 right-0 w-8 h-1 bg-brand-red rounded-full"></span>
-                                </h3>
-                                <ul className="space-y-3 text-sm text-gray-400">
-                                    {section.links.map((link, i) => (
-                                        <li key={i}>
-                                            <Link href="#" className="hover:text-brand-red hover:translate-x-[-5px] transition-all duration-300 inline-block">
-                                                {link}
-                                            </Link>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        ))}
+                        <div className="text-right">
+                            <h3 className="text-lg font-bold mb-6 text-white relative inline-block">
+                                عن مدقق
+                                <span className="absolute -bottom-2 right-0 w-8 h-1 bg-brand-red rounded-full"></span>
+                            </h3>
+                            <ul className="space-y-3 text-sm text-gray-400">
+                                <li><a href="#" className="hover:text-white transition-all">من نحن</a></li>
+                                <li><a href="#" className="hover:text-white transition-all">فريق التحرير</a></li>
+                                <li><a href="#" className="hover:text-white transition-all">وظائف خالية</a></li>
+                                <li><a href="#" className="hover:text-white transition-all">أعلن معنا</a></li>
+                            </ul>
+                        </div>
+
+                        <div className="text-right">
+                            <h3 className="text-lg font-bold mb-6 text-white relative inline-block">
+                                الأقسام
+                                <span className="absolute -bottom-2 right-0 w-8 h-1 bg-brand-red rounded-full"></span>
+                            </h3>
+                            <ul className="space-y-3 text-sm text-gray-400">
+                                <li><a href="#" className="hover:text-white transition-all">أخبار عاجلة</a></li>
+                                <li><a href="#" className="hover:text-white transition-all">سياسة واقتصاد</a></li>
+                                <li><a href="#" className="hover:text-white transition-all">تكنولوجيا</a></li>
+                                <li><a href="#" className="hover:text-white transition-all">رياضة</a></li>
+                            </ul>
+                        </div>
+
+                        <div className="text-right">
+                            <h3 className="text-lg font-bold mb-6 text-white relative inline-block">
+                                مساعدة
+                                <span className="absolute -bottom-2 right-0 w-8 h-1 bg-brand-red rounded-full"></span>
+                            </h3>
+                            <ul className="space-y-3 text-sm text-gray-400">
+                                <li>
+                                    <Link href="/contact" className="hover:text-white hover:translate-x-[-5px] transition-all duration-300 inline-block">اتصل بنا</Link>
+                                </li>
+                                <li>
+                                    <Link href="/faq" className="hover:text-white hover:translate-x-[-5px] transition-all duration-300 inline-block">الأسئلة الشائعة</Link>
+                                </li>
+                                <li>
+                                    <Link href="/privacy" className="hover:text-white hover:translate-x-[-5px] transition-all duration-300 inline-block">سياسة الخصوصية</Link>
+                                </li>
+                                <li>
+                                    <Link href="/terms" className="hover:text-white hover:translate-x-[-5px] transition-all duration-300 inline-block">الشروط والأحكام</Link>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
 
@@ -98,7 +114,6 @@ export default function Footer() {
                         <span>بواسطة فريق مدقق</span>
                     </div>
                 </div>
-
             </div>
         </footer>
     );
