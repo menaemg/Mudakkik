@@ -15,10 +15,14 @@ import {
     FaCamera
 } from 'react-icons/fa';
 import Swal from 'sweetalert2';
+import { getImagePath } from '@/utils';
 
 export default function EditPostTab({ post, categories, setActiveTab }) {
     const [blobUrl, setBlobUrl] = useState(null);
-    const getInitialImage = () => post.image ? `/storage/${post.image}` : null;
+    const getInitialImage = () => {
+        if (post.image) return getImagePath(post.image);
+        return getImagePath(null);
+    };
 
     const [imagePreview, setImagePreview] = useState(getInitialImage());
 
@@ -37,6 +41,13 @@ export default function EditPostTab({ post, categories, setActiveTab }) {
         type: post.type || 'article',
     });
 
+    const isDirty =
+        data.title !== post.title ||
+        data.body !== post.body ||
+        String(data.category_id) !== String(post.category_id) ||
+        data.type !== (post.type || 'article') ||
+        data.image !== null;
+
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -50,6 +61,7 @@ export default function EditPostTab({ post, categories, setActiveTab }) {
 
     const submit = (e) => {
         e.preventDefault();
+        if (!isDirty) return;
 
         Swal.fire({
             title: 'هل تريد حفظ التعديلات؟',
@@ -76,9 +88,9 @@ export default function EditPostTab({ post, categories, setActiveTab }) {
     return (
         <div className="bg-white rounded-[2.5rem] shadow-xl shadow-gray-200/40 border border-white p-8 md:p-10 animate-in fade-in duration-700 relative overflow-hidden min-h-[calc(100vh-16rem)] h-full flex flex-col">
 
-             <div className="absolute top-0 left-0 w-64 h-64 bg-green-50/50 rounded-full blur-3xl -z-10"></div>
+            <div className="absolute top-0 left-0 w-64 h-64 bg-green-50/50 rounded-full blur-3xl -z-10"></div>
 
-             <div className="mb-10 border-b border-gray-100 pb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div className="mb-10 border-b border-gray-100 pb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h3 className="font-black text-2xl text-[#020617] flex items-center gap-3 mb-2">
                         <div className="w-10 h-10 bg-green-50 text-green-600 rounded-xl flex items-center justify-center shadow-sm border border-green-100">
@@ -167,12 +179,14 @@ export default function EditPostTab({ post, categories, setActiveTab }) {
                             </label>
                         ) : (
                             <div className="relative w-full h-72 rounded-2xl overflow-hidden border border-gray-200 group shadow-md">
-                                <img
-                                    src={imagePreview}
-                                    alt="Preview"
-                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                    onError={(e) => { e.target.onerror = null; e.target.src = '/images/placeholder.jpg'; }}
-                                />
+                              <img
+                                  src={getImagePath(imagePreview)}
+                                  alt="Preview"
+                                  onError={(e) => {
+                                    e.currentTarget.onerror = null;
+                                    e.currentTarget.src = '/images/placeholder.jpg';
+                                  }}
+                              />
                                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm gap-3">
                                     <label className="cursor-pointer bg-white text-gray-900 font-bold px-6 py-3 rounded-xl shadow-lg hover:scale-105 transition-transform flex items-center gap-2">
                                         <FaCamera className="text-green-600" />
@@ -196,11 +210,16 @@ export default function EditPostTab({ post, categories, setActiveTab }) {
                     <InputError message={errors.body} className="mt-2" />
                 </div>
 
-                {/* الزر */}
                 <div className="flex justify-end pt-6 border-t border-gray-100 mt-auto">
                     <Button
-                        disabled={processing}
-                        className="bg-green-600 hover:bg-green-700 text-white px-10 py-4 rounded-xl shadow-lg shadow-green-500/20 font-bold text-sm transition-all transform hover:-translate-y-0.5"
+                        disabled={processing || !isDirty}
+                        className={`
+                            px-10 py-4 rounded-xl shadow-lg font-bold text-sm transition-all transform
+                            ${!isDirty
+                                ? 'bg-gray-300 text-gray-500 cursor-not-allowed shadow-none'
+                                : 'bg-green-600 hover:bg-green-700 text-white shadow-green-500/20 hover:-translate-y-0.5'
+                            }
+                        `}
                     >
                         {processing ? 'جاري الحفظ...' : (
                             <span className="flex items-center gap-2">

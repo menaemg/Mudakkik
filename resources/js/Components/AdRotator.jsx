@@ -148,13 +148,11 @@ export default function AdRotator({
         );
     }
 
-    if (variant === "banner") {
+if (variant === "banner") {
         return (
             <div
-                className={`relative overflow-hidden rounded-[3rem] h-[280px] md:h-[380px] shadow-2xl group border border-gray-800 bg-gray-900 ${className}`}>
-                <div
-                    className="absolute inset-0 w-full h-full"
-                >
+                className={`relative overflow-hidden rounded-[2rem] md:rounded-[3rem] h-[280px] md:h-[380px] shadow-2xl group border border-gray-800 bg-gray-900 ${className}`}>
+                <div className="absolute inset-0 w-full h-full">
                     <Particles />
                     <motion.div
                         className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-12 z-20 pointer-events-none"
@@ -186,20 +184,21 @@ export default function AdRotator({
 
                             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 via-red-500 to-amber-500 z-30 pointer-events-none"></div>
 
+                            {/* التعديل الجوهري: تم تقليل padding الموبايل إلى px-6 بدلاً من 16، وزيادة padding الرأسي قليلاً */}
                             <div className="absolute inset-0 flex items-center px-6 md:px-12 lg:px-16 py-6 z-20">
                                 <div className="max-w-2xl w-full text-right">
                                     <motion.div
                                         initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}
-                                        className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500 to-red-500 text-white px-4 py-2 rounded-full text-xs font-black mb-6 shadow-[0_0_20px_rgba(245,158,11,0.6)] border border-amber-300/30">
+                                        className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500 to-red-500 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-full text-[10px] md:text-xs font-black mb-3 md:mb-6 shadow-[0_0_20px_rgba(245,158,11,0.6)] border border-amber-300/30">
                                         <motion.div animate={{ rotate: 360 }} transition={{ duration: 3, repeat: Infinity }}>
-                                            <FaStar />
+                                            <FaStar size={10} />
                                         </motion.div>
                                         <span>عرض حصري مميز</span>
                                     </motion.div>
 
                                     <motion.h2
                                         initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-                                        className="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-4 leading-tight drop-shadow-2xl"
+                                        className="text-2xl md:text-5xl lg:text-6xl font-black text-white mb-2 md:mb-4 leading-tight drop-shadow-2xl"
                                         style={{ textShadow: '0 0 20px rgba(255, 255, 255, 0.5)' }}
                                         >
                                         {ad.title}
@@ -207,28 +206,28 @@ export default function AdRotator({
 
                                     <motion.p
                                         initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-                                        className="text-gray-200 text-base md:text-lg mb-6 line-clamp-2 leading-relaxed max-w-2xl drop-shadow-lg">
+                                        className="text-gray-200 text-xs md:text-lg mb-4 md:mb-6 line-clamp-1 md:line-clamp-2 leading-relaxed max-w-2xl drop-shadow-lg">
                                         {ad.description || "اكتشف أفضل العروض الحصرية والخدمات المميزة."}
                                     </motion.p>
 
                                     <motion.div
                                         initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-                                        className="flex items-center justify-end gap-3 mb-8">
+                                        className="flex items-center justify-end gap-2 mb-6 md:mb-8">
                                         <div className="flex items-center gap-2">
                                             <motion.div
                                                 animate={{ scale: [1, 1.2, 1] }}
                                                 transition={{ duration: 1, repeat: Infinity }}
                                                 className="text-amber-400"
                                             >
-                                                <FaBolt size={16} />
+                                                <FaBolt size={14} />
                                             </motion.div>
-                                            <span className="text-lg md:text-xl font-black text-amber-300" style={{ textShadow: '0 0 10px rgba(251, 191, 36, 0.7)' }}>{randomPhrase}</span>
+                                            <span className="text-sm md:text-xl font-black text-amber-300" style={{ textShadow: '0 0 10px rgba(251, 191, 36, 0.7)' }}>{randomPhrase}</span>
                                         </div>
                                     </motion.div>
 
                                     <motion.a
                                         href={ad.target_link} target="_blank" rel="noopener noreferrer"
-                                        className="inline-flex items-center gap-3 bg-gradient-to-r from-amber-400 to-red-500 text-black font-bold px-8 py-4 rounded-full transition-all shadow-lg hover:shadow-2xl hover:shadow-amber-500/50 text-base md:text-lg group/btn border border-amber-300/50"
+                                        className="inline-flex items-center gap-2 md:gap-3 bg-gradient-to-r from-amber-400 to-red-500 text-black font-bold px-6 py-3 md:px-8 md:py-4 rounded-full transition-all shadow-lg hover:shadow-2xl hover:shadow-amber-500/50 text-sm md:text-lg group/btn border border-amber-300/50"
                                         whileHover={{ scale: 1.08, y: -3 }}
                                         whileTap={{ scale: 0.95 }}
                                     >
@@ -252,7 +251,7 @@ export default function AdRotator({
                                     key={idx}
                                     className={`rounded-full transition-all ${idx === currentIndex ? 'bg-gradient-to-r from-amber-500 to-red-500' : 'bg-white/30'}`}
                                     animate={{
-                                        width: idx === currentIndex ? 32 : 8,
+                                        width: idx === currentIndex ? (window.innerWidth < 768 ? 24 : 32) : 8,
                                         height: 8,
                                     }}
                                     transition={{ duration: 0.3 }}

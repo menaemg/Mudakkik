@@ -32,7 +32,7 @@ export default function EditAdTab({ ad, remainingDays, setActiveTab }) {
         title: ad.title,
         target_url: ad.target_url,
         image: null,
-        start_date: ad.requested_start_date,
+        start_date: ad.requested_start_date ? ad.requested_start_date.split('T')[0].split(' ')[0] : '',
         duration: ad.duration,
     });
 

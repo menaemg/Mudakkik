@@ -19,9 +19,17 @@ import { getImagePath } from '@/utils';
 export default function ViewAdTab({ ad, setActiveTab }) {
     if (!ad) return null;
 
-    const startDate = new Date(ad.requested_start_date);
+    const formatDateSafely = (dateValue) => {
+        if (!dateValue) return null;
+        const date = new Date(dateValue);
+        return isNaN(date.getTime()) ? null : date;
+    };
+
+    const createdDate = formatDateSafely(ad.created_at);
+    const startDate = formatDateSafely(ad.requested_start_date) || new Date();
+
     const endDate = new Date(startDate);
-    endDate.setDate(startDate.getDate() + parseInt(ad.duration));
+    endDate.setDate(startDate.getDate() + (parseInt(ad.number_of_days) || 0));
 
     const getStatusStyle = (status) => {
         switch(status) {
@@ -50,7 +58,9 @@ export default function ViewAdTab({ ad, setActiveTab }) {
                     </h3>
                     <div className="flex items-center gap-3">
                         <Badge variant="outline" className="text-gray-400 border-gray-200 font-mono text-[10px]">#{ad.id}</Badge>
-                        <span className="text-sm text-gray-500 font-medium">تم الإنشاء: {new Date(ad.created_at).toLocaleDateString('ar-EG')}</span>
+                        <span className="text-sm text-gray-500 font-medium">
+                        تم الإنشاء: {createdDate ? createdDate.toLocaleDateString('ar-EG') : 'غير متوفر'}
+                        </span>
                     </div>
                 </div>
                 <Button
@@ -88,7 +98,6 @@ export default function ViewAdTab({ ad, setActiveTab }) {
                 </div>
 
                 <div className="lg:col-span-7 space-y-6">
-
                     <div className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm space-y-4">
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                             <div>

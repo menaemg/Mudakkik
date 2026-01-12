@@ -105,6 +105,7 @@ class ProfileController extends Controller
                     'requested_end_date' => $ad->end_date,
                     'duration' => $ad->number_of_days,
                     'status' => $ad->status,
+                    'created_at' => $ad->created_at->toIso8601String(),
                 ];
              })
 

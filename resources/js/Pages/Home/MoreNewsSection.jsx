@@ -65,18 +65,20 @@ export default function MoreNewsSection({ articles = [], ads }) {
     }, []);
 
     return (
-        <section className="container mx-auto px-4 py-8 sm:py-12">
-            <SectionLabel title="المزيد من الأخبار" />
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-                {articles.length > 0 ? (
-                    articles.map((news, index) => (
-                        <NewsCard key={news.id} news={news} delay={index * 50} />
-                    ))
-                ) : (
-                    Array(8).fill(null).map((_, i) => (
-                        <div key={i} className="h-72 bg-gray-100 rounded-xl animate-pulse"></div>
-                    ))
-                )}
+        <section className="w-full py-8 sm:py-12 bg-gradient-to-b from-white to-gray-50/50">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <SectionLabel title="المزيد من الأخبار" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                    {articles.length > 0 ? (
+                        articles.map((news, index) => (
+                            <NewsCard key={news.id} news={news} delay={index * 50} />
+                        ))
+                    ) : (
+                        Array(8).fill(null).map((_, i) => (
+                            <div key={i} className="h-72 bg-gray-100 rounded-xl animate-pulse"></div>
+                        ))
+                    )}
+                </div>
             </div>
         </section>
     );

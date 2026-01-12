@@ -75,7 +75,7 @@ const VerticalCard = ({ post, delay }) => (
 
 const SideListItem = ({ post, delay }) => (
     <Link href={route('posts.show', post.slug)} className="mb-6 border-b border-gray-100 pb-4
-    last:border-0 group hover:translate-x-[-5px]
+    last:border-0 group
     transition-transform duration-300 block text-right" data-aos="fade-left" data-aos-delay={delay}>
         <span className="text-[10px] text-[#b20e1e] font-bold block mb-1 uppercase">أخبار : {post.category?.name}</span>
         <h4 className="font-bold text-[15px] leading-snug text-gray-900 mb-2 group-hover:text-[#b20e1e] transition-colors">{post.title}</h4>
@@ -130,41 +130,43 @@ export default function EntertainmentSection({ data = [], agendaAd = null }) {
     const isLoading = !data || data.length === 0;
 
     return (
-        <section className="container mx-auto px-4 py-12 sm:py-16 bg-gray-50/30">
-            <div className="mb-8 border-b border-gray-200 flex justify-between items-end pb-2">
-                <h2 className="bg-black text-white px-6 py-2 font-black text-lg inline-block relative top-[1px] shadow-md">ترفيه وفنون</h2>
-                <Link href={route('posts.index', {category: 'entertainment'})} className="text-xs font-bold text-gray-500 hover:text-[#b20e1e] flex items-center gap-1 transition-colors mb-1 group">
-                    عرض المزيد <FaArrowLeft className="group-hover:-translate-x-1 transition-transform" />
-                </Link>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-y-8 lg:gap-x-8">
-                <div className="lg:col-span-6">
-                    {isLoading ? <MainCardSkeleton /> : <MainEntertainCard post={data[0]} />}
+        <section className="w-full py-12 sm:py-16 bg-gradient-to-b from-white to-gray-50/30">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="mb-8 border-b border-gray-200 flex justify-between items-end pb-2">
+                    <h2 className="bg-black text-white px-6 py-2 font-black text-lg inline-block relative top-[1px] shadow-md">ترفيه وفنون</h2>
+                    <Link href={route('posts.index', {category: 'entertainment'})} className="text-xs font-bold text-gray-500 hover:text-[#b20e1e] flex items-center gap-1 transition-colors mb-1 group">
+                        عرض المزيد <FaArrowLeft className="group-hover:-translate-x-1 transition-transform" />
+                    </Link>
                 </div>
 
-                <div className="lg:col-span-3 flex flex-col h-full">
-                    {isLoading ? (
-                        <> <VerticalCardSkeleton /> <VerticalCardSkeleton /> </>
-                    ) : (
-                        <>
-                            {data[1] && <VerticalCard post={data[1]} delay="100" />}
-                            {data[2] && <VerticalCard post={data[2]} delay="200" />}
-                        </>
-                    )}
-                </div>
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-y-8 lg:gap-x-8">
+                    <div className="lg:col-span-6">
+                        {isLoading ? <MainCardSkeleton /> : <MainEntertainCard post={data[0]} />}
+                    </div>
 
-                <div className="lg:col-span-3">
-                    <AgendaCard agendaAd={agendaAd} />
-
-                    <div className="flex flex-col bg-white p-4 rounded-xl border border-gray-100 shadow-sm min-h-[300px]">
+                    <div className="lg:col-span-3 flex flex-col h-full">
                         {isLoading ? (
-                            <> <SideItemSkeleton /> <SideItemSkeleton /> <SideItemSkeleton /> </>
+                            <> <VerticalCardSkeleton /> <VerticalCardSkeleton /> </>
                         ) : (
-                            data.slice(3, 6).map((post, i) => (
-                                <SideListItem key={post.id} post={post} delay={300 + (i * 100)} />
-                            ))
+                            <>
+                                {data[1] && <VerticalCard post={data[1]} delay="100" />}
+                                {data[2] && <VerticalCard post={data[2]} delay="200" />}
+                            </>
                         )}
+                    </div>
+
+                    <div className="lg:col-span-3">
+                        <AgendaCard agendaAd={agendaAd} />
+
+                        <div className="flex flex-col bg-white p-4 rounded-xl border border-gray-100 shadow-sm min-h-[300px]">
+                            {isLoading ? (
+                                <> <SideItemSkeleton /> <SideItemSkeleton /> <SideItemSkeleton /> </>
+                            ) : (
+                                data.slice(3, 6).map((post, i) => (
+                                    <SideListItem key={post.id} post={post} delay={300 + (i * 100)} />
+                                ))
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
