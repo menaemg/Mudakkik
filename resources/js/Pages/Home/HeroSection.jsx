@@ -94,11 +94,8 @@ const TrendingCard = ({ category, title, image, index, delay, slug, views }) => 
             </div>
             <div className="flex flex-col min-w-0">
                 <span className="text-[10px] text-brand-blue font-bold mb-0.5 truncate">{category}</span>
-                <h4 className="font-bold text-sm text-[#001246] line-clamp-2 group-hover:text-brand-blue transition-colors leading-snug">{title}</h4>
+                <h4 className="font-bold text-base text-[#001246] group-hover:text-brand-blue transition-colors leading-snug">{title}</h4>
             </div>
-        </div>
-        <div className="flex items-center gap-1 text-[10px] text-slate-400 bg-slate-100 px-2 py-1 rounded-full whitespace-nowrap mr-2">
-            <FaChartLine /> {views}
         </div>
     </Link>
 );

@@ -69,6 +69,7 @@
 |---------|---------|-----------------|
 | **Groq API (LLaMA 3.3 70B)** | AI content auditing | Fast inference, cost-effective, excellent Arabic language understanding. |
 | **Tavily API** | News search/verification | Specialized news search API, returns structured data with sources. |
+| **Jina.ai Reader** | URL content extraction | Converts any URL to clean, readable text. Essential for fact-checking web articles. |
 | **Stripe** | Payment processing | Global payment support, excellent webhook system, PCI compliance. |
 | **Laravel Reverb** | WebSocket broadcasting | Native Laravel WebSocket server. No external dependencies like Pusher. |
 
@@ -208,23 +209,18 @@
 - Journalists maintain ownership of content
 
 ### Scenario 3: Subscription Monetization
-```
-┌─────────────────────────────────────────────────────────────┐
-│                  MONETIZATION MODEL                         │
-├─────────────────────────────────────────────────────────────┤
-│  FREE TIER:     │  PRO TIER:      │  ENTERPRISE:            │
-│  - 5 AI credits │  - 100 credits  │  - Unlimited credits    │
-│  - Read all     │  - Priority     │  - API access           │
-│  - Basic search │  - Ad-free      │  - White-label          │
-│  - Ads shown    │  - Ad creation  │  - Premium support      │
-│  $0/month       │  $9.99/month    │  $99/month              │
-└─────────────────────────────────────────────────────────────┘
-```
+
+| Plan | Price | AI Credits | Ad Credits | Badge | Support |
+|------|-------|------------|------------|-------|---------|
+| **الباقة المجانية** (Free) | $0/mo | 30 | 0 | ❌ | Standard |
+| **الباقة الأساسية** (Basic) | $9/mo | 300 | 7 days | 🥉 Bronze | Standard |
+| **الباقة الاحترافية** (Pro) | $29/mo | 2,000 | 30 days | 🥇 Gold | Priority |
+| **احترافي سنوي** (Annual) | $299/yr | 24,000 | 365 days | 💎 Platinum | Priority |
 
 **Revenue Streams:**
-1. **Subscriptions**: Monthly/yearly paid plans
-2. **Advertising**: Self-serve ad platform
-3. **Enterprise API**: B2B fact-check as a service
+1. **Subscriptions**: Monthly/yearly paid plans via Stripe
+2. **Advertising**: Self-serve ad platform (ad credits per plan)
+3. **Enterprise API**: B2B fact-check as a service (planned)
 
 ### Scenario 4: Content Moderation Workflow
 ```
@@ -834,20 +830,4 @@ Push to `main` branch triggers automatic deployment via `.github/workflows/deplo
 | `SubscriptionCreated` | mail, database | New subscription |
 | `SubscriptionExpired` | mail, database | Subscription ended |
 
----
 
-## 📄 License
-
-This project is proprietary software. All rights reserved.
-
----
-
-## 👨‍💻 Support
-
-For support, please contact the development team.
-
----
-
-<p align="center">
-  <sub>Built with Laravel 12, React 18, and AI-powered verification 🚀</sub>
-</p>
