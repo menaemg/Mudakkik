@@ -3,10 +3,13 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class PostPendingReview extends Notification
+class PostPendingReview extends Notification implements ShouldQueue, ShouldBroadcast
 {
     use Queueable;
 
@@ -21,7 +24,7 @@ class PostPendingReview extends Notification
 
     public function via($notifiable): array
     {
-        return ['mail', 'database'];
+        return ['mail', 'database', 'broadcast'];
     }
 
     public function toMail($notifiable)
@@ -36,6 +39,16 @@ class PostPendingReview extends Notification
             ->action('متابعة حالة المقال', $url)
             ->line('سنقوم بإرسال إشعار فور انتهاء عملية المراجعة.')
             ->salutation('مع التحية، فريق العمل');
+    }
+
+    public function toBroadcast($notifiable): BroadcastMessage
+    {
+        return new BroadcastMessage([
+            'post_id' => $this->post->id,
+            'title' => $this->post->title,
+            'message' => 'مقالك يحتاج لتعديلات لغوية ونحوية ليتم نشره.',
+            'action_url' => url('/profile?tab=articles')
+        ]);
     }
 
     public function toArray($notifiable): array

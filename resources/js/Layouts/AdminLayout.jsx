@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Link, usePage, router } from "@inertiajs/react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -29,6 +29,7 @@ import {
   CreditCard as PaymentIcon,
 } from "lucide-react";
 import Swal from "sweetalert2";
+import echo from "../echo";
 
 export default function AdminLayout({ children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -40,18 +41,50 @@ export default function AdminLayout({ children }) {
   const cleanUrl = currentUrl.split("?")[0];
 
   const pendingReports = admin?.pendingReportsCount || 0;
-  const notifications = auth?.user?.notifications || [];
-  const unreadCount = auth?.user?.unread_notifications_count || 0;
+  const [notifications, setNotifications] = useState(auth?.user?.notifications || []);
+  const [displayUnreadCount, setDisplayUnreadCount] = useState(auth?.user?.unread_notifications_count || 0);
+  const echoChannelRef = useRef(null);
 
-  const [displayUnreadCount, setDisplayUnreadCount] = useState(unreadCount);
+  // Subscribe to real-time notifications via Echo
+  useEffect(() => {
+    if (auth?.user?.id) {
+      echoChannelRef.current = echo.private(`App.Models.User.${auth.user.id}`)
+        .notification((notification) => {
+          // Add new notification to the top
+          setNotifications(prev => [{
+            id: notification.id,
+            data: notification,
+            read_at: null,
+            created_at: new Date().toISOString(),
+          }, ...prev]);
+
+          // Increment unread count
+          setDisplayUnreadCount(prev => prev + 1);
+
+          // Show SweetAlert toast
+          Swal.fire({
+            toast: true,
+            position: 'top-start',
+            icon: 'info',
+            title: notification.message || 'إشعار جديد',
+            showConfirmButton: false,
+            timer: 4000,
+            timerProgressBar: true,
+            customClass: { popup: 'rounded-2xl font-sans text-sm' },
+          });
+        });
+
+      return () => {
+        if (echoChannelRef.current) {
+          echo.leave(`App.Models.User.${auth.user.id}`);
+        }
+      };
+    }
+  }, [auth?.user?.id]);
 
   useEffect(() => {
-    setDisplayUnreadCount(unreadCount);
-  }, [unreadCount]);
-
-  useEffect(() => {
-    if (showNotifications && unreadCount > 0) {
-      const previousCount = unreadCount;
+    if (showNotifications && displayUnreadCount > 0) {
+      const previousCount = displayUnreadCount;
       setDisplayUnreadCount(0);
 
       router.post(
@@ -65,7 +98,7 @@ export default function AdminLayout({ children }) {
         }
       );
     }
-  }, [showNotifications, unreadCount]);
+  }, [showNotifications]);
 
   const handleMarkAllRead = () => {
     const previousCount = displayUnreadCount;
@@ -293,10 +326,10 @@ export default function AdminLayout({ children }) {
                       <div className="max-h-96 overflow-y-auto">
                         {notifications.length > 0 ? (
                           notifications.map((n) => (
-                            <Link 
-                              key={n.id} 
-                              href={n?.data?.link ?? "#"} 
-                              onClick={() => setShowNotifications(false)} 
+                            <Link
+                              key={n.id}
+                              href={n?.data?.url ?? n?.data?.link ?? "#"}
+                              onClick={() => setShowNotifications(false)}
                               className={`flex gap-4 p-5 border-b border-slate-50 hover:bg-slate-50 transition-colors ${!n.read_at ? "bg-blue-50/20" : ""}`}
                             >
                               <div className="w-11 h-11 rounded-2xl bg-white border border-slate-100 flex items-center justify-center shrink-0 shadow-sm text-red-500">
@@ -304,10 +337,10 @@ export default function AdminLayout({ children }) {
                               </div>
                               <div className="flex flex-col min-w-0 text-right">
                                 <p className="text-[12px] font-black text-[#001246] truncate">
-                                  {n?.data?.title ?? "بدون عنوان"}
+                                  {n?.data?.message ?? "إشعار جديد"}
                                 </p>
                                 <p className="text-[11px] text-slate-500 mt-1 line-clamp-2 leading-relaxed">
-                                  {n?.data?.message ?? "لا يوجد محتوى متاح"}
+                                  {n?.data?.details ?? ""}
                                 </p>
                               </div>
                             </Link>

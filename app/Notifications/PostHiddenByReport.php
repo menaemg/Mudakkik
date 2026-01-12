@@ -4,11 +4,14 @@ namespace App\Notifications;
 
 use App\Models\Post;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Str;
 
-class PostHiddenByReport extends Notification
+class PostHiddenByReport extends Notification implements ShouldQueue, ShouldBroadcast
 {
     use Queueable;
 
@@ -23,7 +26,7 @@ class PostHiddenByReport extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        return ['mail', 'database', 'broadcast'];
     }
 
     public function toMail(object $notifiable): MailMessage
@@ -39,6 +42,16 @@ class PostHiddenByReport extends Notification
             ->action('عرض مقالاتي', $url)
             ->line('إذا كنت تعتقد أن هذا خطأ، يرجى التواصل مع فريق الدعم.')
             ->salutation('مع التحية، فريق المدقق');
+    }
+
+    public function toBroadcast(object $notifiable): BroadcastMessage
+    {
+        return new BroadcastMessage([
+            'message' => 'تم إخفاء منشورك: ' . $this->post->title,
+            'details' => 'سبب البلاغ: ' . Str::limit($this->reportReason, 100),
+            'type' => 'warning',
+            'url' => url('/profile?tab=articles'),
+        ]);
     }
 
     public function toArray(object $notifiable): array

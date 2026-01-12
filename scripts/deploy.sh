@@ -69,6 +69,9 @@ sudo systemctl reload php8.3-fpm
 php artisan horizon:terminate
 sudo supervisorctl restart mudakkik-horizon || true
 
+# Restart Reverb WebSocket server
+sudo supervisorctl restart mudakkik-reverb || true
+
 # Clear OPcache to ensure new code is loaded
 echo "🧹 Clearing caches..."
 if ! php artisan optimize:clear 2>&1; then

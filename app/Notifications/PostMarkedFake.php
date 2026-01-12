@@ -2,11 +2,17 @@
 
 namespace App\Notifications;
 
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class PostMarkedFake extends Notification
+class PostMarkedFake extends Notification implements ShouldQueue, ShouldBroadcast
 {
+    use Queueable;
+
     public $post;
 
     /**
@@ -24,7 +30,7 @@ class PostMarkedFake extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        return ['mail', 'database', 'broadcast'];
     }
 
     /**
@@ -41,6 +47,18 @@ class PostMarkedFake extends Notification
             ->action('تواصل معنا', url('/contact'))
             ->line('شكراً لتفهمك.')
             ->salutation('مع خالص التحية، فريق الموقع');
+    }
+
+    /**
+     * Get the broadcast representation of the notification.
+     */
+    public function toBroadcast(object $notifiable): BroadcastMessage
+    {
+        return new BroadcastMessage([
+            'message' => "تحذير: تم تصنيف مقالك كمحتوى مضلل: " . $this->post->title,
+            'type' => 'danger',
+            'url' => url('/contact')
+        ]);
     }
 
     /**

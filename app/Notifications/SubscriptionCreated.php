@@ -4,11 +4,13 @@ namespace App\Notifications;
 
 use App\Models\Subscription;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class SubscriptionCreated extends Notification implements ShouldQueue
+class SubscriptionCreated extends Notification implements ShouldQueue, ShouldBroadcast
 {
     use Queueable;
 
@@ -24,7 +26,7 @@ class SubscriptionCreated extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        return ['mail', 'database', 'broadcast'];
     }
 
     /**
@@ -43,6 +45,19 @@ class SubscriptionCreated extends Notification implements ShouldQueue
             ->line("**تاريخ الانتهاء:** {$endsAt}")
             ->action('عرض اشتراكي', url('/my-subscription'))
             ->line('شكراً لثقتك بنا!');
+    }
+
+    /**
+     * Get the broadcast representation of the notification.
+     */
+    public function toBroadcast(object $notifiable): BroadcastMessage
+    {
+        return new BroadcastMessage([
+            'type' => 'subscription_created',
+            'message' => '🎉 تم تفعيل اشتراكك بنجاح',
+            'subscription_id' => $this->subscription->id,
+            'plan_name' => $this->subscription->plan?->name,
+        ]);
     }
 
     /**
