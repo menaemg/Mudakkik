@@ -42,7 +42,7 @@ export default function Welcome({
         <>
             <Head title="الرئيسية - مدقق نيوز" />
 
-            <div className="min-h-screen bg-white text-right" dir="rtl">
+            <div className="min-h-screen bg-white text-right overflow-x-hidden" dir="rtl">
 
                 <Header auth={auth} ticker={ticker} />
 
@@ -60,10 +60,10 @@ export default function Welcome({
                     <BusinessSection articles={business} ads={ads} />
 
                     <ContentGridSection
-                      dontMissPosts={gridSection?.dontMiss}
-                      breakingPost={gridSection?.breaking}
-                      forYouPosts={gridSection?.forYou}
-                  />
+                        dontMissPosts={gridSection?.dontMiss}
+                        breakingPost={gridSection?.breaking}
+                        forYouPosts={gridSection?.forYou}
+                    />
 
                     <BannerSection
                         post={postForBanner}
