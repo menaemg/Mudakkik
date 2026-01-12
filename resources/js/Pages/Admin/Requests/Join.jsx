@@ -275,6 +275,7 @@ export default function join({ filters = {} }) {
                     <option value="pending">قيد المراجعة</option>
                     <option value="accepted">مقبول</option>
                     <option value="rejected">مرفوض</option>
+                    <option value="archived">مؤرشف</option>
                   </select>
                 </div>
               </div>

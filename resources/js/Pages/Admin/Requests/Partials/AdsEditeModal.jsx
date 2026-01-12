@@ -113,12 +113,12 @@ export default function AdsEditeModal({
                 icon={<Image size={14} />}
               >
                 <a
-                  href={request.image_url}
+                  href={`/storage/${request.image_url}`}
                   target="_blank"
                   rel="noreferrer noreferrer"
                 >
                   <img
-                    src={request.image_url}
+                    src={`/storage/${request.image_url}`}
                     alt={request.title}
                     className="w-full h-auto object-cover rounded-lg"
                   />
@@ -164,7 +164,9 @@ export default function AdsEditeModal({
                 >
                   <div
                     className="border w-full h-48 border-slate-200 rounded-lg overflow-hidden shadow-sm bg-cover bg-center"
-                    style={{ backgroundImage: `url(${request.image_url})` }}
+                    style={{
+                      backgroundImage: `url(/storage/${request.image_url})`,
+                    }}
                   >
                     <div className="bg-black/40 h-full flex items-end">
                       <div className="p-4 w-full">
