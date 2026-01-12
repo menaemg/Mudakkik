@@ -47,7 +47,7 @@ const MainFeatureCard = ({ story }) => (
     <Link
         href={route('posts.show', story?.slug || '#')}
         // Mobile-first height adjustment. Smaller on mobile, full height on desktop.
-        className="relative h-[300px] sm:h-[350px] lg:h-full w-full rounded-[2rem] overflow-hidden group block shadow-xl border border-slate-100"
+        className="relative h-[300px] sm:h-[400px] md:h-[500px] lg:h-full w-full rounded-[2rem] overflow-hidden group block shadow-xl border border-slate-100"
         data-aos="zoom-in"
     >
         <img src={getImagePath(story?.image)} alt={story?.title} className="w-full h-full object-cover transition-transform
@@ -141,107 +141,108 @@ export default function HeroSection({ hero, ads }) {
     ];
 
     return (
-        <section className="container mx-auto px-4 sm:px-6 py-8 lg:py-12 font-sans" dir="rtl">
-
-            {/* Responsive grid with adjusted gap and margin for mobile. */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6 mb-8 lg:mb-12 items-stretch lg:h-[550px]">
-                <div className="lg:col-span-3 order-2 lg:order-1 flex flex-col h-full">
-                    <div className="bg-black text-white px-4 py-2 font-bold text-lg w-fit relative
-                    shadow-md mb-4 after:content-['']
-                    after:absolute after:left-0 after:bottom-[-4px] after:w-full after:h-[4px] after:bg-brand-red">
-                        آخر الأخبار
-                    </div>
-                    <div className="flex flex-col gap-2 flex-1 min-h-0">
-                        {side && side.length > 0 ? (
-                            side.map((story, index) => (
-                                <LatestNewsCard
-                                    key={story.id}
-                                    delay={100 * (index + 1)}
-                                    slug={story.slug}
-                                    title={story.title}
-                                    category={story.category?.name}
-                                    date={new Date(story.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                    image={story.image}
-                                />
-                            ))
-                        ) : [1, 2, 3, 4].map((i) => <div key={i} className="flex-1 bg-gray-100 rounded-xl animate-pulse"></div>)}
-                    </div>
-                </div>
-
-                <div className="lg:col-span-6 order-1 lg:order-2 h-full">
-                    {main ? <MainFeatureCard story={main} /> : <SkeletonCard type="main" />}
-                </div>
-
-                <div className="lg:col-span-3 order-3 h-full flex flex-col">
-                    <div className="flex items-center gap-2 mb-4 border-b-2 border-brand-red pb-2 shrink-0">
-                        <FaChartLine className="text-brand-red text-xl" />
-                        <h2 className="font-black text-lg md:text-xl text-gray-900">الأكثر رواجاً</h2>
-                    </div>
-                    <div className="bg-white rounded-2xl p-2 border border-slate-50 shadow-sm flex flex-col gap-1 flex-1 min-h-0">
-                        {trending && trending.length > 0 ? (
-                            trending.map((story, index) => (
-                                <TrendingCard
-                                    key={story.id}
-                                    index={index + 1}
-                                    delay={200 + (index * 100)}
-                                    slug={story.slug}
-                                    title={story.title}
-                                    category={story.category?.name}
-                                    views={story.views}
-                                    image={story.image}
-                                />
-                            ))
-                        ) : [1, 2, 3, 4, 5].map((i) => <div key={i} className="flex-1 bg-gray-100 rounded-xl animate-pulse"></div>)}
-                    </div>
-                </div>
-            </div>
-
-            <div className="border-t border-slate-100 pt-8 md:pt-12 mt-8 md:mt-16">
-                 {/* Responsive padding for the bottom strip. */}
-                <div className="bg-slate-50/50 rounded-[2rem] p-4 md:p-6 border border-slate-100">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        {finalStrip.map((item, index) => {
-                            if (item.type === 'post') {
-                                return item.data ? (
-                                    <BottomStripItem
-                                        key={`post-${index}`}
+        <section className="w-full bg-gradient-to-b from-white to-slate-50/50 py-8 lg:py-12 font-sans" dir="rtl">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                {/* Responsive grid with adjusted gap and margin for mobile. */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6 mb-8 lg:mb-12 items-stretch">
+                    <div className="lg:col-span-3 order-2 lg:order-1 flex flex-col h-full">
+                        <div className="bg-black text-white px-4 py-2 font-bold text-lg w-fit relative
+                        shadow-md mb-4 after:content-['']
+                        after:absolute after:left-0 after:bottom-[-4px] after:w-full after:h-[4px] after:bg-brand-red">
+                            آخر الأخبار
+                        </div>
+                        <div className="flex flex-col gap-2 flex-1 min-h-0">
+                            {side && side.length > 0 ? (
+                                side.map((story, index) => (
+                                    <LatestNewsCard
+                                        key={story.id}
                                         delay={100 * (index + 1)}
-                                        title={item.data.title}
-                                        slug={item.data.slug}
-                                        date={new Date(item.data.created_at).toLocaleDateString('ar-EG')}
-                                        image={item.data.image}
+                                        slug={story.slug}
+                                        title={story.title}
+                                        category={story.category?.name}
+                                        date={new Date(story.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        image={story.image}
                                     />
-                                ) : <div key={index} className="h-28 bg-gray-100 rounded-2xl animate-pulse"></div>;
-                            } else {
-                                return (
-                                    <div key={`ad-${index}`} data-aos="fade-up" data-aos-delay={100 * (index + 1)}>
-                                        <AdRotator
-                                            ads={item.data}
-                                            variant="default"
-                                            interval={6000 + (index * 1000)}
-                                        />
-                                    </div>
-                                );
-                            }
-                        })}
-                    </div>
-                </div>
-            </div>
-
-            <div className="mt-8 md:mt-12 w-full" data-aos="fade-up">
-                {(!allAds || allAds.length === 0) ? (
-                    <div className="w-full h-28 md:h-40 flex items-center justify-center bg-gray-100 border rounded">
-                        <div className="text-center">
-                            <span className="font-bold text-gray-500 block">مساحة إعلانية متوفرة</span>
-                            <span className="text-[10px]">بانر إعلاني </span>
+                                ))
+                            ) : [1, 2, 3, 4].map((i) => <div key={i} className="flex-1 bg-gray-100 rounded-xl animate-pulse"></div>)}
                         </div>
                     </div>
-                ) : (
-                    <AdRotator
-                        ads={allAds}
-                        variant="wide"
-                    />
-                )}
+
+                    <div className="lg:col-span-6 order-1 lg:order-2 h-full">
+                        {main ? <MainFeatureCard story={main} /> : <SkeletonCard type="main" />}
+                    </div>
+
+                    <div className="lg:col-span-3 order-3 h-full flex flex-col">
+                        <div className="flex items-center gap-2 mb-4 border-b-2 border-brand-red pb-2 shrink-0">
+                            <FaChartLine className="text-brand-red text-xl" />
+                            <h2 className="font-black text-lg md:text-xl text-gray-900">الأكثر رواجاً</h2>
+                        </div>
+                        <div className="bg-white rounded-2xl p-2 border border-slate-50 shadow-sm flex flex-col gap-1 flex-1 min-h-0">
+                            {trending && trending.length > 0 ? (
+                                trending.map((story, index) => (
+                                    <TrendingCard
+                                        key={story.id}
+                                        index={index + 1}
+                                        delay={200 + (index * 100)}
+                                        slug={story.slug}
+                                        title={story.title}
+                                        category={story.category?.name}
+                                        views={story.views}
+                                        image={story.image}
+                                    />
+                                ))
+                            ) : [1, 2, 3, 4, 5].map((i) => <div key={i} className="flex-1 bg-gray-100 rounded-xl animate-pulse"></div>)}
+                        </div>
+                    </div>
+                </div>
+
+                <div className="border-t border-slate-100 pt-8 md:pt-12 mt-8 md:mt-16">
+                    {/* Responsive padding for the bottom strip. */}
+                    <div className="bg-slate-50/50 rounded-[2rem] p-4 md:p-6 border border-slate-100">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            {finalStrip.map((item, index) => {
+                                if (item.type === 'post') {
+                                    return item.data ? (
+                                        <BottomStripItem
+                                            key={`post-${index}`}
+                                            delay={100 * (index + 1)}
+                                            title={item.data.title}
+                                            slug={item.data.slug}
+                                            date={new Date(item.data.created_at).toLocaleDateString('ar-EG')}
+                                            image={item.data.image}
+                                        />
+                                    ) : <div key={index} className="h-28 bg-gray-100 rounded-2xl animate-pulse"></div>;
+                                } else {
+                                    return (
+                                        <div key={`ad-${index}`} data-aos="fade-up" data-aos-delay={100 * (index + 1)}>
+                                            <AdRotator
+                                                ads={item.data}
+                                                variant="default"
+                                                interval={6000 + (index * 1000)}
+                                            />
+                                        </div>
+                                    );
+                                }
+                            })}
+                        </div>
+                    </div>
+                </div>
+
+                <div className="mt-8 md:mt-12 w-full" data-aos="fade-up">
+                    {(!allAds || allAds.length === 0) ? (
+                        <div className="w-full h-28 md:h-40 flex items-center justify-center bg-gray-100 border rounded">
+                            <div className="text-center">
+                                <span className="font-bold text-gray-500 block">مساحة إعلانية متوفرة</span>
+                                <span className="text-[10px]">بانر إعلاني </span>
+                            </div>
+                        </div>
+                    ) : (
+                        <AdRotator
+                            ads={allAds}
+                            variant="wide"
+                        />
+                    )}
+                </div>
             </div>
         </section>
     );

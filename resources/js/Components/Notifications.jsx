@@ -85,7 +85,7 @@ export default function Notifications({ user }) {
             </button>
 
             {isOpen && (
-                <div className="absolute top-12 left-0 w-80 bg-[#000a2e] border border-white/10 rounded-lg shadow-2xl
+                <div className="absolute top-12 right-0 md:left-0 md:right-auto w-[95vw] max-w-sm md:w-80 bg-[#000a2e] border border-white/10 rounded-lg shadow-2xl
                 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                     <div className="absolute top-0 left-0 w-full h-1 bg-brand-red"></div>
                     <div className="p-3 border-b border-white/10 flex justify-between items-center bg-white/5">
@@ -95,7 +95,7 @@ export default function Notifications({ user }) {
                             تحديد الكل كمقروء
                         </button>
                     </div>
-                    <div className="max-h-96 overflow-y-auto custom-scrollbar">
+                    <div className="max-h-[70vh] md:max-h-96 overflow-y-auto custom-scrollbar">
                         {notifications.length > 0 ? (
                             notifications.map(n => (
                                 <div

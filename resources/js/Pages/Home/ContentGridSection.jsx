@@ -120,65 +120,67 @@ export default function ContentGridSection({ dontMissPosts = [], breakingPost = 
     }, []);
 
     return (
-        <section className="container mx-auto px-4 py-12 sm:py-16 bg-white" dir="rtl">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-y-8 lg:gap-x-8 items-start">
+        <section className="w-full py-12 sm:py-16 bg-gradient-to-b from-white to-slate-50/50" dir="rtl">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-y-8 lg:gap-x-8 items-start">
 
-                <div className="lg:col-span-5 flex flex-col">
-                    <SectionLabel title="لا تفوت" />
-                    <div className="flex flex-col gap-1">
-                        {dontMissPosts.length > 0 ? dontMissPosts.map((post, index) => (
-                            <DontMissCard key={post.id} post={post} delay={index * 100} />
-                        )) : <p className="text-center text-gray-400 py-10">لا توجد أخبار حالياً</p>}
-                    </div>
-                </div>
-
-                <div className="lg:col-span-4 h-full flex flex-col">
-                    <SectionLabel title="خبر عاجل" colorClass="bg-red-600" />
-                    <div className="flex-1">
-                        <BreakingNewsCard post={breakingPost} />
-                    </div>
-                </div>
-
-                <div className="lg:col-span-3 flex flex-col">
-                    <div className="bg-white p-4 sm:p-6 shadow-sm border border-gray-100 rounded-xl mb-8">
-                        <h3 className="font-bold text-sm text-gray-900 mb-5 text-center border-b border-gray-50 pb-3">تواصل معنا</h3>
-                        <div className="flex justify-around">
-                            <div className="flex flex-col items-center gap-2
-                            group cursor-pointer">
-                                <div className="w-12 h-12 rounded-full bg-[#1877F2] text-white flex
-                                items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                    <FaFacebookF size={20} />
-                                </div>
-                            </div>
-                            <div className="flex flex-col items-center gap-2 group cursor-pointer">
-                                <div className="w-12 h-12 rounded-full bg-black text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                    <FaTwitter size={20} />
-                                </div>
-                            </div>
-                            <div className="flex flex-col items-center gap-2 group cursor-pointer">
-                                <div className="w-12 h-12 rounded-full bg-gradient-to-tr
-                                from-yellow-400 via-red-500 to-purple-500 text-white flex
-                                items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                    <FaInstagram size={20} />
-                                </div>
-                            </div>
+                    <div className="lg:col-span-5 flex flex-col">
+                        <SectionLabel title="لا تفوت" />
+                        <div className="flex flex-col gap-1">
+                            {dontMissPosts.length > 0 ? dontMissPosts.map((post, index) => (
+                                <DontMissCard key={post.id} post={post} delay={index * 100} />
+                            )) : <p className="text-center text-gray-400 py-10">لا توجد أخبار حالياً</p>}
                         </div>
                     </div>
 
-                    <div className="bg-brand-red text-white px-4 py-2
-                    font-bold text-sm mb-5 shadow-md rounded-sm flex items-center justify-between">
-                        <FaBolt className="text-yellow-400" />
-                        <span>خصيصاً لك</span>
+                    <div className="lg:col-span-4 h-full flex flex-col">
+                        <SectionLabel title="خبر عاجل" colorClass="bg-red-600" />
+                        <div className="flex-1">
+                            <BreakingNewsCard post={breakingPost} />
+                        </div>
                     </div>
 
-                    <div className="flex flex-col bg-white p-4
-                    border border-gray-100 rounded-xl shadow-sm">
-                        {forYouPosts.length > 0 ? forYouPosts.map((post) => (
-                            <JustForYouItem key={post.id} post={post} />
-                        )) : <p className="text-center text-gray-400 py-5">لا توجد اقتراحات</p>}
+                    <div className="lg:col-span-3 flex flex-col">
+                        <div className="bg-white p-4 sm:p-6 shadow-sm border border-gray-100 rounded-xl mb-8">
+                            <h3 className="font-bold text-sm text-gray-900 mb-5 text-center border-b border-gray-50 pb-3">تواصل معنا</h3>
+                            <div className="flex justify-around">
+                                <div className="flex flex-col items-center gap-2
+                                group cursor-pointer">
+                                    <div className="w-12 h-12 rounded-full bg-[#1877F2] text-white flex
+                                    items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                        <FaFacebookF size={20} />
+                                    </div>
+                                </div>
+                                <div className="flex flex-col items-center gap-2 group cursor-pointer">
+                                    <div className="w-12 h-12 rounded-full bg-black text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                        <FaTwitter size={20} />
+                                    </div>
+                                </div>
+                                <div className="flex flex-col items-center gap-2 group cursor-pointer">
+                                    <div className="w-12 h-12 rounded-full bg-gradient-to-tr
+                                    from-yellow-400 via-red-500 to-purple-500 text-white flex
+                                    items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                        <FaInstagram size={20} />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="bg-brand-red text-white px-4 py-2
+                        font-bold text-sm mb-5 shadow-md rounded-sm flex items-center justify-between">
+                            <FaBolt className="text-yellow-400" />
+                            <span>خصيصاً لك</span>
+                        </div>
+
+                        <div className="flex flex-col bg-white p-4
+                        border border-gray-100 rounded-xl shadow-sm">
+                            {forYouPosts.length > 0 ? forYouPosts.map((post) => (
+                                <JustForYouItem key={post.id} post={post} />
+                            )) : <p className="text-center text-gray-400 py-5">لا توجد اقتراحات</p>}
+                        </div>
                     </div>
+
                 </div>
-
             </div>
         </section>
     );

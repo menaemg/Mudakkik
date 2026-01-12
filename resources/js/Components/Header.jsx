@@ -108,7 +108,7 @@ const Header = ({ auth }) => {
             <div className={`fixed top-0 left-0 right-0 z-[50] transition-all duration-300 border-b border-white/5
                 ${isScrolled ? 'bg-[#000a2e]/95 backdrop-blur-md shadow-lg py-2 h-[70px]' : 'bg-[#000a2e] py-4 h-[80px]'}`}>
 
-                <div className="container mx-auto flex justify-between items-center px-4 md:px-6 h-full relative z-[60]">
+                <div className="w-full max-w-7xl mx-auto flex justify-between items-center px-4 sm:px-6 lg:px-8 h-full relative z-[60]">
 
                     <Link href="/" className="flex items-center gap-3 group shrink-0">
                         <div className="w-10 h-10 bg-gradient-to-br from-brand-red to-red-700 rounded-xl flex items-center justify-center shadow-lg shadow-red-900/40 group-hover:rotate-6 transition-transform border border-white/10">
@@ -356,7 +356,7 @@ const Header = ({ auth }) => {
                 onMouseEnter={() => setIsTickerPaused(true)}
                 onMouseLeave={() => setIsTickerPaused(false)}
             >
-                <div className="container mx-auto flex justify-between items-center px-4 h-full relative">
+                <div className="w-full max-w-7xl mx-auto flex justify-between items-center px-4 sm:px-6 lg:px-8 h-full relative">
                     <div className="absolute right-0 h-full z-20 flex items-center pr-4
                     pl-8 bg-gradient-to-l from-[#8a0008] via-[#b20e1e] to-transparent">
                         <div className="bg-white text-[#b20e1e] font-black text-[10px]

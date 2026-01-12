@@ -24,7 +24,7 @@ class EntertainmentPostsSeeder extends Seeder
             $randomCategory = $categories->random();
 
             $post = new Post([
-                'title' => "اوعي الفن  ({$randomCategory->name}) رقم {$i}",
+                'title' => "الفن النظيف مرأة العالم رقم -  ({$randomCategory->name}) {$i}",
                 'body' => 'الفن فن مش عن عن.',
                 'image' => null,
                 'status' => 'published',

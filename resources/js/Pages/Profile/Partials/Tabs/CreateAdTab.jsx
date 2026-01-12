@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import InputError from '@/Components/InputError';
+import Swal from 'sweetalert2';
 import {
     FaPlus,
     FaCalendarAlt,
@@ -41,13 +42,46 @@ export default function CreateAdTab({ remainingDays, setActiveTab }) {
         }
     };
 
-    const handleSubmit = (e) => {
+const handleSubmit = (e) => {
         e.preventDefault();
-        post(route('ads.store'), {
-            forceFormData: true,
-            onSuccess: () => {
-                router.reload({ only: ['ad_requests', 'stats'] });
-                setActiveTab('ads');
+
+        // تنبيه التأكيد قبل الإرسال
+        Swal.fire({
+            title: 'هل أنت متأكد؟',
+            text: `سيتم خصم ${data.duration} نقاط من رصيدك لإطلاق هذه الحملة.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#000a2e',
+            cancelButtonColor: '#ef4444',
+            confirmButtonText: 'نعم، قم بالتأكيد',
+            cancelButtonText: 'إلغاء',
+            reverseButtons: true,
+            customClass: {
+                popup: 'rounded-[2rem]',
+                confirmButton: 'rounded-xl px-6 py-3 font-bold',
+                cancelButton: 'rounded-xl px-6 py-3 font-bold'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                post(route('ads.store'), {
+                    forceFormData: true,
+                    onSuccess: () => {
+                        Swal.fire({
+                            title: 'تم بنجاح!',
+                            text: 'تم إرسال حملتك الإعلانية للمراجعة بنجاح.',
+                            icon: 'success',
+                            confirmButtonText: 'حسناً',
+                            confirmButtonColor: '#000a2e',
+                            customClass: {
+                                popup: 'rounded-[2rem]',
+                                confirmButton: 'rounded-xl px-6 py-3 font-bold'
+                            }
+                        });
+
+                        router.reload({ only: ['ad_requests', 'stats'] });
+                        setActiveTab('ads');
+                    }
+                });
             }
         });
     };
@@ -120,7 +154,6 @@ export default function CreateAdTab({ remainingDays, setActiveTab }) {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Title */}
                         <div className="space-y-2">
                             <InputLabel value="عنوان الحملة" className="text-gray-700 font-bold" />
                             <div className="relative group">
@@ -135,7 +168,6 @@ export default function CreateAdTab({ remainingDays, setActiveTab }) {
                             <InputError message={errors.title} />
                         </div>
 
-                        {/* URL */}
                         <div className="space-y-2">
                             <InputLabel value="رابط التوجيه (Target URL)" className="text-gray-700 font-bold" />
                             <div className="relative group">
@@ -153,7 +185,6 @@ export default function CreateAdTab({ remainingDays, setActiveTab }) {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Start Date */}
                         <div className="space-y-2">
                             <InputLabel value="تاريخ البدء" className="text-gray-700 font-bold" />
                             <div className="relative group">
@@ -169,7 +200,6 @@ export default function CreateAdTab({ remainingDays, setActiveTab }) {
                             <InputError message={errors.start_date} />
                         </div>
 
-                        {/* Duration */}
                         <div className="space-y-2">
                             <InputLabel value="المدة (أيام)" className="text-gray-700 font-bold" />
                             <div className="relative group">

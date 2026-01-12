@@ -70,25 +70,27 @@ export default function BusinessSection({ articles = [], ads }) {
     const displayArticles = articles.length > 0 ? articles.slice(0, 4) : [];
 
     return (
-        <section className="container mx-auto px-4 py-12 sm:py-16 border-b border-gray-100">
-            <SectionLabel title="مال وأعمال" />
+        <section className="w-full bg-gradient-to-b from-white to-slate-50/50 py-12 sm:py-16">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <SectionLabel title="مال وأعمال" />
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-                {displayArticles.map((article, index) => (
-                    <BusinessCard
-                        key={article.id}
-                        delay={index * 100}
-                        title={article.title}
-                        date={article.created_at}
-                        image={article.image}
-                        slug={article.slug}
-                        categoryName={article.category?.name}
-                    />
-                ))}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                    {displayArticles.map((article, index) => (
+                        <BusinessCard
+                            key={article.id}
+                            delay={index * 100}
+                            title={article.title}
+                            date={article.created_at}
+                            image={article.image}
+                            slug={article.slug}
+                            categoryName={article.category?.name}
+                        />
+                    ))}
 
-                {displayArticles.length === 0 && Array(4).fill(null).map((_, i) => (
-                     <div key={i} className="h-64 bg-gray-100 rounded-xl animate-pulse"></div>
-                ))}
+                    {displayArticles.length === 0 && Array(4).fill(null).map((_, i) => (
+                        <div key={i} className="h-64 bg-gray-100 rounded-xl animate-pulse"></div>
+                    ))}
+                </div>
             </div>
         </section>
     );

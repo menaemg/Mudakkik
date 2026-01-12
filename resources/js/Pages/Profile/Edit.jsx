@@ -69,28 +69,56 @@ export default function Edit({
         }
     }, [flash]);
 
-    const getTabFromUrl = () => {
-        if (typeof window === 'undefined') return 'overview';
+    const getUrlParams = () => {
+        if (typeof window === 'undefined') return { tab: 'overview', postId: null, adId: null };
         const urlParams = new URLSearchParams(window.location.search);
-        return urlParams.get('tab') || 'overview';
+        return {
+            tab: urlParams.get('tab') || 'overview',
+            postId: urlParams.get('post_id'),
+            adId: urlParams.get('ad_id'),
+        };
     };
 
-    const [activeTab, setActiveTab] = useState(getTabFromUrl());
+    const [activeTab, setActiveTab] = useState(() => getUrlParams().tab);
+    
+    const findPostById = (id) => id ? (articles?.data?.find(p => p.id == id) || null) : null;
+    const findAdById = (id) => id ? (ad_requests?.data?.find(ad => ad.id == id) || null) : null;
+
+    const [postToEdit, setPostToEdit] = useState(() => findPostById(getUrlParams().postId));
+    const [adToEdit, setAdToEdit] = useState(() => findAdById(getUrlParams().adId));
 
     useEffect(() => {
-        if (activeTab === getTabFromUrl()) return;
         const url = new URL(window.location);
+        
         if (activeTab === 'overview') {
             url.searchParams.delete('tab');
         } else {
             url.searchParams.set('tab', activeTab);
         }
-        window.history.replaceState({}, '', url.toString());
-    }, [activeTab]);
+
+        if (activeTab === 'edit_post' && postToEdit) {
+            url.searchParams.set('post_id', postToEdit.id);
+        } else if (url.searchParams.has('post_id') && activeTab !== 'edit_post') {
+            url.searchParams.delete('post_id');
+        }
+
+        if ((activeTab === 'edit_ad' || activeTab === 'view_ad') && adToEdit) {
+            url.searchParams.set('ad_id', adToEdit.id);
+        } else if (url.searchParams.has('ad_id') && activeTab !== 'edit_ad' && activeTab !== 'view_ad') {
+            url.searchParams.delete('ad_id');
+        }
+
+        if (url.href !== window.location.href) {
+            window.history.replaceState({}, '', url.href);
+        }
+    }, [activeTab, postToEdit, adToEdit]);
 
     useEffect(() => {
-        const handlePopState = () => {
-            setActiveTab(getTabFromUrl());
+        const handlePopState = (event) => {
+            const { tab, postId, adId } = getUrlParams();
+            setActiveTab(tab);
+            setPostToEdit(findPostById(postId));
+            setAdToEdit(findAdById(adId));
         };
         window.addEventListener('popstate', handlePopState);
         return () => window.removeEventListener('popstate', handlePopState);
@@ -123,8 +151,6 @@ export default function Edit({
     };
 
     const canManageAds = current_plan && !current_plan.is_free && current_plan.slug !== 'free';
-    const [postToEdit, setPostToEdit] = useState(null);
-    const [adToEdit, setAdToEdit] = useState(null);
 
     return (
         <div className="flex flex-col min-h-screen bg-[#F0F4F8] font-sans selection:bg-brand-red selection:text-white" dir="rtl">

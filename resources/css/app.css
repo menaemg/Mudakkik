@@ -77,7 +77,6 @@
     @apply bg-background text-foreground;
     font-family: "Cairo", "IBM Plex Sans Arabic", sans-serif;
     font-feature-settings: "cv11", "ss01";
-    overflow-x: hidden;
   }
 }
 .news-ticker-container {

@@ -31,8 +31,8 @@ const StoryCardSkeleton = ({ index }) => {
         <div
             className={`relative rounded-xl border border-white/5 bg-white/5 animate-pulse overflow-hidden
             ${isLarge
-                ? 'col-span-1 md:col-span-2 h-[300px] md:h-[400px] lg:h-[500px]'
-                : 'col-span-1 md:col-span-1 h-[260px] md:h-[350px] lg:h-[500px]'}`}
+                ? 'col-span-1 md:col-span-2 h-[280px] md:h-[400px] lg:h-[500px]'
+                : 'col-span-1 md:col-span-1 h-[280px] md:h-[350px] lg:h-[500px]'}`}
         >
             <div className="absolute bottom-0 right-0 p-5 md:p-8 w-full flex flex-col justify-end h-full z-10">
 
@@ -61,10 +61,10 @@ const StoryCard = ({ post, index, delay }) => {
     return (
         <Link
             href={route('posts.show', post.slug)}
-            className={`relative group cursor-pointer overflow-hidden rounded-xl shadow-lg border border-white/10 block
+            className={`relative group cursor-pointer overflow-hidden rounded-xl shadow-lg border border-white/10 block transition-all duration-300 active:scale-95
             ${isLarge
-                ? 'col-span-1 md:col-span-2 h-[300px] md:h-[400px] lg:h-[500px]'
-                : 'col-span-1 md:col-span-1 h-[260px] md:h-[350px] lg:h-[500px]'}`}
+                ? 'col-span-1 md:col-span-2 h-[280px] md:h-[400px] lg:h-[500px]'
+                : 'col-span-1 md:col-span-1 h-[280px] md:h-[350px] lg:h-[500px]'}`}
             data-aos="fade-up"
             data-aos-delay={delay}
         >
@@ -82,11 +82,11 @@ const StoryCard = ({ post, index, delay }) => {
                      <span className={`text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider text-white shadow-lg backdrop-blur-md border border-white/20
                         ${post.is_breaking ? 'bg-red-600 animate-pulse' : 'bg-white/10'}`}>
                         {post.category?.name || 'عام'}
-                     </span>
+                      </span>
                 </div>
 
                 <h3 className={`font-black text-white leading-tight mb-3 md:mb-4 group-hover:text-blue-400 transition-colors drop-shadow-lg line-clamp-2
-                    ${isLarge ? 'text-xl md:text-3xl lg:text-4xl' : 'text-lg md:text-2xl'}`}>
+                    ${isLarge ? 'text-xl md:text-3xl lg:text-4xl' : 'text-xl md:text-2xl'}`}>
                     {post.title}
                 </h3>
 
@@ -115,14 +115,13 @@ export default function TopStories({ stories }) {
     const displayStories = (stories && stories.length > 0)
         ? stories
         : Array(6).fill(null);
-    return (
-        <section className="bg-[#000a2e] py-10 md:py-16 lg:py-24 font-sans relative overflow-hidden">
 
+    return (
+        <section className="w-full font-sans bg-[#000a2e] py-10 md:py-16 lg:py-24 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-[300px] h-[300px] md:w-[500px] md:h-[500px] bg-blue-900/20 rounded-full blur-[80px] md:blur-[120px] pointer-events-none translate-x-1/2 -translate-y-1/2"></div>
             <div className="absolute bottom-0 left-0 w-[300px] h-[300px] md:w-[500px] md:h-[500px] bg-red-900/10 rounded-full blur-[80px] md:blur-[120px] pointer-events-none -translate-x-1/2 translate-y-1/2"></div>
 
-            <div className="container mx-auto px-4 relative z-10">
-
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-8 md:mb-12 border-b border-white/10 pb-6 gap-4">
                     <div className="flex items-center gap-3 md:gap-4">
                         <div className="w-10 h-10 md:w-12 md:h-12 bg-white/10 rounded-xl flex items-center justify-center border border-white/10 shadow-[0_0_15px_rgba(255,255,255,0.1)]">
@@ -134,7 +133,7 @@ export default function TopStories({ stories }) {
                         </div>
                     </div>
 
-                    <Link href={route('posts.index')} className="w-full md:w-auto justify-center group flex items-center gap-2 text-white/70 hover:text-white transition-colors text-sm font-bold bg-white/5 px-4 py-2 rounded-full hover:bg-white/10">
+                    <Link href={route('posts.index')} className="w-full md:w-auto justify-center group flex items-center gap-2 text-white/70 hover:text-white transition-colors text-sm font-bold bg-white/5 px-4 py-2 rounded-full hover:bg-white/10 active:scale-95 transition-transform">
                         عرض الأرشيف الكامل
                         <FaArrowLeft size={10} className="group-hover:-translate-x-1 transition-transform" />
                     </Link>

@@ -89,65 +89,67 @@ export default function TopicsSection({ topics = [], editorAlerts = [], ads }) {
     const sectionAd = Array.isArray(ads) && ads.length > 0 ? ads[0] : null;
 
     return (
-        <section className="container mx-auto px-4 py-8 md:py-16 bg-gray-50/30" dir="rtl">
-            <div className="flex items-end justify-between mb-6 md:mb-8 border-b border-gray-200 pb-4">
-                <div className="flex flex-col text-right">
-                    <span className="text-[#b20e1e] font-bold text-[10px] md:text-xs tracking-widest uppercase mb-1">اكتشف</span>
-                    <h2 className="text-xl md:text-3xl font-black text-gray-900">تصفح حسب الموضوع</h2>
+        <section className="w-full py-8 md:py-16 bg-gradient-to-b from-white to-gray-50/30" dir="rtl">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex items-end justify-between mb-6 md:mb-8 border-b border-gray-200 pb-4">
+                    <div className="flex flex-col text-right">
+                        <span className="text-[#b20e1e] font-bold text-[10px] md:text-xs tracking-widest uppercase mb-1">اكتشف</span>
+                        <h2 className="text-xl md:text-3xl font-black text-gray-900">تصفح حسب الموضوع</h2>
+                    </div>
                 </div>
-            </div>
 
-            <div className="mb-8 md:mb-16 px-0 md:px-8 relative" data-aos="fade-up">
-                <Carousel
-                    opts={{ align: "start", loop: true, direction: 'rtl' }}
-                    plugins={[Autoplay({ delay: 3000, stopOnInteraction: false })]}
-                    className="w-full"
-                >
-                    <CarouselContent className="-ms-2 md:-ms-4 py-4">
-                        {topics.map((topic) => (
-                            <CarouselItem key={topic.id} className="ps-2 md:ps-4 basis-1/2 md:basis-1/3 lg:basis-1/5 select-none">
-                                <TopicCard topic={topic} />
-                            </CarouselItem>
-                        ))}
-                    </CarouselContent>
-                    <div className="hidden md:block">
-                        <CarouselPrevious className="right-[-40px] left-auto bg-white hover:bg-[#b20e1e] hover:text-white border-gray-200 shadow-sm transition-all" />
-                        <CarouselNext className="left-[-40px] right-auto bg-white hover:bg-[#b20e1e] hover:text-white border-gray-200 shadow-sm transition-all" />
-                    </div>
-                </Carousel>
-            </div>
-
-            <div className="flex items-center gap-3 mb-4 md:mb-6 justify-start" data-aos="fade-right">
-                <div className="p-1.5 md:p-2 bg-red-100 text-[#b20e1e] rounded-full">
-                    <FaBell className="text-sm md:text-base" />
+                <div className="mb-8 md:mb-16 relative overflow-hidden" data-aos="fade-up">
+                    <Carousel
+                        opts={{ align: "start", loop: true, direction: 'rtl' }}
+                        plugins={[Autoplay({ delay: 3000, stopOnInteraction: false })]}
+                        className="w-full"
+                    >
+                        <CarouselContent className="py-4">
+                            {topics.map((topic) => (
+                                <CarouselItem key={topic.id} className="basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/5 select-none">
+                                    <TopicCard topic={topic} />
+                                </CarouselItem>
+                            ))}
+                        </CarouselContent>
+                        <div className="hidden md:block">
+                            <CarouselPrevious className="right-4 left-auto bg-white/50 hover:bg-[#b20e1e] hover:text-white border-gray-200 shadow-sm transition-all" />
+                            <CarouselNext className="left-4 right-auto bg-white/50 hover:bg-[#b20e1e] hover:text-white border-gray-200 shadow-sm transition-all" />
+                        </div>
+                    </Carousel>
                 </div>
-                <h3 className="text-lg md:text-2xl font-bold text-gray-900">تنبيهات المحرر</h3>
-            </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-                {editorAlerts && editorAlerts.length > 0 ? (
-                    editorAlerts.map((slot, index) => (
-                        <AlertCard key={slot.id} post={slot.post} delay={(index + 1) * 100} />
-                    ))
-                ) : (
-                    <div className="col-span-2 py-8 md:py-10 text-center text-sm md:text-base text-gray-400 bg-white rounded-xl border border-dashed">
-                        لا توجد تنبيهات محررة متاحة حالياً.
+                <div className="flex items-center gap-3 mb-4 md:mb-6 justify-start" data-aos="fade-right">
+                    <div className="p-1.5 md:p-2 bg-red-100 text-[#b20e1e] rounded-full">
+                        <FaBell className="text-sm md:text-base" />
                     </div>
-                )}
-            </div>
+                    <h3 className="text-lg md:text-2xl font-bold text-gray-900">تنبيهات المحرر</h3>
+                </div>
 
-            <div className="mt-8 md:mt-12" data-aos="fade-up">
-                {sectionAd ? (
-                    <AdRotator
-                        ads={[sectionAd]}
-                        variant="wide"
-                    />
-                ) : (
-                    <div className="h-20 md:h-24 bg-white border-2 border-dashed border-gray-200 flex flex-col items-center justify-center text-gray-400 text-sm rounded-xl hover:border-brand-red/30 hover:bg-red-50/50 transition-all duration-300">
-                        <span className="font-bold text-gray-500 block text-xs md:text-sm">مساحة إعلانية متوفرة</span>
-                        <span className="text-[10px]">تواصل مع الإدارة للإعلان هنا</span>
-                    </div>
-                )}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+                    {editorAlerts && editorAlerts.length > 0 ? (
+                        editorAlerts.map((slot, index) => (
+                            <AlertCard key={slot.id} post={slot.post} delay={(index + 1) * 100} />
+                        ))
+                    ) : (
+                        <div className="col-span-2 py-8 md:py-10 text-center text-sm md:text-base text-gray-400 bg-white rounded-xl border border-dashed">
+                            لا توجد تنبيهات محررة متاحة حالياً.
+                        </div>
+                    )}
+                </div>
+
+                <div className="mt-8 md:mt-12" data-aos="fade-up">
+                    {sectionAd ? (
+                        <AdRotator
+                            ads={[sectionAd]}
+                            variant="wide"
+                        />
+                    ) : (
+                        <div className="h-20 md:h-24 bg-white border-2 border-dashed border-gray-200 flex flex-col items-center justify-center text-gray-400 text-sm rounded-xl hover:border-brand-red/30 hover:bg-red-50/50 transition-all duration-300">
+                            <span className="font-bold text-gray-500 block text-xs md:text-sm">مساحة إعلانية متوفرة</span>
+                            <span className="text-[10px]">تواصل مع الإدارة للإعلان هنا</span>
+                        </div>
+                    )}
+                </div>
             </div>
         </section>
     );

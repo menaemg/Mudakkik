@@ -137,8 +137,8 @@ const EditorsChoiceCard = ({ post, number, delay }) => {
     return (
         <Link href={route('posts.show', post.slug || '#')} className="flex gap-4 sm:gap-5 group cursor-pointer
         items-start py-4 border-b border-gray-100 last:border-0
-         relative" data-aos="fade-left" data-aos-delay={delay}>
-            <div className="absolute right-[-10px] top-1/2 -translate-y-1/2 w-[3px] h-0 bg-[#D00000]
+         relative pr-4" data-aos="fade-left" data-aos-delay={delay}>
+            <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[3px] h-0 bg-[#D00000]
             group-hover:h-full transition-all duration-300 rounded-full"></div>
 
             <span className="text-4xl md:text-5xl font-black text-gray-100 group-hover:text-[#D00000]/10
@@ -168,9 +168,9 @@ const EditorsChoiceCard = ({ post, number, delay }) => {
 
 const SectionHeader = ({ title }) => (
     <div className="flex items-end justify-between border-b border-gray-200 pb-3 mb-6 md:mb-8">
-        <h2 className="text-xl sm:text-2xl font-black text-gray-900 relative pl-4">
+        <h2 className="text-xl sm:text-2xl font-black text-gray-900 relative pl-4 pb-3">
             {title}
-            <span className="absolute -bottom-[13px] right-0 w-[40px] h-[4px] bg-[#D00000] rounded-t-sm"></span>
+            <span className="absolute -bottom-0 right-0 w-[40px] h-[4px] bg-[#D00000] rounded-t-sm"></span>
         </h2>
     </div>
 );
@@ -184,56 +184,58 @@ export default function FeaturedNews({ featured }) {
     const subColors = ["text-orange-600", "text-green-600", "text-blue-600", "text-purple-600"];
 
     return (
-        <section className="container mx-auto px-4 py-12 sm:py-16 lg:py-20 bg-gray-50/50">
-            {/* Responsive grid gap */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+        <section className="w-full py-12 sm:py-16 lg:py-20 bg-gradient-to-b from-white to-gray-50/50">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                {/* Responsive grid gap */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
 
-                <div className="lg:col-span-8 flex flex-col">
-                    <SectionHeader title="أخبار مميزة" />
+                    <div className="lg:col-span-8 flex flex-col">
+                        <SectionHeader title="أخبار مميزة" />
 
-                    <MainFeaturedCard post={mainPost} />
+                        <MainFeaturedCard post={mainPost} />
 
-                    {/* Responsive grid for sub-features */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 md:gap-x-8 md:gap-y-6 mt-4">
-                        {subPosts.map((post, index) => (
-                            <SubFeaturedCard
-                                key={post?.id || index}
-                                post={post}
-                                colorClass={subColors[index % subColors.length]}
-                                delay={(index + 1) * 100}
-                            />
-                        ))}
-                    </div>
-                </div>
-
-                <div className="lg:col-span-4 flex flex-col lg:pl-8 lg:border-r lg:border-gray-200/60 h-full">
-                    <SectionHeader title="اختيارات المحرر" />
-
-                    <div className="flex flex-col gap-2">
-                        {editorsPosts.map((post, index) => (
-                            <EditorsChoiceCard
-                                key={post?.id || index}
-                                post={post}
-                                number={index + 1}
-                                delay={(index + 1) * 100}
-                            />
-                        ))}
-                    </div>
-
-                    <div className="mt-10 relative overflow-hidden rounded-lg group cursor-pointer shadow-lg" data-aos="zoom-in">
-                        <img src="https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400&fit=crop"
-                        className="w-full h-64 object-cover transition-transform duration-700 group-hover:scale-110" alt="Ad"/>
-                        <div className="absolute inset-0 bg-blue-900/80 flex flex-col items-center justify-center
-                        text-center p-6 opacity-90 group-hover:opacity-100 transition-opacity">
-                             {/* Responsive typography for ad */}
-                            <h4 className="text-white font-black text-xl sm:text-2xl mb-2">النشرة البريدية</h4>
-                            <p className="text-white/80 text-sm mb-4">كن أول من يعرف أهم الأخبار</p>
-                            <button className="bg-white text-blue-900 font-bold py-2 px-6 rounded-full
-                            hover:shadow-lg hover:scale-105 transition-all">اشترك مجاناً</button>
+                        {/* Responsive grid for sub-features */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 md:gap-x-8 md:gap-y-6 mt-4">
+                            {subPosts.map((post, index) => (
+                                <SubFeaturedCard
+                                    key={post?.id || index}
+                                    post={post}
+                                    colorClass={subColors[index % subColors.length]}
+                                    delay={(index + 1) * 100}
+                                />
+                            ))}
                         </div>
                     </div>
-                </div>
 
+                    <div className="lg:col-span-4 flex flex-col lg:pl-8 lg:border-r lg:border-gray-200/60 h-full">
+                        <SectionHeader title="اختيارات المحرر" />
+
+                        <div className="flex flex-col gap-2">
+                            {editorsPosts.map((post, index) => (
+                                <EditorsChoiceCard
+                                    key={post?.id || index}
+                                    post={post}
+                                    number={index + 1}
+                                    delay={(index + 1) * 100}
+                                />
+                            ))}
+                        </div>
+
+                        <div className="mt-10 relative overflow-hidden rounded-lg group cursor-pointer shadow-lg" data-aos="zoom-in">
+                            <img src="https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400&fit=crop"
+                            className="w-full h-64 object-cover transition-transform duration-700 group-hover:scale-110" alt="Ad"/>
+                            <div className="absolute inset-0 bg-blue-900/80 flex flex-col items-center justify-center
+                            text-center p-6 opacity-90 group-hover:opacity-100 transition-opacity">
+                                {/* Responsive typography for ad */}
+                                <h4 className="text-white font-black text-xl sm:text-2xl mb-2">النشرة البريدية</h4>
+                                <p className="text-white/80 text-sm mb-4">كن أول من يعرف أهم الأخبار</p>
+                                <button className="bg-white text-blue-900 font-bold py-2 px-6 rounded-full
+                                hover:shadow-lg hover:scale-105 transition-all">اشترك مجاناً</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
             </div>
         </section>
     );
