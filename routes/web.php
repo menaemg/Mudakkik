@@ -155,6 +155,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/my-subscription', [SubscriptionController::class, 'show'])->name('subscription.show');
     Route::get('/my-subscription/history', [SubscriptionController::class, 'history'])->name('subscription.history');
+    Route::post('/subscription/cancel', [SubscriptionController::class, 'cancel'])->name('subscription.cancel');
 
     Route::post('/subscribe/{plan:slug}', [PaymentController::class, 'subscribe'])->name('payment.subscribe');
     Route::get('/payment/success', [PaymentController::class, 'success'])->name('payment.success');

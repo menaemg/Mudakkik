@@ -68,4 +68,34 @@ class SubscriptionController extends Controller
             'subscriptions' => $subscriptions,
         ]);
     }
+
+    /**
+     * Cancel the user's current subscription.
+     */
+    public function cancel(): \Illuminate\Http\RedirectResponse
+    {
+        $user = Auth::user();
+        if (!$user) {
+            abort(403, 'Unauthorized');
+        }
+
+        $subscription = $user->currentSubscription();
+
+        if (!$subscription) {
+            return redirect()->route('profile.edit')
+                ->with('error', 'لا يوجد اشتراك نشط لإلغائه.');
+        }
+
+        // Check if it's a free plan
+        if ($subscription->plan?->is_free) {
+            return redirect()->route('profile.edit')
+                ->with('error', 'لا يمكن إلغاء الباقة المجانية.');
+        }
+
+        // Cancel the subscription
+        $subscription->cancel();
+
+        return redirect()->route('profile.edit')
+            ->with('success', 'تم إلغاء اشتراكك بنجاح. سيظل الاشتراك فعالاً حتى تاريخ انتهائه.');
+    }
 }
