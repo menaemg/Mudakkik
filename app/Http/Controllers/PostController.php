@@ -78,6 +78,12 @@ class PostController extends Controller
       ? $post->isLikedBy(Auth::id())
       : false;
 
+    $post->is_followed = Auth::check()
+        ? \App\Models\Follow::where('following_user_id', Auth::id())
+            ->where('followed_user_id', $post->user_id)
+            ->exists()
+        : false;
+
     return Inertia::render('Posts/Show', [
             'post' => $post
         ]);

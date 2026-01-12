@@ -17,7 +17,8 @@ import {
     Check,
     FileText,
     Sparkles,
-
+    UserPlus,
+    UserCheck,
 } from "lucide-react";
 
 export default function PostShow({ auth, post }) {
@@ -177,6 +178,28 @@ export default function PostShow({ auth, post }) {
                                         صحفي معتمد
                                     </p>
                                 </div>
+                                {auth.user && auth.user.id !== post.user.id && (
+                                    <button
+                                        onClick={() => router.post(route('users.follow', post.user.id), {}, { preserveScroll: true })}
+                                        className={`mr-4 px-3 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5
+                                            ${post.is_followed
+                                                ? 'bg-white/10 text-white hover:bg-white/20'
+                                                : 'bg-[#b20e1e] text-white hover:bg-[#900b18]'
+                                            }`}
+                                    >
+                                        {post.is_followed ? (
+                                            <>
+                                                <UserCheck size={12} />
+                                                <span>أتابعه</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <UserPlus size={12} />
+                                                <span>متابعة</span>
+                                            </>
+                                        )}
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>
