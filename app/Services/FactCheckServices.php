@@ -112,24 +112,26 @@ class FactCheckServices
                 return [];
             }
 
-            // Combine title and keywords for better search
-            $searchQuery = $data['title'];
-            if (!empty($data['keywords'])) {
-                $searchQuery .= ' ' . $data['keywords'];
-            }
+            // Use ONLY title for search (keywords made query too broad)
+            $searchQuery = mb_substr($data['title'], 0, 400);
 
             $payload = [
                 'api_key' => config('services.tavily.api_key'),
-                'query' => mb_substr($searchQuery, 0, 400),
+                'query' => $searchQuery,
                 'search_depth' => 'advanced',
                 'include_domains' => $domains,
-                'max_results' => $limit,
+                'max_results' => max($limit, 15),
+                'topic' => 'news', // Always use news topic for fact-checking
             ];
 
+            // Use time_range (Tavily best practice) instead of start_date
             if ($days) {
-                $payload['start_date'] = now()->subDays($days)->format('Y-m-d');
-                $payload['topic'] = 'news';
-                $payload['max_results'] = max($limit, 20);
+                $payload['time_range'] = match(true) {
+                    $days <= 1 => 'day',
+                    $days <= 7 => 'week',
+                    $days <= 30 => 'month',
+                    default => 'year',
+                };
             }
 
             $response = Http::timeout(25)->post('https://api.tavily.com/search', $payload);
@@ -137,41 +139,27 @@ class FactCheckServices
             if ($response->successful()) {
                 $results = $response->json()['results'] ?? [];
                 
-                $cutoffDate = null;
-                if ($days) {
-                    $cutoffDate = now()->subDays($days)->startOfDay();
-                }
+                Log::info('Tavily search results', [
+                    'query' => $searchQuery,
+                    'total_results' => count($results),
+                    'scores' => collect($results)->pluck('score')->all()
+                ]);
 
                 return collect($results)
+                    // Filter by Tavily's built-in relevance score (0-1)
+                    ->filter(fn($r) => ($r['score'] ?? 0) >= 0.5)
+                    // Ensure URL matches trusted domains
                     ->filter(function ($result) use ($domains) {
+                        $url = $result['url'] ?? '';
                         foreach ($domains as $domain) {
-                            if (str_contains($result['url'] ?? '', $domain)) {
+                            if (str_contains($url, $domain)) {
                                 return true;
                             }
                         }
                         return false;
                     })
-                    ->map(function ($result) {
-                        // Extract date if not provided by API
-                        if (empty($result['published_date'])) {
-                            $result['published_date'] = $this->extractDate($result);
-                        }
-                        return $result;
-                    })
-                    ->filter(function ($result) use ($cutoffDate) {
-                        if ($cutoffDate && !empty($result['published_date'])) {
-                            try {
-                                $pubDate = \Carbon\Carbon::parse($result['published_date']);
-
-                                if ($pubDate->lt($cutoffDate)) {
-                                    return false;
-                                }
-                            } catch (\Exception $e) {
-                               
-                            }
-                        }
-                        return true;
-                    })
+                    // Sort by score descending
+                    ->sortByDesc(fn($r) => $r['score'] ?? 0)
                     ->values()
                     ->all();
             }
@@ -181,6 +169,47 @@ class FactCheckServices
             Log::error('Search in trusted sources failed', ['error' => $e->getMessage()]);
             return [];
         }
+    }
+
+    /**
+     * Filter sources: deduplicate and limit per domain.
+     * Note: Relevance scoring is now done by Tavily's built-in score field.
+     */
+    private function filterRelevantSources(array $claim, array $sources): array
+    {
+        if (empty($sources)) {
+            return [];
+        }
+
+        // 1. Remove exact URL duplicates
+        $sources = collect($sources)->unique('url')->values()->all();
+        
+        // 2. Limit to max 2 sources per domain to avoid spam from same site
+        $domainCounts = [];
+        $filtered = collect($sources)->filter(function ($source) use (&$domainCounts) {
+            $url = $source['url'] ?? '';
+            $domain = parse_url($url, PHP_URL_HOST) ?? '';
+            $domain = preg_replace('/^www\./', '', $domain);
+            
+            if (!isset($domainCounts[$domain])) {
+                $domainCounts[$domain] = 0;
+            }
+            
+            if ($domainCounts[$domain] >= 2) {
+                return false;
+            }
+            
+            $domainCounts[$domain]++;
+            return true;
+        })->values()->all();
+
+        Log::info('Source filtering', [
+            'before' => count($sources),
+            'after' => count($filtered),
+            'domains' => array_keys($domainCounts)
+        ]);
+
+        return $filtered;
     }
 
     /**
@@ -465,6 +494,7 @@ PROMPT;
         }
 
         $results = $this->searchInTrustedSources($data, $days, self::VERIFY_SOURCE_LIMIT);
+        $results = $this->filterRelevantSources($data, $results);
         $verdict = $this->finalVerdict($data, $results);
 
         $finalConfidence = (int)($verdict['percentage'] ?? 0);
@@ -550,6 +580,7 @@ PROMPT;
 
         // Search with higher limit for research
         $results = $this->searchInTrustedSources($data, $days, self::SEARCH_SOURCE_LIMIT);
+        $results = $this->filterRelevantSources($data, $results);
         
         // Generate summary instead of verdict
         $summaryResult = $this->summarizeResults($data, $results);
